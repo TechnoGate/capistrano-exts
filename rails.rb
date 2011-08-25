@@ -15,6 +15,11 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
 
+    desc "Install rvm config file"
+    task :install_rvmrc_file, :roles => :app do
+      link_file(File.join(shared_path, 'rvmrc'), File.join(release_path, '.rvmrc'))
+    end
+
     desc "Fix permissions"
     task :fix_permissions, :roles => :app do
       unless blank?(app_owner) or blank?(app_group)
@@ -30,5 +35,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   after "deploy:finalize_update", "rails:install_configuration_files"
+  after "rails:install_configuration_files", "rails:install_rvmrc_file"
   after "deploy:restart", "rails:fix_permissions"
 end

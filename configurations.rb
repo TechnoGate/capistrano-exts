@@ -19,4 +19,9 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   # Some helpers
   set :current_path, "#{File.join deploy_to, 'current'}"
+  if skip_bundle_install
+    set :try_bundle_exec, ""
+  else
+    set :try_bundle_exec, "bundle exec"
+  end
 end
