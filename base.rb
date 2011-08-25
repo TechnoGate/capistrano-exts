@@ -21,7 +21,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   def link_config_file(config_file, config_path = nil)
     config_path ||= "#{File.join release_path, 'config'}"
-    link_file("#{File.join release_path, 'config', config_file}", "#{File.join config_path, config_file}")
+    link_file("#{File.join shared_path, 'config', config_file}", "#{File.join config_path, config_file}")
   end
 
   def blank?(var)

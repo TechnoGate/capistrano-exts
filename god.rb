@@ -21,5 +21,10 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :restart, :roles => :app, :except => {:no_release => true} do
       run "cd #{current_path} && #{god_binary} restart"
     end
+
+    desc "check if god is already running"
+    task :check_if_running, :roles => :app, :except => {:no_release => true} do
+      'true' ==  capture("if #{god_binary} status; then echo 'true'; fi").strip
+    end
   end
 end
