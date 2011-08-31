@@ -38,4 +38,8 @@ Capistrano::Configuration.instance(:must_exist).load do
   after "deploy:finalize_update", "rails:install_configuration_files"
   after "rails:install_configuration_files", "rails:install_rvmrc_file"
   after "deploy:restart", "rails:fix_permissions"
+
+  # Capistrano is broken
+  # See: https://github.com/capistrano/capistrano/issues/81
+  before "deploy:assets:precompile", "bundle:install"
 end
