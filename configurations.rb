@@ -6,20 +6,24 @@ unless Capistrano::Configuration.respond_to?(:instance)
 end
 
 Capistrano::Configuration.instance(:must_exist).load do
-  # Set the operation were doing
-  set :deploying, ENV['DEPLOY'].to_sym
+  unless ENV['DEPLOY'].nil? or ENV['DEPLOY'].empty?
+    # Set the operation were doing
+    set :deploying, ENV['DEPLOY'].to_sym
 
-  if configurations[deploying].nil?
-    puts "ERROR: #{ENV['DEPLOY']} has not been configured yet, please open up 'config/deploy.rb' and configure it"
-    exit
+    if configurations[deploying].nil?
+      puts "ERROR: #{ENV['DEPLOY']} has not been configured yet, please open up 'config/deploy.rb' and configure it"
+      exit
+    end
+
+    # Parse configurations
+    configurations[deploying].each { |config, value| set config, value }
+
+    # Set the current path
+    set :current_path, "#{File.join deploy_to, 'current'}"
   end
 
-  # Parse configurations
-  configurations[deploying].each { |config, value| set config, value }
-
   # Some helpers
-  set :current_path, "#{File.join deploy_to, 'current'}"
-  if skip_bundle_install
+  if defined?(skip_bundle_install) and skip_bundle_install
     set :try_bundle_exec, ""
   else
     set :try_bundle_exec, "bundle exec"
