@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "capistrano/technogate/version"
+require "capistrano-technogate/version"
 
 Gem::Specification.new do |s|
   s.name        = "capistrano-technogate"
@@ -18,5 +18,9 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency('capistrano', '>=1.0.0')
+  s.add_dependency('capistrano', '>=2.8.0')
+  s.add_development_dependency('rspec', '>=2.6.0')
+  s.add_development_dependency('mocha', '>=0.2.12')
+  s.add_development_dependency('factory_girl', '>=2.0.5')
+  s.add_development_dependency('faker19', '>=1.0.5')
 end
