@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = Capistrano::Technogate::Version::STRING.dup
   s.authors     = ["Wael Nasreddine"]
   s.email       = ["wael.nasreddine@gmail.com"]
-  s.homepage    = ""
+  s.homepage    = "https://github.com/TechnoGate/capistrano-technogate"
   s.summary     = %q{This gem provides some receipts for helping me in my every-day development}
   s.description = s.summary
 
