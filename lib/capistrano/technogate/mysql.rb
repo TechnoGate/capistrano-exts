@@ -1,4 +1,5 @@
 require 'capistrano'
+require 'capistrano/technogate/base'
 
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)
@@ -6,11 +7,14 @@ unless Capistrano::Configuration.respond_to?(:instance)
 end
 
 Capistrano::Configuration.instance(:must_exist).load do
+  def mysql_db_name(local_branch = nil)
+    local_branch ||= branch
+    "#{application}_co_#{local_branch}"
+  end
+
   namespace :mysql do
     desc "Backup database"
     task :backup_db do
-      mysql_credentials = TechnoGate::Contao.instance.mysql_credentials
-      mysql_db_name     = TechnoGate::Contao.instance.mysql_database_name
       MYSQL_DB_BACKUP_PATH = "#{deploy_to}/backups/#{mysql_db_name}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.sql"
 
       unless blank?(mysql_credentials)
@@ -30,14 +34,13 @@ Capistrano::Configuration.instance(:must_exist).load do
         rescue
           puts "WARNING: The database doesn't exist."
         end
+      else
+        abort "MySQL credentials are empty"
       end
     end
 
     desc "drop database"
     task :drop_db do
-      mysql_credentials = TechnoGate::Contao.instance.mysql_credentials
-      mysql_db_name     = TechnoGate::Contao.instance.mysql_database_name
-
       begin
         run <<-CMD
           mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' drop --force '#{mysql_db_name}'
@@ -49,9 +52,6 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "create database"
     task :create_db do
-      mysql_credentials = TechnoGate::Contao.instance.mysql_credentials
-      mysql_db_name     = TechnoGate::Contao.instance.mysql_database_name
-
       begin
         run <<-CMD
           mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' create '#{mysql_db_name}'
@@ -63,9 +63,6 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Import a database dump"
     task :import_db_dump do
-      mysql_credentials = TechnoGate::Contao.instance.mysql_credentials
-      mysql_db_name     = TechnoGate::Contao.instance.mysql_database_name
-
       unless ARGV.size >=2 and File.exists?(ARGV[1])
         puts "ERROR: please run 'cap mysql:import_db_dump <sql dump>'"
         exit 1
@@ -98,9 +95,6 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Export a database dump"
     task :export_db_dump do
-      mysql_credentials = TechnoGate::Contao.instance.mysql_credentials
-      mysql_db_name     = TechnoGate::Contao.instance.mysql_database_name
-
       unless ARGV.size >=2 or File.exists?(ARGV[1])
         puts "ERROR: please run 'cap mysql:import_db_dump <sql dump>'"
         puts "       <sql dump> should not exist"
@@ -125,8 +119,29 @@ Capistrano::Configuration.instance(:must_exist).load do
         end
       end
     end
+
+    desc "Get Mysql credentials"
+    task :credentials do
+      unless defined?(mysql_credentials) and !blank?(mysql_credentials)
+        begin
+          mysql_credentials_file_contents = capture "cat #{mysql_credentials_file}"
+        rescue
+          set :mysql_credentials, false
+        end
+
+       unless mysql_credentials_file_contents.nil? or mysql_credentials_file_contents.empty?
+          set :mysql_credentials, {
+            :user => mysql_credentials_file_contents.match(mysql_credentials_user_regex)[mysql_credentials_user_regex_match].chomp,
+            :pass => mysql_credentials_file_contents.match(mysql_credentials_pass_regex)[mysql_credentials_pass_regex_match].chomp,
+          }
+        end
+      end
+    end
   end
 
+  before "mysql:backup_db", "mysql:credentials"
+  before "mysql:drop_db", "mysql:credentials"
+  before "mysql:create_db", "mysql:credentials"
   before "mysql:import_db_dump", "mysql:backup_db"
   before "mysql:export_db_dump", "mysql:backup_db"
 end

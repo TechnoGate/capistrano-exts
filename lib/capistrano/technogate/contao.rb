@@ -1,4 +1,6 @@
 require 'capistrano'
+require 'capistrano/technogate/base'
+require 'capistrano/technogate/mysql'
 
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)
@@ -26,8 +28,6 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
     task :setup_localconfig, :roles => :web do
-      mysql_credentials = TechnoGate::Contao.instance.mysql_credentials
-      mysql_db_name     = TechnoGate::Contao.instance.mysql_database_name
       localconfig = File.read("public/system/config/localconfig.php.sample")
 
       # Add MySQL credentials
@@ -46,9 +46,6 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
     task :setup_db, :roles => :db do
-      mysql_credentials = TechnoGate::Contao.instance.mysql_credentials
-      mysql_db_name     = TechnoGate::Contao.instance.mysql_database_name
-
       unless blank?(mysql_credentials)
         begin
           run <<-CMD
@@ -78,107 +75,67 @@ Capistrano::Configuration.instance(:must_exist).load do
       CMD
     end
 
-    desc "Copy master database to staging"
-    task :replicate_master_database, :roles => :web do
-      mysql_credentials = TechnoGate::Contao.instance.mysql_credentials
-      mysql_master_db_name = TechnoGate::Contao.instance.mysql_database_name("master")
-      mysql_staging_db_name = TechnoGate::Contao.instance.mysql_database_name("staging")
-
-      mysql_staging_db_backup_path = "#{configurations[:staging][:deploy_to]}/backups/#{mysql_staging_db_name}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.sql"
-
-      begin
-        run <<-CMD
-          mysqldump \
-            --user='#{mysql_credentials[:user]}' \
-            --password='#{mysql_credentials[:pass]}' \
-            --default-character-set=utf8 \
-            '#{mysql_staging_db_name}' > \
-            '#{mysql_staging_db_backup_path}'
-        CMD
-
-        run <<-CMD
-          bzip2 -9 '#{mysql_staging_db_backup_path}'
-        CMD
-
-        run <<-CMD
-          mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' drop --force '#{mysql_staging_db_name}'
-        CMD
-      rescue
-        puts "NOTICE: #{application}'s staging database does not exist, continuing under this assumption."
-      end
-
-      run <<-CMD
-        mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' create '#{mysql_staging_db_name}'
-      CMD
-
-      run <<-CMD
-        mysqldump \
-          --user='#{mysql_credentials[:user]}' \
-          --password='#{mysql_credentials[:pass]}' \
-          --default-character-set=utf8 \
-          '#{mysql_master_db_name}' > \
-          '/tmp/#{mysql_master_db_name}.sql'
-      CMD
-
-      run <<-CMD
-        mysql \
-          --user='#{mysql_credentials[:user]}' \
-          --password='#{mysql_credentials[:pass]}' \
-          --default-character-set=utf8 \
-          '#{mysql_staging_db_name}' < \
-          /tmp/#{mysql_master_db_name}.sql
-      CMD
-
-      run <<-CMD
-        rm -f '/tmp/#{mysql_master_db_name}.sql'
-      CMD
-    end
-
-    desc "Copy master contents to staging"
-    task :replicate_master_contents, :roles => :web do
-      run <<-CMD
-        cp -R #{configurations[:development][:deploy_to]}/shared/contenu #{configurations[:staging][:deploy_to]}/shared/
-      CMD
-    end
-  end
-
-  # This module serve as a placeholder for mysql credentials
-  # and other stuff that would go around in contao.
-  module TechnoGate
-    class Contao
-
-      attr_accessor :config
-
-      def self.instance(deploy_to = nil)
-        @@instance ||= Contao.new
-
-        @@instance
-      end
-
-      def mysql_credentials
-        return @mysql_credentials unless @mysql_credentials.nil?
-
-        begin
-          mysql_credentials_file = @config.capture "cat #{@config.deploy_to}/.mysql_password"
-        rescue
-          return false
-        end
-
-        unless mysql_credentials_file.nil? or mysql_credentials_file.empty?
-          @mysql_credentials = {
-            :user => mysql_credentials_file.match(/username: (.*)$/o)[1].chomp,
-            :pass => mysql_credentials_file.match(/password: (.*)$/o)[1].chomp,
-          }
-        end
-
-        @mysql_credentials
-      end
-
-      def mysql_database_name(branch = nil)
-        branch ||= @config.branch
-        "#{@config.application}_co_#{branch}"
-      end
-    end
+    # desc "Copy master database to staging"
+    # task :replicate_master_database, :roles => :web do
+    #   mysql_master_db_name = mysql_db_name("master")
+    #   mysql_staging_db_name = mysql_db_name("staging")
+    #
+    #   mysql_staging_db_backup_path = "#{configurations[:staging][:deploy_to]}/backups/#{mysql_staging_db_name}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.sql"
+    #
+    #   begin
+    #     run <<-CMD
+    #       mysqldump \
+    #         --user='#{mysql_credentials[:user]}' \
+    #         --password='#{mysql_credentials[:pass]}' \
+    #         --default-character-set=utf8 \
+    #         '#{mysql_staging_db_name}' > \
+    #         '#{mysql_staging_db_backup_path}'
+    #     CMD
+    #
+    #     run <<-CMD
+    #       bzip2 -9 '#{mysql_staging_db_backup_path}'
+    #     CMD
+    #
+    #     run <<-CMD
+    #       mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' drop --force '#{mysql_staging_db_name}'
+    #     CMD
+    #   rescue
+    #     puts "NOTICE: #{application}'s staging database does not exist, continuing under this assumption."
+    #   end
+    #
+    #   run <<-CMD
+    #     mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' create '#{mysql_staging_db_name}'
+    #   CMD
+    #
+    #   run <<-CMD
+    #     mysqldump \
+    #       --user='#{mysql_credentials[:user]}' \
+    #       --password='#{mysql_credentials[:pass]}' \
+    #       --default-character-set=utf8 \
+    #       '#{mysql_master_db_name}' > \
+    #       '/tmp/#{mysql_master_db_name}.sql'
+    #   CMD
+    #
+    #   run <<-CMD
+    #     mysql \
+    #       --user='#{mysql_credentials[:user]}' \
+    #       --password='#{mysql_credentials[:pass]}' \
+    #       --default-character-set=utf8 \
+    #       '#{mysql_staging_db_name}' < \
+    #       /tmp/#{mysql_master_db_name}.sql
+    #   CMD
+    #
+    #   run <<-CMD
+    #     rm -f '/tmp/#{mysql_master_db_name}.sql'
+    #   CMD
+    # end
+    #
+    # desc "Copy master contents to staging"
+    # task :replicate_master_contents, :roles => :web do
+    #   run <<-CMD
+    #     cp -R #{configurations[:development][:deploy_to]}/shared/contenu #{configurations[:staging][:deploy_to]}/shared/
+    #   CMD
+    # end
   end
 
   # Dependencies
@@ -187,11 +144,15 @@ Capistrano::Configuration.instance(:must_exist).load do
   after "contao:setup_localconfig", "contao:setup_db"
   after "deploy:finalize_update", "contao:fix_links"
   after "contao:fix_links", "deploy:cleanup"
+  after "deploy:restart", "contao:fix_permissions"
+
+  # Mysql Credentials
+  before "contao:setup_localconfig", "mysql:credentials"
+  before "contao:setup_db", "mysql:credentials"
+  # before "contao:replicate_master_database", "mysql:credentials"
 
   # if branch == 'staging'
   #   before "deploy:restart", "contao:replicate_master_database"
   #   after "contao:replicate_master_database", "contao:replicate_master_contents"
   # end
-
-  after "deploy:restart", "contao:fix_permissions"
 end
