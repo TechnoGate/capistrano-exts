@@ -6,6 +6,12 @@ unless Capistrano::Configuration.respond_to?(:instance)
 end
 
 Capistrano::Configuration.instance(:must_exist).load do
+  namespace :deploy do
+    desc "Empty task, overriden by #{__FILE__}"
+    task :finalize_update do
+      # Empty task, we do not want to delete the system folder.
+    end
+  end
 
   namespace :contao do
     task :setup, :roles => :web do
@@ -182,10 +188,10 @@ Capistrano::Configuration.instance(:must_exist).load do
   after "deploy:finalize_update", "contao:fix_links"
   after "contao:fix_links", "deploy:cleanup"
 
-  if branch == 'staging'
-    before "deploy:restart", "contao:replicate_master_database"
-    after "contao:replicate_master_database", "contao:replicate_master_contents"
-  end
+  # if branch == 'staging'
+  #   before "deploy:restart", "contao:replicate_master_database"
+  #   after "contao:replicate_master_database", "contao:replicate_master_contents"
+  # end
 
   after "deploy:restart", "contao:fix_permissions"
 end

@@ -39,16 +39,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   namespace :deploy do
-    if defined?(skip_deploy_restart) and skip_deploy_restart
-      task :restart do
-      end
-    end
-
-    if defined?(finalize_update) and finalize_update
-      task :finalize_update do
-      end
-    end
-
     desc "Check if the branch is ready"
     task :check_if_branch_is_ready, :roles => :web do
       unless `git rev-parse #{branch}` == `git rev-parse origin/#{branch}`
@@ -76,13 +66,6 @@ Capistrano::Configuration.instance(:must_exist).load do
         puts "ERROR: The project is not ready for deployment."
         puts "please run `cap deploy:setup"
         exit
-      end
-    end
-  end
-
-  namespace :bundle do
-    if :skip_bundle_install
-      task :install do
       end
     end
   end
