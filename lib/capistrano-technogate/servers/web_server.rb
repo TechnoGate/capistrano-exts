@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require 'capistrano-technogate/servers/utils/erb'
+require 'capistrano-technogate/servers/utils/variables'
 
 module Capistrano
   module TechnoGate
@@ -8,6 +9,7 @@ module Capistrano
       class WebServer
 
         include Erb
+        include Variables
 
         protected
           def authentification?
