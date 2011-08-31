@@ -25,16 +25,27 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   def blank?(var)
-    var.nil? or var == false or var.empty?
+    !exists?(var) or var.nil? or var == false or var.empty?
   end
 
-  def ask(what)
+  def present?(var)
+    !!!blank?(var)
+  end
+
+  def ask(what, options)
+    default = options[:default]
+    validate = options[:validate] || /(y(es)?)|(no?)|(a(bort)?|\n)/i
+    echo = (options[:echo].nil?) ? true : options[:echo]
+
     ui = HighLine.new
     ui.ask("#{what}?  ") do |q|
       q.overwrite = false
-      q.default = 'No'
-      q.validate = /(y(es)?)|(no?)|(a(bort)?|\n)/i
+      q.default = default
+      q.validate = validate
       q.responses[:not_valid] = what
+      unless echo
+        q.echo = "*"
+      end
     end
   end
 
@@ -52,7 +63,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :check_revision, :roles => :web do
       if remote_file_exists?("#{deploy_to}/current/REVISION")
         if `git rev-parse #{branch}`.strip == capture("cat #{deploy_to}/current/REVISION").strip
-          response = ask("The verison you are trying to deploy is already deployed, should I continue (Yes, [No], Abort)")
+          response = ask("The verison you are trying to deploy is already deployed, should I continue (Yes, [No], Abort)", default: 'No')
           if response =~ /(no?)|(a(bort)?|\n)/i
             exit
           end

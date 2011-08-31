@@ -17,7 +17,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :backup_db do
       MYSQL_DB_BACKUP_PATH = "#{deploy_to}/backups/#{mysql_db_name}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.sql"
 
-      unless blank?(mysql_credentials)
+      if exists?(:mysql_credentials)
         begin
           run <<-CMD
             mysqldump \
@@ -70,7 +70,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         # The database dump name
         dump_sql_file = ARGV.delete_at(1)
 
-        unless blank?(mysql_credentials)
+        if exists?(mysql_credentials)
           drop_db
           create_db
           put File.read(dump_sql_file), "/tmp/#{mysql_db_name}_dump.sql"
@@ -103,7 +103,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         # The database dump name
         dump_sql_file = ARGV.delete_at(1)
 
-        unless blank?(mysql_credentials)
+        if exists?(mysql_credentials)
           run <<-CMD
             cp #{MYSQL_DB_BACKUP_PATH}.bz2 /tmp &&
             bunzip2 /tmp/#{File.basename MYSQL_DB_BACKUP_PATH}.bz2
@@ -122,17 +122,57 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Get Mysql credentials"
     task :credentials do
-      unless defined?(mysql_credentials) and !blank?(mysql_credentials)
-        begin
-          mysql_credentials_file_contents = capture "cat #{mysql_credentials_file}"
-        rescue
-          set :mysql_credentials, false
+      unless exists?(:mysql_credentials)
+        # We haven't got the credentials yet, look for them
+        if exists?(:mysql_credentials_file) and remote_file_exists?(mysql_credentials_file)
+          begin
+            set :mysql_credentials_file_contents, capture("cat #{mysql_credentials_file}")
+          rescue
+            set :mysql_credentials, false
+          end
+
+         if exists?(:mysql_credentials_file_contents)
+            set :mysql_credentials, {
+              user: mysql_credentials_file_contents.match(mysql_credentials_user_regex)[mysql_credentials_user_regex_match].chomp,
+              pass: mysql_credentials_file_contents.match(mysql_credentials_pass_regex)[mysql_credentials_pass_regex_match].chomp,
+            }
+          end
         end
 
-       unless mysql_credentials_file_contents.nil? or mysql_credentials_file_contents.empty?
+        # Verify that we got them!
+        if !exists?(:mysql_credentials)
           set :mysql_credentials, {
-            :user => mysql_credentials_file_contents.match(mysql_credentials_user_regex)[mysql_credentials_user_regex_match].chomp,
-            :pass => mysql_credentials_file_contents.match(mysql_credentials_pass_regex)[mysql_credentials_pass_regex_match].chomp,
+            user: ask("What is the username used to access the database", default: nil, validate: /.+/),
+            pass: ask("What is the password used to access the database", default: nil, validate: /.+/, echo: false),
+          }
+        end
+      end
+    end
+
+    desc "Get Mysql root credentials"
+    task :root_credentials do
+      unless exists?(:mysql_root_credentials)
+        # We haven't got the credentials yet, look for them
+        if exists?(:mysql_root_credentials_file) and remote_file_exists?(mysql_root_credentials_file)
+          begin
+            set :mysql_root_credentials_file_contents, capture("cat #{mysql_root_credentials_file}")
+          rescue
+            set :mysql_root_credentials, false
+          end
+
+         if exists?(:mysql_root_credentials_file_contents)
+            set :mysql_root_credentials, {
+              user: mysql_root_credentials_file_contents.match(mysql_root_credentials_user_regex)[mysql_root_credentials_user_regex_match].chomp,
+              pass: mysql_root_credentials_file_contents.match(mysql_root_credentials_pass_regex)[mysql_root_credentials_pass_regex_match].chomp,
+            }
+          end
+        end
+
+        # Verify that we got them!
+        if !exists?(:mysql_root_credentials)
+          set :mysql_root_credentials, {
+            user: ask("What is the username used to access the database", default: nil, validate: /.+/),
+            pass: ask("What is the password used to access the database", default: nil, validate: /.+/, echo: false),
           }
         end
       end
