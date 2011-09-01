@@ -39,13 +39,13 @@ module Capistrano
               end
             end
 
-            # if php_fpm?
-            #   [:php_fpm_host, :php_fpm_port, :public_path].each do |var|
-            #     unless instance_variable_get("@#{var.to_s}")
-            #       raise ArgumentError, "#{var.to_s} is required, please define it."
-            #     end
-            #   end
-            # end
+            if php_fpm?
+              [:php_fpm_host, :php_fpm_port, :public_path].each do |var|
+                unless instance_variable_get("@#{var.to_s}")
+                  raise ArgumentError, "#{var.to_s} is required, please define it."
+                end
+              end
+            end
 
           end
 

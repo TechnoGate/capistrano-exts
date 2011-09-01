@@ -33,18 +33,18 @@ describe Server::Nginx do
 
     it "should render 'public_path'" do |variable|
       subject.public_path = '/path/to/application'
-      subject.render.should =~ %r{/path/to/application}
+      subject.render.should =~ %r{root\s+/path/to/application;}
     end
 
     it "should render 'authentification_file'" do
       subject.authentification_file = '/path/to/authentification_file'
-      subject.render.should =~%r{/path/to/authentification_file}
+      subject.render.should =~%r{auth_basic_user_file\s+/path/to/authentification_file;}
     end
 
     it "should render 'logs_path'" do
       subject.logs_path = '/path/to/logs'
-      subject.render.should =~ %r{access_log /path/to/logs}
-      subject.render.should =~ %r{error_log /path/to/logs}
+      subject.render.should =~ %r{access_log\s+/path/to/logs/access.log;}
+      subject.render.should =~ %r{error_log\s+/path/to/logs/error.log;}
     end
 
     it "should have logs_path optional" do
@@ -63,7 +63,35 @@ describe Server::Nginx do
 
     it "should render 'application_url'" do
       subject.application_url = 'technogate.fr www.technogate.fr'
-      subject.render.should =~ %r{technogate.fr www.technogate.fr}
+      subject.render.should =~ %r{server_name\s+technogate.fr www.technogate.fr;}
+    end
+
+
+
+    it "should render 'indexes'" do
+      subject.indexes = 'index.php index.html'
+      subject.render.should =~ %r{index\s+index.php index.html;}
+    end
+
+    it "should have 'indexes' optional" do
+      subject.indexes = nil
+      subject.render.should_not =~ %r{\s+index .+;}
+    end
+
+    it "should render 'mod_rewrite_simulation'" do
+      subject.mod_rewrite_simulation = true
+      subject.render.should =~ %r{rewrite.+index.php.+last;}
+    end
+
+    it "should render 'php_fpm_host'" do
+      subject.php_fpm_host = 'localhost'
+      subject.render.should =~ %r{\s+fastcgi_pass\s+localhost:.+$}
+    end
+
+    it "should render 'php_fpm_port'" do
+      subject.php_fpm_host = 'localhost'
+      subject.php_fpm_port = 5454
+      subject.render.should =~ %r{\s+fastcgi_pass\s+localhost:5454.+$}
     end
 
     it "should require an 'application_url'" do
@@ -73,34 +101,39 @@ describe Server::Nginx do
       }.should raise_error(ArgumentError, "application_url is required, please define it.")
     end
 
-    it "should render 'indexes'" do
-      subject.indexes = 'index.php index.html'
-      subject.render.should =~ %r{index index.php index.html;}
+    it "should require an 'public_path'" do
+      subject.public_path = nil
+      lambda {
+        subject.render
+      }.should raise_error(ArgumentError, "public_path is required, please define it.")
     end
 
-    it "should have 'indexes' optional" do
-      subject.indexes = nil
-      subject.render.should_not =~ %r{ index .+;}
+    it "should require both 'php_fpm_host'" do
+      subject.php_fpm_host = nil
+      lambda {
+        subject.render
+      }.should raise_error(ArgumentError, "php_fpm_host is required, please define it.")
     end
 
-    it "should render 'mod_rewrite_simulation'" do
-      subject.mod_rewrite_simulation = true
-      subject.render.should =~ %r{rewrite.+index.php.+last;}
+    it "should require both 'php_fpm_port'" do
+      subject.php_fpm_port = nil
+      lambda {
+        subject.render
+      }.should raise_error(ArgumentError, "php_fpm_port is required, please define it.")
     end
-
-    it "should render 'php_fpm_host'"
-
-    it "should render 'php_fpm_port'"
-
   end
 
   describe "rendering :rails_passenger" do
+    subject { Nginx.new :rails_passenger }
+
     it "should render 'application'"
 
     it "should have passenger enabled"
   end
 
   describe "rendering :rails_reverse_proxy" do
+    subject { Nginx.new :rails_reverse_proxy }
+
     it "should render 'reverse_proxy_server_address'"
 
     it "should render 'reverse_proxy_server_port'"
