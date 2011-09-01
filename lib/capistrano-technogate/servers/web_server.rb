@@ -20,8 +20,8 @@ module Capistrano
             @mode == :rails_reverse_proxy
           end
 
-          def enable_mod_rewrite_simulation?
-            @enable_mod_rewrite_simulation.present? and @enable_mod_rewrite_simulation == true
+          def mod_rewrite_simulation?
+            @mod_rewrite_simulation.present? and @mod_rewrite_simulation == true
           end
 
           def php_fpm?
@@ -31,6 +31,24 @@ module Capistrano
           def passenger?
             @mode == :rails_passenger
           end
+
+          def sanity_check
+            [:application_url, :application].each do |var|
+              unless instance_variable_get("@#{var.to_s}")
+                raise ArgumentError, "#{var.to_s} is required, please define it."
+              end
+            end
+
+            # if php_fpm?
+            #   [:php_fpm_host, :php_fpm_port, :public_path].each do |var|
+            #     unless instance_variable_get("@#{var.to_s}")
+            #       raise ArgumentError, "#{var.to_s} is required, please define it."
+            #     end
+            #   end
+            # end
+
+          end
+
       end
     end
   end
