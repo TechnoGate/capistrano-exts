@@ -9,7 +9,7 @@ module Capistrano
         sanity_check
 
         erb_template = ::ERB.new(File.read(@template))
-        erb_template.result(binding)
+        erb_template.result(binding).compact
       end
     end
   end

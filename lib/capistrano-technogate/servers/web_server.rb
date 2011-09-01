@@ -38,6 +38,11 @@ module Capistrano
             @mode == :rails_passenger
           end
 
+          def php_build_with_force_cgi_redirect?
+            # required if PHP was built with --enable-force-cgi-redirect
+            @php_build_with_force_cgi_redirect.present? and @php_build_with_force_cgi_redirect == true
+          end
+
           def sanity_check
             [:application_url, :application].each do |var|
               unless instance_variable_get("@#{var.to_s}")

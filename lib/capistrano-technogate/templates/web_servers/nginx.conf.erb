@@ -47,9 +47,9 @@ server {
 
 <% if php_fpm? %>
   location ~ .php$ {
-    fastcgi_pass   <%= @php_fpm_host %>:<%= @php_fpm_port %>; #this must point to the socket spawn_fcgi is running on.
+    fastcgi_pass   <%= @php_fpm_host %>:<%= @php_fpm_port %>;
     fastcgi_index  index.php;
-    fastcgi_param  SCRIPT_FILENAME    <%= @public_path %>$fastcgi_script_name;  # same path as above
+    fastcgi_param  SCRIPT_FILENAME    <%= @public_path %>$fastcgi_script_name;
 
     fastcgi_param  QUERY_STRING       $query_string;
     fastcgi_param  REQUEST_METHOD     $request_method;
@@ -71,8 +71,9 @@ server {
     fastcgi_param  SERVER_PORT        $server_port;
     fastcgi_param  SERVER_NAME        $server_name;
 
-    # required if PHP was built with --enable-force-cgi-redirect
-    # fastcgi_param  REDIRECT_STATUS    200;
+  <% if php_build_with_force_cgi_redirect? %>
+    fastcgi_param  REDIRECT_STATUS    200;
+  <% end %>
   }
 <% end %>
 
