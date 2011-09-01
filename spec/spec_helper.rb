@@ -4,7 +4,13 @@ require 'rspec'
 
 # Require the library (without receipts)
 require File.expand_path("../../lib/capistrano-technogate.rb", __FILE__)
+
+# Define the path to the rendered templates
+RENDERED_TEMPLATES_PATH = File.expand_path(File.join File.dirname(__FILE__), 'rendered_templates')
+
+# Include all modules for easier tests
 include Capistrano::TechnoGate
+include Server
 
 # Require factories
 Dir[ROOT_PATH + "/spec/support/**/*.rb"].each {|f| require f}

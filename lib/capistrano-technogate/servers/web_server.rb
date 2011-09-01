@@ -21,7 +21,13 @@ module Capistrano
           end
 
           def mod_rewrite_simulation?
-            @mod_rewrite_simulation.present? and @mod_rewrite_simulation == true
+            (
+              @mod_rewrite_simulation.present? and
+              @mod_rewrite_simulation == true
+            ) or
+            (
+              @mod_rewrite_simulation.blank?
+            )
           end
 
           def php_fpm?
