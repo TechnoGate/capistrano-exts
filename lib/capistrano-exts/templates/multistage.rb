@@ -5,6 +5,10 @@ role :web, 'root@nasreddine.com:22'
 role :app, 'root@nasreddine.com:22'
 role :db, 'root@nasreddine.com:22', primary: true
 
+# Permissions (ownership)
+set :app_owner, 'www'
+set :app_group, 'www'
+
 # The project's branch to use
 # Uncomment and edit this if you're using git, for other SCM's please refer
 # to capistrano's documentation

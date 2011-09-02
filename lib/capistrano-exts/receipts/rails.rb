@@ -1,5 +1,5 @@
 require 'capistrano'
-require 'capistrano-exts/receipts/base'
+require 'capistrano-exts/receipts/deploy'
 
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)
@@ -15,21 +15,14 @@ Capistrano::Configuration.instance(:must_exist).load do
   namespace :rails do
     desc "Install configuration files"
     task :install_configuration_files, :roles => :app do
-      unless configuration_files.blank?
-        configuration_files.each { |configuration_file| link_config_file(configuration_file) }
+      unless exists?(:configuration_files)
+        fetch(:configuration_files).each { |configuration_file| link_config_file(configuration_file) }
       end
     end
 
     desc "Install rvm config file"
     task :install_rvmrc_file, :roles => :app do
-      link_file(File.join(shared_path, 'rvmrc'), File.join(release_path, '.rvmrc'))
-    end
-
-    desc "Fix permissions"
-    task :fix_permissions, :roles => :app do
-      unless app_owner.blank? or app_group.blank?
-        run "#{try_sudo} chown -R #{app_owner}:#{app_group} #{deploy_to}"
-      end
+      link_file(File.join(fetch(:shared_path), 'rvmrc'), File.join(fetch(:release_path), '.rvmrc'))
     end
   end
 
@@ -41,7 +34,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   after "deploy:finalize_update", "rails:install_configuration_files"
   after "rails:install_configuration_files", "rails:install_rvmrc_file"
-  after "deploy:restart", "rails:fix_permissions"
+  after "deploy:restart", "deploy:fix_permissions"
 
   # Capistrano is broken
   # See: https://github.com/capistrano/capistrano/issues/81

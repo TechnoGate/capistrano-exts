@@ -1,5 +1,5 @@
 require 'capistrano'
-require 'capistrano-exts/receipts/base'
+require 'capistrano-exts/receipts/deploy'
 
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)
