@@ -4,7 +4,7 @@ require 'capistrano-extensions/servers/utils/erb'
 require 'capistrano-extensions/servers/utils/variables'
 
 module Capistrano
-  module TechnoGate
+  module Extensions
     module Server
       class WebServer
 

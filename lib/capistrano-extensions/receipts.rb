@@ -1,5 +1,5 @@
 require 'capistrano'
-require 'highline'
+require 'capistrano-extensions/receipts/functions'
 
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)

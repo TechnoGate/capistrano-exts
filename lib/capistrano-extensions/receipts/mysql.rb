@@ -8,13 +8,14 @@ end
 
 Capistrano::Configuration.instance(:must_exist).load do
   def mysql_db_name(local_branch = nil)
-    local_branch ||= branch
-    "#{application}_co_#{local_branch}"
+    local_branch ||= fetch :branch
+    "#{fetch :application}_co_#{local_branch}"
   end
 
   namespace :mysql do
     desc "Backup database"
-    task :backup_db do
+    task :backup_db, :roles => :db, :except => { :no_release => true } do
+      mysql_credentials = fetch :mysql_credentials
       MYSQL_DB_BACKUP_PATH = "#{deploy_to}/backups/#{mysql_db_name}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.sql"
 
       if exists?(:mysql_credentials)
@@ -40,29 +41,39 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
     desc "drop database"
-    task :drop_db do
-      begin
-        run <<-CMD
-          mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' drop --force '#{mysql_db_name}'
-        CMD
-      rescue
-        puts "WARNING: The database doesn't exist."
+    task :drop_db, :roles => :db, :except => { :no_release => true } do
+      mysql_credentials = fetch :mysql_credentials
+
+      unless mysql_credentials.blank?
+        begin
+          run <<-CMD
+            mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' drop --force '#{mysql_db_name}'
+          CMD
+        rescue
+          puts "WARNING: The database doesn't exist."
+        end
       end
     end
 
     desc "create database"
-    task :create_db do
-      begin
-        run <<-CMD
-          mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' create '#{mysql_db_name}'
-        CMD
-      rescue
-        puts "WARNING: The database doesn't exist."
+    task :create_db, :roles => :db, :except => { :no_release => true } do
+      mysql_credentials = fetch :mysql_credentials
+
+      unless mysql_credentials.blank?
+        begin
+          run <<-CMD
+            mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' create '#{mysql_db_name}'
+          CMD
+        rescue
+          puts "WARNING: The database already exists, it hasn't been modified, drop it manually if necessary."
+        end
       end
     end
 
     desc "Import a database dump"
-    task :import_db_dump do
+    task :import_db_dump, :roles => :db, :except => { :no_release => true } do
+      mysql_credentials = fetch :mysql_credentials
+
       unless ARGV.size >=2 and File.exists?(ARGV[1])
         puts "ERROR: please run 'cap mysql:import_db_dump <sql dump>'"
         exit 1
@@ -70,7 +81,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         # The database dump name
         dump_sql_file = ARGV.delete_at(1)
 
-        if exists?(mysql_credentials)
+        if mysql_credentials.present?
           drop_db
           create_db
           put File.read(dump_sql_file), "/tmp/#{mysql_db_name}_dump.sql"
@@ -94,7 +105,9 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
     desc "Export a database dump"
-    task :export_db_dump do
+    task :export_db_dump, :roles => :db, :except => { :no_release => true } do
+      mysql_credentials = fetch :mysql_credentials
+
       unless ARGV.size >=2 or File.exists?(ARGV[1])
         puts "ERROR: please run 'cap mysql:import_db_dump <sql dump>'"
         puts "       <sql dump> should not exist"
@@ -103,7 +116,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         # The database dump name
         dump_sql_file = ARGV.delete_at(1)
 
-        if exists?(mysql_credentials)
+        if mysql_credentials.present?
           run <<-CMD
             cp #{MYSQL_DB_BACKUP_PATH}.bz2 /tmp &&
             bunzip2 /tmp/#{File.basename MYSQL_DB_BACKUP_PATH}.bz2
@@ -121,7 +134,9 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
     desc "Get Mysql credentials"
-    task :credentials do
+    task :credentials, :roles => :app, :except => { :no_release => true } do
+      mysql_credentials_file = fetch :mysql_credentials_file
+
       unless exists?(:mysql_credentials)
         # We haven't got the credentials yet, look for them
         if exists?(:mysql_credentials_file) and remote_file_exists?(mysql_credentials_file)
@@ -150,7 +165,9 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
     desc "Get Mysql root credentials"
-    task :root_credentials do
+    task :root_credentials, :roles => :app, :except => { :no_release => true } do
+      mysql_root_credentials_file = fetch :mysql_root_credentials_file
+
       unless exists?(:mysql_root_credentials)
         # We haven't got the credentials yet, look for them
         if exists?(:mysql_root_credentials_file) and remote_file_exists?(mysql_root_credentials_file)

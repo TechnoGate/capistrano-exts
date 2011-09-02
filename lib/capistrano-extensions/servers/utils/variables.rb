@@ -3,7 +3,7 @@
 require 'erb'
 
 module Capistrano
-  module TechnoGate
+  module Extensions
     module Variables
 
       # Instead of defining a whole lot of attr_accessor, let's be smart about

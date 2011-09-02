@@ -4,10 +4,10 @@ require "capistrano-extensions/version"
 
 Gem::Specification.new do |s|
   s.name        = "capistrano-extensions"
-  s.version     = Capistrano::Technogate::Version::STRING.dup
+  s.version     = Capistrano::Extensions::Version::STRING.dup
   s.authors     = ["Wael Nasreddine"]
   s.email       = ["wael.nasreddine@gmail.com"]
-  s.homepage    = "https://github.com/TechnoGate/capistrano-extensions"
+  s.homepage    = "https://github.com/Extensions/capistrano-extensions"
   s.summary     = %q{Handy extensions for Capistrano}
   s.description = s.summary
 

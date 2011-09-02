@@ -1,5 +1,5 @@
 module Capistrano
-  module Technogate
+  module Extensions
     module Version #:nodoc:
       MAJOR = 1
       MINOR = 0

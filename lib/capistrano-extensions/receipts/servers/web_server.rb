@@ -47,7 +47,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         desc "Nginx configuration"
         task :nginx_configuration do
-          nginx = Capistrano::TechnoGate::Server::Nginx.new web_server_mode
+          nginx = Capistrano::Extensions::Server::Nginx.new web_server_mode
 
           nginx.application = application
           nginx.public_path = public_path

@@ -3,7 +3,7 @@
 require 'capistrano-extensions/servers/web_server'
 
 module Capistrano
-  module TechnoGate
+  module Extensions
     module Server
       class Nginx < WebServer
 

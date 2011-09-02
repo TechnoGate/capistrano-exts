@@ -9,7 +9,7 @@ require File.expand_path("../../lib/capistrano-extensions.rb", __FILE__)
 RENDERED_TEMPLATES_PATH = File.expand_path(File.join File.dirname(__FILE__), 'rendered_templates')
 
 # Include all modules for easier tests
-include Capistrano::TechnoGate
+include Capistrano::Extensions
 include Server
 
 # Require factories
