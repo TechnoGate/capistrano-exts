@@ -1,5 +1,5 @@
 server {
-  listen <%= @nginx_listen_port || 80 %>;
+  listen <%= @listen_port || 80 %>;
   server_name <%= @application_url %>;
 
 <% if authentification? %>

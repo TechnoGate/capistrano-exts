@@ -113,12 +113,12 @@ describe Nginx do
         subject.render.should_not =~ %r{error_log.+/error.log;}
       end
 
-      it "should render 'nginx_listen_port'" do
-        subject.nginx_listen_port = 8080
+      it "should render 'listen_port'" do
+        subject.listen_port = 8080
         subject.render.should =~ /listen 8080;/
       end
 
-      it "should default the 'nginx_listen_port' to 80" do
+      it "should default the 'listen_port' to 80" do
         subject.render.should =~ /listen 80;/
       end
 

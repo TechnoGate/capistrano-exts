@@ -13,35 +13,39 @@ unless Capistrano::Configuration.respond_to?(:instance)
 end
 
 Capistrano::Configuration.instance(:must_exist).load do
-  namespace :server do
-    desc "Prepare the server (database server, web server and folders)"
-    task :prepare do
-      # Empty task, server preparation goes into callbacks
-    end
+  namespace :deploy do
+    namespace :server do
+      namespace :setup do
+        desc "Prepare the server (database server, web server and folders)"
+        task :default do
+          # Empty task, server preparation goes into callbacks
+        end
 
-    namespace :prepare do
-      task :verify_config do
-        abort "You should configure the server_* section of deploy.rb" unless exists? :server_application_url
-      end
-      task :folders do
-        run <<-CMD
-          mkdir -p #{deploy_to}
-        CMD
-      end
+        task :verify_config do
+          abort "You should configure the server_* section of deploy.rb" unless exists? :server_application_url
+        end
 
-      task :finish do
-        # Empty task for hooks
+        task :folders, :roles => :app do
+          run <<-CMD
+            mkdir -p #{deploy_to}
+          CMD
+        end
+
+        task :finish do
+          # Empty task for hooks
+        end
+
       end
     end
   end
 
   # Callbacks
-  before "server:prepare", "server:prepare:verify_config"
-  after  "server:prepare", "server:prepare:finish"
+  before "deploy:server:setup", "deploy:server:setup:verify_config"
+  after  "deploy:server:setup", "deploy:server:setup:finish"
 
-  after "server:prepare:verify_config", "server:prepare:folders"
-  after "server:prepare:folders", "server:db_server:prepare"
-  after "server:db_server:prepare", "server:web_server:prepare"
+  after "deploy:server:setup:verify_config", "deploy:server:setup:folders"
+  after "deploy:server:setup:folders", "deploy:server:db_server:setup"
+  after "deploy:server:db_server:setup", "deploy:server:web_server:setup"
 
-  after "server:prepare:finish", "deploy:setup"
+  after "deploy:server:setup:finish", "deploy:setup"
 end

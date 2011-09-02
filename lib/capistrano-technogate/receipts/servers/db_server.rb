@@ -6,9 +6,11 @@ unless Capistrano::Configuration.respond_to?(:instance)
 end
 
 Capistrano::Configuration.instance(:must_exist).load do
-  namespace :server do
-    nameserver :db_server do
+  namespace :deploy do
+    namespace :server do
+      namespace :db_server do
 
+      end
     end
   end
 end
