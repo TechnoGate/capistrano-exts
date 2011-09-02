@@ -21,12 +21,12 @@ describe Nginx do
       subject { Nginx.new :php_fpm }
 
       before(:each) do
-        subject.application_url = 'example.com www.example.com'
+        subject.application_url = %w(example.com www.example.com)
         subject.application = 'example'
         subject.php_fpm_host = 'localhost'
         subject.php_fpm_port = 60313
         subject.public_path = '/path/to/application'
-        subject.indexes = 'index.php'
+        subject.indexes = %w(index.php)
       end
 
       it "should require an 'application_url'" do
@@ -84,12 +84,12 @@ describe Nginx do
       subject { Nginx.new :php_fpm }
 
       before(:each) do
-        subject.application_url = 'example.com www.example.com'
+        subject.application_url = %w(example.com www.example.com)
         subject.application = 'example'
         subject.php_fpm_host = 'localhost'
         subject.php_fpm_port = 60313
         subject.public_path = '/path/to/application'
-        subject.indexes = 'index.php'
+        subject.indexes = %w(index.php)
       end
 
       it "should render 'public_path'" do |variable|
@@ -123,12 +123,12 @@ describe Nginx do
       end
 
       it "should render 'application_url'" do
-        subject.application_url = 'technogate.fr www.technogate.fr'
+        subject.application_url = %w(technogate.fr www.technogate.fr)
         subject.render.should =~ %r{server_name\s+technogate.fr www.technogate.fr;}
       end
 
       it "should render 'indexes'" do
-        subject.indexes = 'index.php index.html'
+        subject.indexes = %w(index.php index.html)
         subject.render.should =~ %r{index\s+index.php index.html;}
       end
 

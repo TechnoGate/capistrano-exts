@@ -6,12 +6,12 @@ describe Nginx do
     subject { Nginx.new :php_fpm}
 
     before(:each) do
-      @application_url  = 'technogate.fr www.technogate.fr'
+      @application_url  = %w(technogate.fr www.technogate.fr)
       @application      = 'technogate'
       @php_fpm_host     = 'localhost'
       @php_fpm_port     = 30313
       @public_path      = '/home/vhosts/technogate/public'
-      @indexes          = 'index.php index.html'
+      @indexes          = %w(index.php index.html)
 
       subject.application_url = @application_url
       subject.application     = @application
