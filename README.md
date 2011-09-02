@@ -23,6 +23,7 @@ gem 'capistrano-ext', '>=1.0.0'
 Setup
 -----
 First make sure you have capified your project, if not then run the following command on the root of your project:
+
 ```bash
 $ capify .
 ```
@@ -41,6 +42,7 @@ set :capistrano_extensions, [:multistage, :git, :base, :mysql, :rails, :servers]
 ```
 
 Then run the command
+
 ```bash
 $ cap multistage:prepare
 ```
