@@ -1,23 +1,35 @@
+# This files has been copied over from capistrano-ext
+# https://github.com/capistrano/capistrano-ext and has been modified
+# To allow configuration in either seperate files or in-line configurations
+
 require 'capistrano'
 require 'fileutils'
 
 unless Capistrano::Configuration.respond_to?(:instance)
-  abort "capistrano/ext/multistage requires Capistrano 2"
+  abort "This extension requires Capistrano 2"
 end
 
 Capistrano::Configuration.instance.load do
   location = fetch(:stage_dir, "config/deploy")
 
   unless exists?(:stages)
-    set :stages, Dir["#{location}/*.rb"].map { |f| File.basename(f, ".rb") }
+    if exists?(:multistages)
+      set :stages, fetch(:multistages).keys
+    else
+      set :stages, Dir["#{location}/*.rb"].map { |f| File.basename(f, ".rb") }
+    end
   end
 
   stages.each do |name|
     desc "Set the target stage to `#{name}'."
     task(name) do
       set :stage, name.to_sym
-      load "#{location}/#{stage}" unless exists?(:multistage)
-      find_and_execute_task('multistage:parse_configuration') if exists?(:multistage)
+      begin
+        load "#{location}/#{stage}" unless exists?(:multistages)
+      rescue LoadError
+        abort "The file #{location}/#{stage} does not exist please run 'cap multistage:prepare'"
+      end
+      find_and_execute_task('multistage:parse_multistages') if exists?(:multistages)
     end
   end
 
@@ -58,19 +70,19 @@ Capistrano::Configuration.instance.load do
       end
     end
 
-    desc "Parse the configuration"
-    task :parse_configuration do
-      if configurations[stage].nil?
+    desc "[internal] Parse the configuration"
+    task :parse_multistages do
+      multistages = fetch :multistages
+      stage = fetch :stage
+
+      if multistages[stage].nil?
         abort "ERROR: '#{stage.to_s}' has not been configured yet, please open up 'config/deploy.rb' and configure it"
       end
 
-      # Parse configurations
-      configurations[stage].each { |config, value| set config, value }
-
-      # Set the current path
-      set :current_path, "#{File.join deploy_to, 'current'}"
+      # Parse multistages
+      multistages[stage].each { |config, value| set config, value }
     end
   end
 
-  on :start, "multistage:ensure", :except => stages + ['multistage:prepare', 'multistage:parse_configuration']
+  on :start, "multistage:ensure", :except => stages + ['multistage:prepare', 'multistage:parse_multistages']
 end
