@@ -1,0 +1,7 @@
+script: "bundle exec rake spec"
+rvm:
+  - 1.9.2
+  - jruby
+notifications:
+  recipients:
+    - wael.nasreddine@gmail.com
