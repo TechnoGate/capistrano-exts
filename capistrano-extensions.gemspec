@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Wael Nasreddine"]
   s.email       = ["wael.nasreddine@gmail.com"]
   s.homepage    = "https://github.com/TechnoGate/capistrano-extensions"
-  s.summary     = %q{This gem provides some receipts for helping me in my every-day development}
+  s.summary     = %q{Handy extensions for Capistrano}
   s.description = s.summary
 
   s.rubyforge_project = "capistrano-extensions"
