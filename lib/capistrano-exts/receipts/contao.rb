@@ -58,13 +58,6 @@ Capistrano::Configuration.instance(:must_exist).load do
         #{try_sudo} ln -nsf #{fetch :shared_path}/log #{fetch :latest_release}/log
       CMD
     end
-
-    task :fix_permissions, :roles => :app, :except => { :no_release => true } do
-      run <<-CMD
-        #{try_sudo} chown -R www-data:www-data #{deploy_to} &&
-        #{try_sudo} chmod -R g+w #{latest_release}
-      CMD
-    end
   end
 
   # Dependencies
@@ -73,7 +66,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   after "contao:setup_localconfig", "mysql:create_db"
   after "deploy:finalize_update", "contao:fix_links"
   after "contao:fix_links", "deploy:cleanup"
-  after "deploy:restart", "contao:fix_permissions"
+  after "deploy:restart", "deploy:fix_permissions"
 
   # Mysql Credentials
   before "contao:setup_localconfig", "mysql:credentials"

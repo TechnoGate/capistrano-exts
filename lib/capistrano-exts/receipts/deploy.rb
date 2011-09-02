@@ -26,6 +26,8 @@ Capistrano::Configuration.instance(:must_exist).load do
             #{fetch :deploy_to}/shared
         CMD
       end
+
+      run "chmod -R g+w #{fetch :latest_release}" if fetch(:group_writable, true)
     end
   end
 
