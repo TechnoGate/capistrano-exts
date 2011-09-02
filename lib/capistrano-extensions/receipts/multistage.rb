@@ -60,11 +60,13 @@ Capistrano::Configuration.instance.load do
     task :prepare do
       FileUtils.mkdir_p(location)
       stages.each do |name|
-        file = File.join(location, name + ".rb")
+        file = File.join(location, name.to_s + ".rb")
         unless File.exists?(file)
           File.open(file, "w") do |f|
-            f.puts "# #{name.upcase}-specific deployment configuration"
+            f.puts "# #{name.to_s.upcase}-specific deployment configuration"
             f.puts "# please put general deployment config in config/deploy.rb"
+            f.puts ""
+            f.write File.read(File.expand_path(File.join File.dirname(__FILE__), '..', 'templates', 'multistage.rb'))
           end
         end
       end

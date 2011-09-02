@@ -20,13 +20,13 @@ module Capistrano
             @mode == :rails_reverse_proxy
           end
 
-          def mod_rewrite_simulation?
+          def mod_rewrite?
             (
-              @mod_rewrite_simulation.present? and
-              @mod_rewrite_simulation == true
+              @mod_rewrite.present? and
+              @mod_rewrite == true
             ) or
             (
-              @mod_rewrite_simulation.blank?
+              @mod_rewrite.blank?
             )
           end
 

@@ -16,7 +16,8 @@ Capistrano::Configuration.instance(:must_exist).load do
       if exists?(:mysql_credentials)
         begin
           run <<-CMD
-            mysqldump \
+            #{try_sudo} mysqldump \
+              --host='#{mysql_credentials[:host]}'\
               --user='#{mysql_credentials[:user]}' \
               --password='#{mysql_credentials[:pass]}' \
               --default-character-set=utf8 \
@@ -25,7 +26,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           CMD
 
           run <<-CMD
-            bzip2 -9 '#{MYSQL_DB_BACKUP_PATH}'
+            #{try_sudo} bzip2 -9 '#{MYSQL_DB_BACKUP_PATH}'
           CMD
         rescue
           puts "WARNING: The database doesn't exist."
@@ -42,7 +43,12 @@ Capistrano::Configuration.instance(:must_exist).load do
       unless mysql_credentials.blank?
         begin
           run <<-CMD
-            mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' drop --force '#{mysql_db_name}'
+            mysqladmin \
+              --host='#{mysql_credentials[:host]}' \
+              --user='#{mysql_credentials[:user]}' \
+              --password='#{mysql_credentials[:pass]}' \
+              drop --force \
+              '#{mysql_db_name}'
           CMD
         rescue
           puts "WARNING: The database doesn't exist."
@@ -57,7 +63,11 @@ Capistrano::Configuration.instance(:must_exist).load do
       unless mysql_credentials.blank?
         begin
           run <<-CMD
-            mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' create '#{mysql_db_name}'
+            mysqladmin \
+              --host='#{mysql_credentials[:host]}' \
+              --user='#{mysql_credentials[:user]}' \
+              --password='#{mysql_credentials[:pass]}' \
+              create '#{mysql_db_name}'
           CMD
         rescue
           puts "WARNING: The database already exists, it hasn't been modified, drop it manually if necessary."
@@ -83,6 +93,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
           run <<-CMD
             mysql \
+              --host='#{mysql_credentials[:host]}' \
               --user='#{mysql_credentials[:user]}' \
               --password='#{mysql_credentials[:pass]}' \
               --default-character-set=utf8 \
@@ -143,6 +154,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
          if exists?(:mysql_credentials_file_contents)
             set :mysql_credentials, {
+              host: mysql_credentials_file_contents.match(mysql_credentials_host_regex)[mysql_credentials_host_regex_match].chomp,
               user: mysql_credentials_file_contents.match(mysql_credentials_user_regex)[mysql_credentials_user_regex_match].chomp,
               pass: mysql_credentials_file_contents.match(mysql_credentials_pass_regex)[mysql_credentials_pass_regex_match].chomp,
             }
@@ -152,6 +164,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         # Verify that we got them!
         if !exists?(:mysql_credentials)
           set :mysql_credentials, {
+            host: ask("What is the hostname used to access the database", default: 'localhost', validate: /.+/),
             user: ask("What is the username used to access the database", default: nil, validate: /.+/),
             pass: ask("What is the password used to access the database", default: nil, validate: /.+/, echo: false),
           }
@@ -174,6 +187,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
          if exists?(:mysql_root_credentials_file_contents)
             set :mysql_root_credentials, {
+              host: mysql_root_credentials_file_contents.match(mysql_root_credentials_host_regex)[mysql_root_credentials_host_regex_match].chomp,
               user: mysql_root_credentials_file_contents.match(mysql_root_credentials_user_regex)[mysql_root_credentials_user_regex_match].chomp,
               pass: mysql_root_credentials_file_contents.match(mysql_root_credentials_pass_regex)[mysql_root_credentials_pass_regex_match].chomp,
             }
@@ -183,6 +197,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         # Verify that we got them!
         if !exists?(:mysql_root_credentials)
           set :mysql_root_credentials, {
+            host: ask("What is the hostname used to access the database", default: 'localhost', validate: /.+/),
             user: ask("What is the username used to access the database", default: nil, validate: /.+/),
             pass: ask("What is the password used to access the database", default: nil, validate: /.+/, echo: false),
           }

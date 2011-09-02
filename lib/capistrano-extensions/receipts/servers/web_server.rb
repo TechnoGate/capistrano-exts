@@ -69,8 +69,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
           nginx.indexes = fetch(:web_server_indexes) if exists?(:web_server_indexes)
 
-          if exists?(:web_server_mod_rewrite_simulation)
-            nginx.mod_rewrite_simulation = fetch :web_server_mod_rewrite_simulation
+          if exists?(:web_server_mod_rewrite)
+            nginx.mod_rewrite = fetch :web_server_mod_rewrite
           end
 
           if exists?(:php_fpm_host)

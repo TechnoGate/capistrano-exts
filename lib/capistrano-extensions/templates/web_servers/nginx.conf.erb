@@ -1,6 +1,6 @@
 server {
   listen <%= @listen_port || 80 %>;
-  server_name <%= @application_url %>;
+  server_name <%= @application_url.join(' ') %>;
 
 <% if authentification? %>
   # Authentification
@@ -18,11 +18,11 @@ server {
 <% end %>
 
 <% if @indexes.present? %>
-  index <%= @indexes %>;
+  index <%= @indexes.join(' ') %>;
 <% end %>
 
   location / {
-  <% if mod_rewrite_simulation? %>
+  <% if mod_rewrite? %>
     # this serves static files that exist without running other rewrite tests
     if (-f $request_filename) {
       expires 30d;
