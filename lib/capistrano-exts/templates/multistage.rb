@@ -30,14 +30,14 @@ set :mysql_credentials_file,                  -> { "#{deploy_to}/.mysql_password
 set :mysql_credentials_host_regex,            /hostname: (.*)$/o
 set :mysql_credentials_host_regex_match,      1
 set :mysql_credentials_user_regex,            /username: (.*)$/o
-set :mysql_credentials_user_regex_match       , 1
+set :mysql_credentials_user_regex_match,      1
 set :mysql_credentials_pass_regex,            /password: (.*)$/o
 set :mysql_credentials_pass_regex_match,      1
 set :mysql_root_credentials_file,             "/root/.mysql_password"
 set :mysql_root_credentials_host_regex,       /hostname: (.*)$/o
 set :mysql_root_credentials_host_regex_match, 1
 set :mysql_root_credentials_user_regex,       /username: (.*)$/o
-set :mysql_root_credentials_user_regex_match, , 1
+set :mysql_root_credentials_user_regex_match, 1
 set :mysql_root_credentials_pass_regex,       /password: (.*)$/o
 set :mysql_root_credentials_pass_regex_match, 1
 
