@@ -8,8 +8,8 @@ end
 
 Capistrano::Configuration.instance(:must_exist).load do
   on :load do
-    if exists?(:capistrano_extensions_receipts)
-      capistrano_extensions_receipts.each do |receipt|
+    if exists?(:capistrano_extensions)
+      capistrano_extensions.each do |receipt|
         require "capistrano-extensions/receipts/#{receipt.to_s}"
       end
     end
