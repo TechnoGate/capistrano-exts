@@ -63,14 +63,14 @@ Capistrano::Configuration.instance(:must_exist).load do
           desc "Restart nginx web server"
           task :restart do
             run <<-CMD
-              #{try_sudo} #{nginx_init_path} restart
+              #{try_sudo} #{fetch :nginx_init_path} restart
             CMD
           end
 
           desc "Resload nginx web server"
           task :reload do
             run <<-CMD
-              #{try_sudo} #{nginx_init_path} reload
+              #{try_sudo} #{fetch :nginx_init_path} reload
             CMD
           end
 

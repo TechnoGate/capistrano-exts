@@ -37,14 +37,14 @@ Capistrano::Configuration.instance(:must_exist).load do
           desc "Restart apache web server"
           task :restart do
             run <<-CMD
-              #{try_sudo} #{apache_init_path} restart
+              #{try_sudo} #{fetch :apache_init_path} restart
             CMD
           end
 
           desc "Resload apache web server"
           task :reload do
             run <<-CMD
-              #{try_sudo} #{apache_init_path} reload
+              #{try_sudo} #{fetch :apache_init_path} reload
             CMD
           end
 
