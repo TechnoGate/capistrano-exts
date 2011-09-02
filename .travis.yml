@@ -1,4 +1,5 @@
 script: "bundle exec rake spec"
+bundler_args: --without='development, staging'
 rvm:
   - 1.9.2
   - jruby
