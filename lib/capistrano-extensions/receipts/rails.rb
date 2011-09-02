@@ -11,7 +11,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   namespace :rails do
     desc "Install configuration files"
     task :install_configuration_files, :roles => :app do
-      unless blank?(configuration_files)
+      unless configuration_files.blank?
         configuration_files.each { |configuration_file| link_config_file(configuration_file) }
       end
     end
@@ -23,7 +23,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Fix permissions"
     task :fix_permissions, :roles => :app do
-      unless blank?(app_owner) or blank?(app_group)
+      unless app_owner.blank? or app_group.blank?
         run "#{try_sudo} chown -R #{app_owner}:#{app_group} #{deploy_to}"
       end
     end

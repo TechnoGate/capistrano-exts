@@ -24,15 +24,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     link_file("#{File.join shared_path, 'config', config_file}", "#{File.join config_path, config_file}")
   end
 
-  def blank?(var)
-    !exists?(var) or var.nil? or var == false or var.empty?
-  end
-
-  def present?(var)
-    !!!blank?(var)
-  end
-
-  def gen_pass( len )
+  def gen_pass( len = 8 )
       chars = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
       newpass = ""
       1.upto(len) { |i| newpass << chars[rand(chars.size-1)] }

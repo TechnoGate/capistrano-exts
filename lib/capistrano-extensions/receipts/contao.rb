@@ -31,14 +31,14 @@ Capistrano::Configuration.instance(:must_exist).load do
       localconfig = File.read("public/system/config/localconfig.php.sample")
 
       # Add MySQL credentials
-      unless blank?(localconfig) or blank?(mysql_credentials)
+      unless localconfig.blank? or mysql_credentials.blank?
         localconfig.gsub!(/#DB_USER#/, mysql_credentials[:user])
         localconfig.gsub!(/#DB_PASS#/, mysql_credentials[:pass])
         localconfig.gsub!(/#DB_NAME#/, mysql_db_name)
       end
 
       # localconfig
-      if blank?(mysql_credentials)
+      if mysql_credentials.blank?
         puts "WARNING: The mysql credential file can't be found, localconfig has just been copied from the sample file"
       end
 
@@ -46,7 +46,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
     task :setup_db, :roles => :db do
-      unless blank?(mysql_credentials)
+      unless mysql_credentials.blank?
         begin
           run <<-CMD
             mysqladmin --user='#{mysql_credentials[:user]}' --password='#{mysql_credentials[:pass]}' create '#{mysql_db_name}'
