@@ -1,14 +1,17 @@
+# DEVELOPMENT-specific deployment configuration
+# please put general deployment config in config/deploy.rb
+
 # Here you can set the server which you would like to, each server
 # each role can have multiple servers, each server defined as user@server.com:port
 # => port can be omiped and it defaults to 22
-role :web, 'root@nasreddine.com:22'
-role :app, 'root@nasreddine.com:22'
-role :db, 'root@nasreddine.com:22', primary: true
+role :web, 'root@example_staging_web.com:22'
+role :app, 'root@example_staging_app.com:22'
+role :db, 'root@example_staging_db.com:22', primary: true
 
 # The project's branch to use
 # Uncomment and edit this if you're using git, for other SCM's please refer
 # to capistrano's documentation
-set :branch, "master"
+set :branch, "staging"
 
 # Use sudo ?
 set :use_sudo, false
@@ -96,15 +99,15 @@ set :web_server_mod_rewrite, true
 #
 # For Apache
 # =>
-set :web_server_mode, :rails_reverse_proxy
+set :web_server_mode, :php_fpm
 
 # Server mode specific configurations
 # Uncomment and edit the one depending on the enabled mode
 # php_fpm settings
 # => On which host, php-fpm is running ?
-# set :php_fpm_host, 'localhost'
+set :php_fpm_host, 'localhost'
 # => Which port ?
-# set :php_fpm_port, '9000'
+set :php_fpm_port, '9000'
 
 # reverse_proxy settings (Unicorn for example)
 # => On which host the proxy is running ?
