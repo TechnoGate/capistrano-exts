@@ -6,6 +6,10 @@ unless Capistrano::Configuration.respond_to?(:instance)
   abort "This extension requires Capistrano 2"
 end
 
+# TODO:
+# => Replace the vars with a call to fetch
+# => Add the vars to examples and the template so it is visible
+
 Capistrano::Configuration.instance(:must_exist).load do
 
   namespace :rails do

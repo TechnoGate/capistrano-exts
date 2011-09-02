@@ -15,7 +15,7 @@ set :stages, [:development, :staging, :production]
 set :default_stage, :development
 
 # Capistrano extensions
-set :capistrano_extensions, [:multistage, :git, :base, :mysql, :contao, :servers]
+set :capistrano_extensions, [:multistage, :git, :base, :mysql, :rails, :servers]
 
 default_run_options[:pty] = true
 ssh_options[:forward_agent] = true
