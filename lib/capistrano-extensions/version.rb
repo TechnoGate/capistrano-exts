@@ -5,7 +5,8 @@ module Capistrano
       MINOR = 0
       TINY = 0
 
-      STRING = [MAJOR, MINOR, TINY].join(".")
+      ARRAY  = [MAJOR, MINOR, TINY]
+      STRING = ARRAY.join(".")
     end
   end
 end
