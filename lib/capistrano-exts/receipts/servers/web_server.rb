@@ -1,6 +1,10 @@
 # encoding: utf-8
 
+require 'capistrano'
 require 'digest/sha1'
+
+# Require all specific web_server files
+Dir["#{File.dirname(__FILE__)}/web_server/*.rb"].each {|f| require f}
 
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)
@@ -23,7 +27,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
             case web_server_app
             when :nginx
-              find_and_execute_task 'deploy:server:web_server:generate_nginx_configuration'
+              find_and_execute_task 'deploy:server:web_server:nginx:generate_configuration'
             when :apache
               find_and_execute_task 'deploy:server:web_server:generate_apache_configuration'
             else
@@ -49,37 +53,6 @@ Capistrano::Configuration.instance(:must_exist).load do
 
             set :web_server_auth_file_contents, contents.join("\n")
           end
-        end
-
-        desc "[internal] Generate Nginx configuration"
-        task :generate_nginx_configuration do
-          web_server_mode = fetch :web_server_mode
-          nginx = Capistrano::Extensions::Server::Nginx.new web_server_mode
-
-          nginx.application = fetch :application
-          nginx.public_path = fetch :public_path
-          nginx.logs_path   = fetch :logs_path
-          nginx.application_url = fetch :application_url
-
-          nginx.listen_port = fetch(:web_server_listen_port) if exists?(:web_server_listen_port)
-
-          if exists?(:web_server_auth_file)
-            nginx.authentification_file = fetch :web_server_auth_file
-          end
-
-          nginx.indexes = fetch(:web_server_indexes) if exists?(:web_server_indexes)
-
-          if exists?(:web_server_mod_rewrite)
-            nginx.mod_rewrite = fetch :web_server_mod_rewrite
-          end
-
-          if exists?(:php_fpm_host)
-            nginx.php_fpm_host = fetch :php_fpm_host
-            nginx.php_fpm_port = fetch :php_fpm_port
-          end
-
-          set :web_conf, nginx
-          set :web_conf_contents, nginx.render
         end
 
         desc "[internal] Generate Apache configuration"

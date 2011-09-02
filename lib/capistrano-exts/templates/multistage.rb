@@ -1,3 +1,10 @@
+# Here you can set the server which you would like to, each server
+# each role can have multiple servers, each server defined as user@server.com:port
+# => port can be omiped and it defaults to 22
+role :web, 'root@nasreddine.com:22'
+role :app, 'root@nasreddine.com:22'
+role :db, 'root@nasreddine.com:22', primary: true
+
 # The project's branch to use
 # Uncomment and edit this if you're using git, for other SCM's please refer
 # to capistrano's documentation
@@ -41,6 +48,11 @@ set :mysql_root_credentials_pass_regex_match, 1
 # Which web server to use?
 # valid options: :nginx and :apache
 set :web_server_app, :nginx
+
+# Server specific configurations
+# Uncomment as necessary, default option are as follow
+# set :nginx_init_path, '/etc/init.d/nginx'
+# set :apache_init_path, '/etc/init.d/apache2'
 
 # Absolute path to this application's web server configuration
 # This gem suppose that you are already including files from the folder you're placing
@@ -88,17 +100,19 @@ set :web_server_mode,                   :rails_reverse_proxy
 
 # Server mode specific configurations
 # Uncomment and edit the one depending on the enabled mode
+# php_fpm settings
+# => On which host, php-fpm is running ?
+# set :php_fpm_host, 'localhost'
+# => Which port ?
+# set :php_fpm_port, '9000'
 
-
-# set :php_fpm_host, 'localhost' # On which host, php-fpm is running ?
-# set :php_fpm_port, '9000' # Which port ?
-
-
+# reverse_proxy settings (Unicorn for example)
+# => On which host the proxy is running ?
 # set :reverse_proxy_server_address, 'localhost'
+# => On which port ?
 # set :reverse_proxy_server_port, 45410
-# set :reverse_proxy_socket, -> { "#{shared_path}/"}
+# => What is the path to the socket file
+# set :reverse_proxy_socket, -> { "#{shared_path}/sockets/unicorn.sock"}
 
-# Servers
-role :web, 'root@nasreddine.com:22'
-role :app, 'root@nasreddine.com:22'
-role :db, 'root@nasreddine.com:22', primary: true
+#
+#############

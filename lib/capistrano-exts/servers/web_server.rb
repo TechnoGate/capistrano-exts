@@ -1,7 +1,7 @@
 # encoding: utf-8
 
-require 'capistrano-extensions/servers/utils/erb'
-require 'capistrano-extensions/servers/utils/variables'
+require 'capistrano-exts/servers/utils/erb'
+require 'capistrano-exts/servers/utils/variables'
 
 module Capistrano
   module Extensions

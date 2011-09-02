@@ -1,6 +1,6 @@
 require 'capistrano'
-require 'capistrano-extensions/receipts/base'
-require 'capistrano-extensions/receipts/mysql'
+require 'capistrano-exts/receipts/base'
+require 'capistrano-exts/receipts/mysql'
 
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)

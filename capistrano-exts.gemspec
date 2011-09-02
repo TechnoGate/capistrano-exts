@@ -1,17 +1,17 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "capistrano-extensions/version"
+require "capistrano-exts/version"
 
 Gem::Specification.new do |s|
-  s.name        = "capistrano-extensions"
+  s.name        = "capistrano-exts"
   s.version     = Capistrano::Extensions::Version::STRING.dup
   s.authors     = ["Wael Nasreddine"]
   s.email       = ["wael.nasreddine@gmail.com"]
-  s.homepage    = "https://github.com/Extensions/capistrano-extensions"
+  s.homepage    = "https://github.com/Extensions/capistrano-exts"
   s.summary     = %q{Handy extensions for Capistrano}
   s.description = s.summary
 
-  s.rubyforge_project = "capistrano-extensions"
+  s.rubyforge_project = "capistrano-exts"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
