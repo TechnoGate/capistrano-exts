@@ -8,7 +8,10 @@ $:.unshift(ROOT_PATH) if File.directory?(ROOT_PATH) && !$:.include?(ROOT_PATH)
 require 'active_support/core_ext'
 
 # Require our core extensions
-require 'capistrano-technogate/core_ext'
+require 'capistrano-extensions/core_ext'
+
+# Require requested receipts
+require 'capistrano-extensions/receipts'
 
 # Require all servers
-Dir["#{ROOT_PATH}/capistrano-technogate/servers/**/*.rb"].each { |f| require f }
+Dir["#{ROOT_PATH}/capistrano-extensions/servers/**/*.rb"].each { |f| require f }

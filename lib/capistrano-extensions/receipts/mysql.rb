@@ -1,5 +1,5 @@
 require 'capistrano'
-require 'capistrano-technogate/receipts/base'
+require 'capistrano-extensions/receipts/base'
 
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)

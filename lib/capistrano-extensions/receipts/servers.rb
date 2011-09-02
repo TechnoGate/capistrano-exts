@@ -2,10 +2,10 @@
 
 # Requirements
 require 'capistrano'
-require 'capistrano-technogate/receipts/base'
-require 'capistrano-technogate/receipts/mysql'
-require 'capistrano-technogate/receipts/servers/web_server'
-require 'capistrano-technogate/receipts/servers/db_server'
+require 'capistrano-extensions/receipts/base'
+require 'capistrano-extensions/receipts/mysql'
+require 'capistrano-extensions/receipts/servers/web_server'
+require 'capistrano-extensions/receipts/servers/db_server'
 
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)

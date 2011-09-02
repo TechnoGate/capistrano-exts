@@ -1,7 +1,7 @@
 # encoding: utf-8
 
-require 'capistrano-technogate/servers/utils/erb'
-require 'capistrano-technogate/servers/utils/variables'
+require 'capistrano-extensions/servers/utils/erb'
+require 'capistrano-extensions/servers/utils/variables'
 
 module Capistrano
   module TechnoGate
