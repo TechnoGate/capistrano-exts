@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-require 'capistrano-extensions/servers/web_server'
-
 module Capistrano
   module Extensions
     module Server

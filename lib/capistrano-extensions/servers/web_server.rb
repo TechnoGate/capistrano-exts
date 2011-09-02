@@ -64,3 +64,6 @@ module Capistrano
     end
   end
 end
+
+# Require all web servers
+Dir["#{File.dirname __FILE__}/web_server/*.rb"].each { |f| require f }

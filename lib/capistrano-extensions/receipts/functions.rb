@@ -47,4 +47,9 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
   end
+
+  def mysql_db_name(local_branch = nil)
+    local_branch ||= fetch :branch
+    "#{fetch :application}_co_#{local_branch}"
+  end
 end

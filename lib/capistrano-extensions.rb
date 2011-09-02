@@ -11,4 +11,4 @@ require 'capistrano-extensions/core_ext'
 require 'capistrano-extensions/receipts' if defined?(Capistrano::Configuration)
 
 # Require all servers
-Dir["#{ROOT_PATH}/capistrano-extensions/servers/**/*.rb"].each { |f| require f }
+Dir["#{ROOT_PATH}/capistrano-extensions/servers/*.rb"].each { |f| require f }

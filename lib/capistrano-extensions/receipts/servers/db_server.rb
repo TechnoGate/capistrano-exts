@@ -9,7 +9,10 @@ Capistrano::Configuration.instance(:must_exist).load do
   namespace :deploy do
     namespace :server do
       namespace :db_server do
-
+        desc "Setup db server"
+        task :setup, :roles => :db do
+          # Empty task, server preparation goes into callbacks
+        end
       end
     end
   end

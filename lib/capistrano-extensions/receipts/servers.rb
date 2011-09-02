@@ -21,18 +21,21 @@ Capistrano::Configuration.instance(:must_exist).load do
           # Empty task, server preparation goes into callbacks
         end
 
-        task :verify_config do
-          abort "You should configure the server_* section of deploy.rb" unless exists? :server_application_url
-        end
-
         task :folders, :roles => :app do
           run <<-CMD
-            mkdir -p #{deploy_to}
+            mkdir -p #{fetch :deploy_to} &&
+            mkdir -p #{fetch :deploy_to}/backups
           CMD
+
+          if exists? :logs_path
+            run <<-CMD
+              mkdir -p #{fetch :logs_path}
+            CMD
+          end
         end
 
         task :finish do
-          # Empty task for hooks
+          # Empty task for callbacks
         end
 
       end
@@ -40,12 +43,9 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   # Callbacks
-  before "deploy:server:setup", "deploy:server:setup:verify_config"
+  before "deploy:server:setup", "deploy:server:setup:folders"
   after  "deploy:server:setup", "deploy:server:setup:finish"
 
-  after "deploy:server:setup:verify_config", "deploy:server:setup:folders"
   after "deploy:server:setup:folders", "deploy:server:db_server:setup"
-  after "deploy:server:db_server:setup", "deploy:server:web_server:setup"
-
-  after "deploy:server:setup:finish", "deploy:setup"
+  after "deploy:server:setup:folders", "deploy:server:web_server:setup"
 end
