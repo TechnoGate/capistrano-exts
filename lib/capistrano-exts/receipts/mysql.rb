@@ -214,11 +214,15 @@ Capistrano::Configuration.instance(:must_exist).load do
             mysql_credentials_file_contents = fetch :mysql_credentials_file_contents
 
             unless mysql_credentials_file_contents.blank?
-              set :mysql_credentials, {
+              mysql_credentials = {
                 host: mysql_credentials_file_contents.match(mysql_credentials_host_regex).try(:[], mysql_credentials_host_regex_match).try(:chomp),
                 user: mysql_credentials_file_contents.match(mysql_credentials_user_regex).try(:[], mysql_credentials_user_regex_match).try(:chomp),
                 pass: mysql_credentials_file_contents.match(mysql_credentials_pass_regex).try(:[], mysql_credentials_pass_regex_match).try(:chomp),
               }
+
+              if mysql_credentials[:user].present? and mysql_credentials[:pass].present?
+                set :mysql_credentials, mysql_credentials
+              end
             end
           end
         end
@@ -250,11 +254,15 @@ Capistrano::Configuration.instance(:must_exist).load do
           if exists?(:mysql_root_credentials_file_contents)
             mysql_root_credentials_file_contents = fetch :mysql_root_credentials_file_contents
             unless mysql_root_credentials_file_contents.blank?
-              set :mysql_root_credentials, {
+              mysql_root_credentials = {
                 host: mysql_root_credentials_file_contents.match(mysql_root_credentials_host_regex).try(:[], mysql_root_credentials_host_regex_match).try(:chomp),
                 user: mysql_root_credentials_file_contents.match(mysql_root_credentials_user_regex).try(:[], mysql_root_credentials_user_regex_match).try(:chomp),
                 pass: mysql_root_credentials_file_contents.match(mysql_root_credentials_pass_regex).try(:[], mysql_root_credentials_pass_regex_match).try(:chomp),
               }
+
+              if mysql_root_credentials[:user].present? and mysql_root_credentials[:pass].present?
+                set :mysql_root_credentials, mysql_root_credentials
+              end
             end
           end
         end
