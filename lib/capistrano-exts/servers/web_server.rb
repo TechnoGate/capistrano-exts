@@ -17,7 +17,7 @@ module Capistrano
           end
 
           def reverse_proxy?
-            @mode == :rails_reverse_proxy
+            @mode == :reverse_proxy
           end
 
           def mod_rewrite?

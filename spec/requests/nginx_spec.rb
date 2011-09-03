@@ -31,7 +31,7 @@ describe Nginx do
 
   end
 
-  describe ":rails_reverse_proxy" do
+  describe ":reverse_proxy" do
 
   end
 

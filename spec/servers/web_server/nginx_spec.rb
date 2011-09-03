@@ -83,8 +83,8 @@ describe Nginx do
       end
     end
 
-    describe ":rails_reverse_proxy" do
-      subject { Nginx.new :rails_reverse_proxy }
+    describe ":reverse_proxy" do
+      subject { Nginx.new :reverse_proxy }
 
       before(:each) do
         subject.application_url = %w{example.com www.example.com}
@@ -225,8 +225,8 @@ describe Nginx do
       end
     end
 
-    describe ":rails_reverse_proxy" do
-      subject { Nginx.new :rails_reverse_proxy }
+    describe ":reverse_proxy" do
+      subject { Nginx.new :reverse_proxy }
 
       before(:each) do
         subject.application_url = %w{example.com www.example.com}

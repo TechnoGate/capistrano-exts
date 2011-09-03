@@ -92,8 +92,8 @@ set :web_server_mod_rewrite, true
 # Valid options:
 #
 # For Nginx:
-# => :rails_reverse_proxy, :passenger, :php_fpm
-# => :rails_reverse_proxy is used for unicorn (Rack apps)
+# => :reverse_proxy, :passenger, :php_fpm
+# => :reverse_proxy is used for unicorn (Rack apps)
 # => :passenger runs rails apps
 # => :php_fpm is used to deliver websites written using PHP
 #
