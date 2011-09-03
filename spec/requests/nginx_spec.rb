@@ -27,7 +27,7 @@ describe Nginx do
     end
   end
 
-  describe ":rails_passenger" do
+  describe ":passenger" do
 
   end
 

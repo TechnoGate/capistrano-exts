@@ -35,7 +35,7 @@ module Capistrano
           end
 
           def passenger?
-            @mode == :rails_passenger
+            @mode == :passenger
           end
 
           def php_build_with_force_cgi_redirect?
@@ -51,10 +51,34 @@ module Capistrano
             end
 
             if php_fpm?
-              [:php_fpm_host, :php_fpm_port, :public_path].each do |var|
+              [:php_fpm_host, :php_fpm_port].each do |var|
                 unless instance_variable_get("@#{var.to_s}")
                   raise ArgumentError, "#{var.to_s} is required, please define it."
                 end
+              end
+            end
+
+            if reverse_proxy?
+              if @reverse_proxy_server_address.blank? and @reverse_proxy_server_port.blank? and @reverse_proxy_socket.blank?
+                raise ArgumentError, "None of the address, port or socket has been defined."
+              end
+
+              if @reverse_proxy_server_address.present? and @reverse_proxy_server_port.blank?
+                raise ArgumentError, "reverse_proxy_server_address is defined but reverse_proxy_server_port is not please define it."
+              end
+
+              if @reverse_proxy_server_port.present? and @reverse_proxy_server_address.blank?
+                raise ArgumentError, "reverse_proxy_server_port is defined but reverse_proxy_server_address is not please define it."
+              end
+
+              if @reverse_proxy_server_address.present? and @reverse_proxy_server_port.present? and @reverse_proxy_socket.present?
+                raise ArgumentError, "you should not define reverse_proxy_server_address, reverse_proxy_server_port and reverse_proxy_socket."
+              end
+            end
+
+            if passenger? or php_fpm?
+              if @public_path.blank?
+                raise ArgumentError, "public_path is required, please define it."
               end
             end
 

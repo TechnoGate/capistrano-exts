@@ -88,7 +88,7 @@ upstream <%= @application %>_reverse_proxy {
   server <%= @reverse_proxy_server_address %>:<%= @reverse_proxy_server_port %> fail_timeout=0;
 <% end %>
 
-<% if @reverse_proxy_socket.blank? %>
+<% if @reverse_proxy_socket.present? %>
   server unix:<%= @reverse_proxy_socket %>;
 <% end %>
 }

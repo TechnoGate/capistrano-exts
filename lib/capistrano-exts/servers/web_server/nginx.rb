@@ -5,7 +5,7 @@ module Capistrano
     module Server
       class Nginx < WebServer
 
-        AVAILABLE_MODES = [:rails_passenger, :rails_reverse_proxy, :php_fpm]
+        AVAILABLE_MODES = [:passenger, :rails_reverse_proxy, :php_fpm]
         NGINX_TEMPLATE_PATH = ROOT_PATH + '/capistrano-exts/templates/web_servers/nginx.conf.erb'
 
         def initialize(mode, template_path = NGINX_TEMPLATE_PATH)

@@ -21,12 +21,16 @@ describe Nginx do
       subject { Nginx.new :php_fpm }
 
       before(:each) do
-        subject.application_url = %w(example.com www.example.com)
+        subject.application_url = %w{example.com www.example.com}
         subject.application = 'example'
         subject.php_fpm_host = 'localhost'
         subject.php_fpm_port = 60313
         subject.public_path = '/path/to/application'
-        subject.indexes = %w(index.php)
+        subject.indexes = %w{index.php}
+      end
+
+      it "should have php_fpm enabled" do
+        subject.send(:php_fpm?).should be_true
       end
 
       it "should require an 'application_url'" do
@@ -58,24 +62,72 @@ describe Nginx do
       end
     end
 
-    describe ":rails_passenger" do
-      subject { Nginx.new :rails_passenger }
+    describe ":passenger" do
+      subject { Nginx.new :passenger }
 
-      it "should require 'public_path'"
+      before(:each) do
+        subject.application_url = %w{example.com www.example.com}
+        subject.application = 'example'
+        subject.public_path = '/path/to/application'
+      end
 
-      it "should have passenger enabled"
+      it "should require 'public_path'" do
+        subject.public_path = nil
+        lambda {
+          subject.render
+        }.should raise_error(ArgumentError, "public_path is required, please define it.")
+      end
+
+      it "should have passenger enabled" do
+        subject.send(:passenger?).should be_true
+      end
     end
 
     describe ":rails_reverse_proxy" do
       subject { Nginx.new :rails_reverse_proxy }
 
-      it "should require 'reverse_proxy_server_address'"
+      before(:each) do
+        subject.application_url = %w{example.com www.example.com}
+        subject.application = 'example'
+        subject.reverse_proxy_server_address = 'localhost'
+        subject.reverse_proxy_server_port = 8080
+      end
 
-      it "should require 'reverse_proxy_server_port'"
+      it "should have reverse_proxy enabled" do
+        subject.send(:reverse_proxy?).should be_true
+      end
 
-      it "should require 'reverse_proxy_socket'"
+      it "should require 'reverse_proxy_server_address' and 'reverse_proxy_server_port' or 'reverse_proxy_socket'" do
+        subject.reverse_proxy_server_address = nil
+        subject.reverse_proxy_server_port = nil
+        lambda {
+          subject.render
+        }.should raise_error(ArgumentError, "None of the address, port or socket has been defined.")
+      end
 
-      it "should have reverse_proxy enabled"
+      it "should force defining reverse_proxy_server_port if reverse_proxy_server_address is defined" do
+        subject.reverse_proxy_server_address = 'localhost'
+        subject.reverse_proxy_server_port = nil
+
+        lambda {
+          subject.render
+        }.should raise_error(ArgumentError, "reverse_proxy_server_address is defined but reverse_proxy_server_port is not please define it.")
+      end
+
+      it "should force defining reverse_proxy_server_address if reverse_proxy_server_port is defined" do
+        subject.reverse_proxy_server_address = nil
+        subject.reverse_proxy_server_port = 8080
+        lambda {
+          subject.render
+        }.should raise_error(ArgumentError, "reverse_proxy_server_port is defined but reverse_proxy_server_address is not please define it.")
+      end
+
+      it "shouldn't allow defining both reverse_proxy_server_address and reverse_proxy_socket or reverse_proxy_server_port and reverse_proxy_socket" do
+        subject.reverse_proxy_socket = '/tmp/socket'
+        lambda {
+          subject.render
+        }.should raise_error(ArgumentError, "you should not define reverse_proxy_server_address, reverse_proxy_server_port and reverse_proxy_socket.")
+      end
     end
   end
 
@@ -84,12 +136,12 @@ describe Nginx do
       subject { Nginx.new :php_fpm }
 
       before(:each) do
-        subject.application_url = %w(example.com www.example.com)
+        subject.application_url = %w{example.com www.example.com}
         subject.application = 'example'
         subject.php_fpm_host = 'localhost'
         subject.php_fpm_port = 60313
         subject.public_path = '/path/to/application'
-        subject.indexes = %w(index.php)
+        subject.indexes = %w{index.php}
       end
 
       it "should render 'public_path'" do |variable|
@@ -123,12 +175,12 @@ describe Nginx do
       end
 
       it "should render 'application_url'" do
-        subject.application_url = %w(technogate.fr www.technogate.fr)
+        subject.application_url = %w{technogate.fr www.technogate.fr}
         subject.render.should =~ %r{server_name\s+technogate.fr www.technogate.fr;}
       end
 
       it "should render 'indexes'" do
-        subject.indexes = %w(index.php index.html)
+        subject.indexes = %w{index.php index.html}
         subject.render.should =~ %r{index\s+index.php index.html;}
       end
 
@@ -158,22 +210,47 @@ describe Nginx do
       end
     end
 
-    describe ":rails_passenger" do
-      subject { Nginx.new :rails_passenger }
+    describe ":passenger" do
+      subject { Nginx.new :passenger }
 
-      it "should render 'application'"
+      before(:each) do
+        subject.application_url = %w{example.com www.example.com}
+        subject.application = 'example'
+        subject.public_path = '/path/to/application'
+      end
 
-      it "should have passenger enabled"
+      it "should render 'application_url'" do
+        subject.application_url = %w{technogate.fr www.technogate.fr}
+        subject.render.should =~ %r{technogate.fr www.technogate.fr}
+      end
     end
 
     describe ":rails_reverse_proxy" do
       subject { Nginx.new :rails_reverse_proxy }
 
-      it "should render 'reverse_proxy_server_address'"
+      before(:each) do
+        subject.application_url = %w{example.com www.example.com}
+        subject.application = 'example'
+        subject.reverse_proxy_server_address = 'localhost'
+        subject.reverse_proxy_server_port = 8080
+      end
 
-      it "should render 'reverse_proxy_server_port'"
+      it "should render 'reverse_proxy_server_address'" do
+        subject.reverse_proxy_server_address = 'web_proxy'
+        subject.render.should =~ /upstream example_reverse_proxy .+server web_proxy:8080 fail_timeout=0;.+/m
+      end
 
-      it "should render 'reverse_proxy_socket'"
+      it "should render 'reverse_proxy_server_port'" do
+        subject.reverse_proxy_server_port = 6565
+        subject.render.should =~ /upstream example_reverse_proxy .+server localhost:6565 fail_timeout=0;.+/m
+      end
+
+      it "should render 'reverse_proxy_socket'" do
+        subject.reverse_proxy_server_address = nil
+        subject.reverse_proxy_server_port = nil
+        subject.reverse_proxy_socket = "/tmp/socket"
+        subject.render.should =~ /upstream example_reverse_proxy .+server unix:\/tmp\/socket;.+/m
+      end
     end
   end
 end
