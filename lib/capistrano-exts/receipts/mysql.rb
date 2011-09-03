@@ -14,6 +14,8 @@ Capistrano::Configuration.instance(:must_exist).load do
       mysql_db_name = fetch :mysql_db_name
       MYSQL_DB_BACKUP_PATH = "#{deploy_to}/backups/#{mysql_db_name}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.sql"
 
+      on_rollback { run "rm -f #{MYSQL_DB_BACKUP_PATH}" }
+
       if exists?(:mysql_credentials)
         begin
           run <<-CMD
@@ -139,6 +141,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Import a database dump"
     task :import_db_dump, :roles => :db, :except => { :no_release => true } do
+      on_rollback { run "rm -f /tmp/#{mysql_db_name}_dump.sql" }
+
       mysql_credentials = fetch :mysql_credentials
       mysql_db_name = fetch :mysql_db_name
 
@@ -175,6 +179,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Export a database dump"
     task :export_db_dump, :roles => :db, :except => { :no_release => true } do
+      on_rollback { run "rm -f /tmp/#{File.basename MYSQL_DB_BACKUP_PATH}{,.bz2" }
+
       mysql_credentials = fetch :mysql_credentials
 
       unless ARGV.size >=2 or File.exists?(ARGV[1])

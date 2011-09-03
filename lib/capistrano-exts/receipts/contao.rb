@@ -30,6 +30,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "[internal] Setup contao's localconfig"
     task :setup_localconfig, :roles => :app, :except => { :no_release => true } do
+      on_rollback { run "rm -f #{shared_path}/localconfig.php" }
+
       localconfig = File.read("public/system/config/localconfig.php.sample")
       mysql_credentials = fetch :mysql_credentials
       mysql_db_name = fetch :mysql_db_name
