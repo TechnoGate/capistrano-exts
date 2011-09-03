@@ -178,7 +178,8 @@ set :web_server_mode, :reverse_proxy
 # Where do you store contao contents ?
 # The contents are stored in the shared path because they are uploaded from
 # contao's admin section
-set :contents_path, -> { "#{fetch :public_path}/tl_files/contents"}
+# Uncomment if necessary (default to public_path/tl_files/contents)
+# set :contents_path, -> { "#{fetch :public_path}/tl_files/contents"}
 
 #
 #

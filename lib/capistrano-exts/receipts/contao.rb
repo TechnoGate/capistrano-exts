@@ -72,21 +72,23 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "[internal] Fix contao's symlinks to the shared path"
     task :fix_links, :roles => :app, :except => { :no_release => true } do
+      contents_path = fetch :contents_path, "#{fetch :public_path}/tl_files/contents"
+
       # Remove files
       run <<-CMD
-        #{try_sudo} rm -f #{fetch :contents_path} &&
+        #{try_sudo} rm -f #{contents_path} &&
         #{try_sudo} rm -rf #{fetch :latest_release}/public/system/logs &&
         #{try_sudo} rm -f #{fetch :latest_release}/public/system/config/localconfig.php &&
         #{try_sudo} rm -f #{fetch :latest_release}/public/.htaccess
       CMD
 
       run <<-CMD
-        mkdir -p #{File.dirname(fetch :contents_path)}
+        mkdir -p #{File.dirname(contents_path)}
       CMD
 
       # Create symlinks
       run <<-CMD
-        #{try_sudo} ln -nsf #{fetch :shared_path}/contents #{fetch :contents_path} &&
+        #{try_sudo} ln -nsf #{fetch :shared_path}/contents #{contents_path} &&
         #{try_sudo} ln -nsf #{fetch :shared_path}/config/htaccess.txt #{fetch :latest_release}/public/.htaccess &&
         #{try_sudo} ln -nsf #{fetch :shared_path}/config/localconfig.php #{fetch :latest_release}/public/system/config/localconfig.php &&
         #{try_sudo} ln -nsf #{fetch :shared_path}/logs #{fetch :latest_release}/public/system/logs
