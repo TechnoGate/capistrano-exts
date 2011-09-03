@@ -11,13 +11,13 @@ Installation
 Install the gem
 
 ```ruby
-gem install capistrano-ext
+gem install capistrano-exts
 ```
 
 or add it to your Gemfile
 
 ```ruby
-gem 'capistrano-ext', '>=1.0.0'
+gem 'capistrano-exts', '>=1.0.0'
 ```
 
 Setup
