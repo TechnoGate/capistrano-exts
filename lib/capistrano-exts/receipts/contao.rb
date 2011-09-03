@@ -74,6 +74,11 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :fix_links, :roles => :app, :except => { :no_release => true } do
       contents_path = fetch :contents_path, "#{fetch :public_path}/tl_files/contents"
 
+      # At this point, the current_path does not exists and by running an mkdir
+      # later, we're actually breaking stuff.
+      # So replace current_path with latest_release in the contents_path string
+      contents_path.gsub!(%r{#{current_path}}, fetch(:latest_release))
+
       # Remove files
       run <<-CMD
         #{try_sudo} rm -f #{contents_path} &&

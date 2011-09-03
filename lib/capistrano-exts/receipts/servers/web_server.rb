@@ -46,17 +46,21 @@ Capistrano::Configuration.instance(:must_exist).load do
           if exists?(:web_server_auth_credentials)
             web_server_auth_credentials = fetch :web_server_auth_credentials
             contents = Array.new
+            unencrypted_contents = Array.new
 
             web_server_auth_credentials.each do |credentials|
               if credentials[:password].is_a?(Proc)
-                password = credentials[:password].call.crypt(gen_pass(8))
+                password = credentials[:password].call
               else
-                password = credentials[:password].crypt(gen_pass(8))
+                password = credentials[:password]
               end
-              contents << "#{credentials[:user]}:#{password}"
+
+              unencrypted_contents << "#{credentials[:user]}:#{password}"
+              contents << "#{credentials[:user]}:#{password.crypt(gen_pass(8))}"
             end
 
             set :web_server_auth_file_contents, contents.join("\n")
+            set :web_server_auth_file_unencrypted_contents, unencrypted_contents.join("\n")
           end
         end
 
@@ -70,6 +74,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           if exists?(:web_server_auth_file)
             web_server_auth_file = fetch :web_server_auth_file
             web_server_auth_file_contents = fetch :web_server_auth_file_contents
+            web_server_auth_file_unencrypted_contents = fetch :web_server_auth_file_unencrypted_contents
             random_file = random_tmp_file web_server_auth_file_contents
 
             run <<-CMD
@@ -81,6 +86,11 @@ Capistrano::Configuration.instance(:must_exist).load do
             run <<-CMD
               #{try_sudo} mv #{random_file} #{web_server_auth_file}
             CMD
+
+            # Store the unencrypted version of the contents
+            put web_server_auth_file_unencrypted_contents, "#{fetch :deploy_to}/.http_basic_auth"
+            puts "This site uses http basic auth, the credentials are:"
+            puts web_server_auth_file_unencrypted_contents
           end
         end
 

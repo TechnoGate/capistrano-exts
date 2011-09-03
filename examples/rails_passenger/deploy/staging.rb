@@ -23,10 +23,9 @@ set :branch, "staging"
 set :use_sudo, false
 
 # Define deployments options
-# NOTE: Do not use current_path here but use latest_release instead.
 set :deploy_to,   -> { "/home/vhosts/#{fetch :stage}/#{fetch :application}" }
 set :logs_path,   -> { "#{fetch :deploy_to}/logs" }
-set :public_path, -> { "#{fetch :latest_release}/public" }
+set :public_path, -> { "#{fetch :current_path}/public" }
 
 # How should we deploy?
 # Valid options:
