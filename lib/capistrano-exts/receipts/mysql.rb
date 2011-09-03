@@ -59,7 +59,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "create database user"
     task :create_db_user, :roles => :db, :except => { :no_release => true } do
       mysql_root_credentials = fetch :mysql_root_credentials
-      random_file = random_tmp_file web_server_auth_file_contents
+      random_file = random_tmp_file mysql_root_credentials[:pass]
 
       unless mysql_root_credentials.blank?
         set :mysql_db_pass, -> { gen_pass(8) }
@@ -75,35 +75,40 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         put mysql_create, random_file
 
-        run <<-CMD
-          mysql \
-            --host='#{mysql_root_credentials[:host]}' \
-            --user='#{mysql_root_credentials[:user]}' \
-            --password='#{mysql_root_credentials[:pass]}' \
-            --default-character-set=utf8 < \
-            #{random_file}
-        CMD
+        begin
+          run <<-CMD
+            mysql \
+              --host='#{mysql_root_credentials[:host]}' \
+              --user='#{mysql_root_credentials[:user]}' \
+              --password='#{mysql_root_credentials[:pass]}' \
+              --default-character-set=utf8 < \
+              #{random_file}
+          CMD
 
-        run <<-CMD
-          rm -f #{random_file}
-        CMD
+          run <<-CMD
+            rm -f #{random_file}
+          CMD
+
+          find_and_execute_task("mysql:write_db_credentials")
+        rescue
+          puts "WARNING: The user #{application} already exists."
+          find_and_execute_task("mysql:print_db_credentials")
+        end
       end
     end
 
     desc "write database credentials"
     task :write_db_credentials do
       mysql_credentials_file = fetch :mysql_credentials_file
+      unless exists?(:mysql_credentials_file) and remote_file_exists?(mysql_credentials_file)
+          put mysql_credentials, mysql_credentials_file
+      end
+    end
 
-      # TODO: mysql_db_host is wrong! it should be the primary db server!
-      mysql_credentials = <<-EOS
-        host: #{mysql_db_host}
-        user: #{mysql_db_user}
-        pass: #{fetch :mysql_db_pass}
-      EOS
-
-      unless mysql_credentials_file.blank?
-        put mysql_credentials, mysql_credentials_file
-      else
+    desc "print database credentials"
+    task :print_db_credentials do
+      mysql_credentials_file = fetch :mysql_credentials_file
+      unless exists?(:mysql_credentials_file) and remote_file_exists?(mysql_credentials_file)
         puts "WARNING: mysql_credentials_file is not defined in config.rb you have to manually copy the following info into a credential file and define it"
         puts mysql_credentials
       end
@@ -205,12 +210,16 @@ Capistrano::Configuration.instance(:must_exist).load do
             set :mysql_credentials, false
           end
 
-         if exists?(:mysql_credentials_file_contents)
-            set :mysql_credentials, {
-              host: mysql_credentials_file_contents.match(mysql_credentials_host_regex)[mysql_credentials_host_regex_match].chomp,
-              user: mysql_credentials_file_contents.match(mysql_credentials_user_regex)[mysql_credentials_user_regex_match].chomp,
-              pass: mysql_credentials_file_contents.match(mysql_credentials_pass_regex)[mysql_credentials_pass_regex_match].chomp,
-            }
+          if exists?(:mysql_credentials_file_contents)
+            mysql_credentials_file_contents = fetch :mysql_credentials_file_contents
+
+            unless mysql_credentials_file_contents.blank?
+              set :mysql_credentials, {
+                host: mysql_credentials_file_contents.match(mysql_credentials_host_regex).try(:[], mysql_credentials_host_regex_match).try(:chomp),
+                user: mysql_credentials_file_contents.match(mysql_credentials_user_regex).try(:[], mysql_credentials_user_regex_match).try(:chomp),
+                pass: mysql_credentials_file_contents.match(mysql_credentials_pass_regex).try(:[], mysql_credentials_pass_regex_match).try(:chomp),
+              }
+            end
           end
         end
 
@@ -238,12 +247,15 @@ Capistrano::Configuration.instance(:must_exist).load do
             set :mysql_root_credentials, false
           end
 
-         if exists?(:mysql_root_credentials_file_contents)
-            set :mysql_root_credentials, {
-              host: mysql_root_credentials_file_contents.match(mysql_root_credentials_host_regex)[mysql_root_credentials_host_regex_match].chomp,
-              user: mysql_root_credentials_file_contents.match(mysql_root_credentials_user_regex)[mysql_root_credentials_user_regex_match].chomp,
-              pass: mysql_root_credentials_file_contents.match(mysql_root_credentials_pass_regex)[mysql_root_credentials_pass_regex_match].chomp,
-            }
+          if exists?(:mysql_root_credentials_file_contents)
+            mysql_root_credentials_file_contents = fetch :mysql_root_credentials_file_contents
+            unless mysql_root_credentials_file_contents.blank?
+              set :mysql_root_credentials, {
+                host: mysql_root_credentials_file_contents.match(mysql_root_credentials_host_regex).try(:[], mysql_root_credentials_host_regex_match).try(:chomp),
+                user: mysql_root_credentials_file_contents.match(mysql_root_credentials_user_regex).try(:[], mysql_root_credentials_user_regex_match).try(:chomp),
+                pass: mysql_root_credentials_file_contents.match(mysql_root_credentials_pass_regex).try(:[], mysql_root_credentials_pass_regex_match).try(:chomp),
+              }
+            end
           end
         end
 
@@ -265,6 +277,5 @@ Capistrano::Configuration.instance(:must_exist).load do
   before "mysql:import_db_dump", "mysql:backup_db"
   before "mysql:export_db_dump", "mysql:backup_db"
   before "mysql:create_db_user", "mysql:root_credentials"
-  after  "mysql:create_db_user", "mysql:write_db_credentials"
-  after  "mysql:write_db_credentials", "mysql:create_db"
+  after  "mysql:create_db_user", "mysql:create_db"
 end

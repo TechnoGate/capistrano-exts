@@ -15,7 +15,7 @@ end
 Capistrano::Configuration.instance(:must_exist).load do
   namespace :deploy do
     namespace :server do
-      namespace :setup do
+      namespace :prepare do
         desc "Prepare the server (database server, web server and folders)"
         task :default do
           # Empty task, server preparation goes into callbacks
@@ -43,9 +43,9 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   # Callbacks
-  before "deploy:server:setup", "deploy:server:setup:folders"
-  after  "deploy:server:setup", "deploy:server:setup:finish"
+  before "deploy:server:prepare", "deploy:server:prepare:folders"
+  after  "deploy:server:prepare", "deploy:server:prepare:finish"
 
-  after "deploy:server:setup:folders", "deploy:server:db_server:setup"
-  after "deploy:server:setup:folders", "deploy:server:web_server:setup"
+  after "deploy:server:prepare:folders", "deploy:server:db_server:prepare"
+  after "deploy:server:prepare:folders", "deploy:server:web_server:prepare"
 end

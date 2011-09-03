@@ -15,8 +15,13 @@ Capistrano::Configuration.instance(:must_exist).load do
   namespace :deploy do
     namespace :server do
       namespace :web_server do
-        desc "Setup web server"
-        task :setup, :roles => :web do
+        desc "Prepare the web server"
+        task :prepare, :roles => :web do
+          # Empty task, server preparation goes into callbacks
+        end
+
+        desc "Finished preparing the web server"
+        task :finish do
           # Empty task, server preparation goes into callbacks
         end
 
@@ -96,16 +101,12 @@ Capistrano::Configuration.instance(:must_exist).load do
             CMD
           end
         end
-
-        task :finish do
-          # Empty task for callbacks
-        end
       end
     end
   end
 
-  before "deploy:server:web_server:setup", "deploy:server:web_server:generate_web_configuration"
-  after  "deploy:server:web_server:setup", "deploy:server:web_server:finish"
+  before "deploy:server:web_server:prepare", "deploy:server:web_server:generate_web_configuration"
+  after  "deploy:server:web_server:prepare", "deploy:server:web_server:finish"
   after "deploy:server:web_server:generate_web_configuration", "deploy:server:web_server:generate_authentification"
   after "deploy:server:web_server:generate_web_configuration", "deploy:server:web_server:write_web_conf_file"
   after "deploy:server:web_server:generate_authentification", "deploy:server:web_server:write_web_server_auth_file"

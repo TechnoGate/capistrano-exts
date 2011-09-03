@@ -49,13 +49,18 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
   end
 
-  def mysql_db_name(local_branch = nil)
-    local_branch ||= fetch :branch
-    "#{fetch :application}_co_#{local_branch}"
+  def mysql_db_name(stage = nil)
+    stage ||= fetch :stage
+    "#{fetch :application}_#{stage}"
   end
 
   def mysql_db_user
-    ((fetch :application).size > 16) ? (fetch :application).truncate(16) : fetch :application
+    application = fetch :application
+    if application.size > 16
+      application.truncate 16, omission: ""
+    else
+      application
+    end
   end
 
   def mysql_db_hosts
@@ -70,5 +75,14 @@ Capistrano::Configuration.instance(:must_exist).load do
     else
       "/tmp/#{fetch :application}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}"
     end
+  end
+
+  # Helper for some mysql tasks
+  def mysql_credentials
+    return <<-EOS
+      hostname: localhost
+      username: #{mysql_db_user}
+      password: #{fetch :mysql_db_pass}
+    EOS
   end
 end
