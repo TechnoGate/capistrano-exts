@@ -56,6 +56,59 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
 
+    desc "create database user"
+    task :create_db_user, :roles => :db, :except => { :no_release => true } do
+      mysql_root_credentials = fetch :mysql_root_credentials
+      random_file = random_tmp_file web_server_auth_file_contents
+
+      unless mysql_root_credentials.blank?
+        set :mysql_db_pass, -> { gen_pass(8) }
+        mysql_create = ""
+
+        mysql_db_hosts.each do |host|
+          mysql_create << <<-EOS
+            CREATE USER '#{mysql_db_user}'@'#{host}' IDENTIFIED BY '#{fetch :mysql_db_pass}';
+            GRANT ALL ON `#{fetch :application}\_%`.* TO '#{mysql_db_user}'@'#{host}';
+            FLUSH PRIVILEGES;
+          EOS
+        end
+
+        put mysql_create, random_file
+
+        run <<-CMD
+          mysql \
+            --host='#{mysql_root_credentials[:host]}' \
+            --user='#{mysql_root_credentials[:user]}' \
+            --password='#{mysql_root_credentials[:pass]}' \
+            --default-character-set=utf8 < \
+            #{random_file}
+        CMD
+
+        run <<-CMD
+          rm -f #{random_file}
+        CMD
+      end
+    end
+
+    desc "write database credentials"
+    task :write_db_credentials do
+      mysql_credentials_file = fetch :mysql_credentials_file
+
+      # TODO: mysql_db_host is wrong! it should be the primary db server!
+      mysql_credentials = <<-EOS
+        host: #{mysql_db_host}
+        user: #{mysql_db_user}
+        pass: #{fetch :mysql_db_pass}
+      EOS
+
+      unless mysql_credentials_file.blank?
+        put mysql_credentials, mysql_credentials_file
+      else
+        puts "WARNING: mysql_credentials_file is not defined in config.rb you have to manually copy the following info into a credential file and define it"
+        puts mysql_credentials
+      end
+    end
+
     desc "create database"
     task :create_db, :roles => :db, :except => { :no_release => true } do
       mysql_credentials = fetch :mysql_credentials
@@ -211,4 +264,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   before "mysql:create_db", "mysql:credentials"
   before "mysql:import_db_dump", "mysql:backup_db"
   before "mysql:export_db_dump", "mysql:backup_db"
+  before "mysql:create_db_user", "mysql:root_credentials"
+  after  "mysql:create_db_user", "mysql:write_db_credentials"
 end

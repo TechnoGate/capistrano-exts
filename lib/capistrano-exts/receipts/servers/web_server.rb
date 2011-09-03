@@ -65,7 +65,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           if exists?(:web_server_auth_file)
             web_server_auth_file = fetch :web_server_auth_file
             web_server_auth_file_contents = fetch :web_server_auth_file_contents
-            random_file = "/tmp/#{fetch :application}_#{Digest::SHA1.hexdigest web_server_auth_file_contents}"
+            random_file = random_tmp_file web_server_auth_file_contents
 
             run <<-CMD
               #{try_sudo} mkdir -p #{File.dirname web_server_auth_file}

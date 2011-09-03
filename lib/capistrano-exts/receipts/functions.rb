@@ -1,4 +1,5 @@
 require 'capistrano'
+require 'digest/sha1'
 require 'highline'
 
 # Verify that Capistrano is version 2
@@ -51,5 +52,23 @@ Capistrano::Configuration.instance(:must_exist).load do
   def mysql_db_name(local_branch = nil)
     local_branch ||= fetch :branch
     "#{fetch :application}_co_#{local_branch}"
+  end
+
+  def mysql_db_user
+    ((fetch :application).size > 16) ? (fetch :application).truncate(16) : fetch :application
+  end
+
+  def mysql_db_hosts
+    # TODO: Do some real work here, we shouldn't be allowing all hosts but only all db/web/app hosts.
+    ['%']
+  end
+
+  def random_tmp_file(data = nil)
+    if data.present?
+      data_hash = Digest::SHA1.hexdigest data
+      "/tmp/#{fetch :application}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}_#{data_hash}"
+    else
+      "/tmp/#{fetch :application}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}"
+    end
   end
 end
