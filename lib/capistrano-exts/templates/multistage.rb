@@ -5,9 +5,11 @@ role :web, 'root@nasreddine.com:22'
 role :app, 'root@nasreddine.com:22'
 role :db, 'root@nasreddine.com:22', primary: true
 
-# Permissions (ownership)
-set :app_owner, 'www'
-set :app_group, 'www'
+# Permissions and ownership
+# Uncomment if necessary...
+# set :app_owner, 'www-data'
+# set :app_group, 'www-data'
+# set :group_writable, true
 
 # The project's branch to use
 # Uncomment and edit this if you're using git, for other SCM's please refer
@@ -29,21 +31,48 @@ set :keep_releases, 5
 # Using RVM? Set this to the ruby version/gemset to use
 set :rvm_ruby_string, "1.9.2"
 
-# Mysql credentials
+#############
+# Mysql
+#
+
+# What is the database name for this project/stage ?
+set :mysql_db_name,                           -> { "#{fetch :application}_#{fetch :stage}" }
+
+# What is the database user ?
+# NOTE: This is only used if you run deploy:server:prepare which calls mysql:create_db_user
+set :mysql_db_user,                           -> { "#{fetch :application}" }
+
+# Where the database credentials are stored on the server ?
 set :mysql_credentials_file,                  -> { "#{deploy_to}/.mysql_password"}
+
+# Define the regex / match that will be ran against the contents of the file above to fetch the hostname
 set :mysql_credentials_host_regex,            /hostname: (.*)$/o
 set :mysql_credentials_host_regex_match,      1
+
+# Define the regex / match that will be ran against the contents of the file above to fetch the username
 set :mysql_credentials_user_regex,            /username: (.*)$/o
 set :mysql_credentials_user_regex_match,      1
+
+# Define the regex / match that will be ran against the contents of the file above to fetch the password
 set :mysql_credentials_pass_regex,            /password: (.*)$/o
 set :mysql_credentials_pass_regex_match,      1
+
+# Where can we find root credentials ?
+# NOTE: These options are only used if you run deploy:server:prepare which calls mysql:create_db_user
 set :mysql_root_credentials_file,             "/root/.mysql_password"
+
+# Define the regex / match that will be ran against the contents of the file above to fetch the hostname
 set :mysql_root_credentials_host_regex,       /hostname: (.*)$/o
 set :mysql_root_credentials_host_regex_match, 1
+
+# Define the regex / match that will be ran against the contents of the file above to fetch the username
 set :mysql_root_credentials_user_regex,       /username: (.*)$/o
 set :mysql_root_credentials_user_regex_match, 1
+
+# Define the regex / match that will be ran against the contents of the file above to fetch the password
 set :mysql_root_credentials_pass_regex,       /password: (.*)$/o
 set :mysql_root_credentials_pass_regex_match, 1
+
 
 #############
 # Web server

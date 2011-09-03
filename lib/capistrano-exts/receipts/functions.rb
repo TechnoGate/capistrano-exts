@@ -49,20 +49,6 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
   end
 
-  def mysql_db_name(stage = nil)
-    stage ||= fetch :stage
-    "#{fetch :application}_#{stage}"
-  end
-
-  def mysql_db_user
-    application = fetch :application
-    if application.size > 16
-      application.truncate 16, omission: ""
-    else
-      application
-    end
-  end
-
   def mysql_db_hosts
     # TODO: Do some real work here, we shouldn't be allowing all hosts but only all db/web/app hosts.
     ['%']

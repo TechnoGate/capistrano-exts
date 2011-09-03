@@ -21,7 +21,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       unless exists?(:app_owner) or exists?(:app_group)
         run <<-CMD
           #{try_sudo} chown -R \
-            #{fetch :app_owner}:#{fetch :app_group} \
+            #{fetch :app_owner, 'www-data'}:#{fetch :app_group, 'www-data'} \
             #{fetch :deploy_to}/releases \
             #{fetch :deploy_to}/shared
         CMD

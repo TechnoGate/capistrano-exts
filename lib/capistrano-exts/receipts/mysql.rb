@@ -11,6 +11,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Backup database"
     task :backup_db, :roles => :db, :except => { :no_release => true } do
       mysql_credentials = fetch :mysql_credentials
+      mysql_db_name = fetch :mysql_db_name
       MYSQL_DB_BACKUP_PATH = "#{deploy_to}/backups/#{mysql_db_name}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.sql"
 
       if exists?(:mysql_credentials)
@@ -39,6 +40,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "drop database"
     task :drop_db, :roles => :db, :except => { :no_release => true } do
       mysql_credentials = fetch :mysql_credentials
+      mysql_db_name = fetch :mysql_db_name
 
       unless mysql_credentials.blank?
         begin
@@ -59,6 +61,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "create database user"
     task :create_db_user, :roles => :db, :except => { :no_release => true } do
       mysql_root_credentials = fetch :mysql_root_credentials
+      mysql_db_user = fetch :mysql_db_user
       random_file = random_tmp_file mysql_root_credentials[:pass]
 
       unless mysql_root_credentials.blank?
@@ -117,6 +120,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "create database"
     task :create_db, :roles => :db, :except => { :no_release => true } do
       mysql_credentials = fetch :mysql_credentials
+      mysql_db_name = fetch :mysql_db_name
 
       unless mysql_credentials.blank?
         begin
@@ -136,6 +140,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Import a database dump"
     task :import_db_dump, :roles => :db, :except => { :no_release => true } do
       mysql_credentials = fetch :mysql_credentials
+      mysql_db_name = fetch :mysql_db_name
 
       unless ARGV.size >=2 and File.exists?(ARGV[1])
         puts "ERROR: please run 'cap mysql:import_db_dump <sql dump>'"
