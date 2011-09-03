@@ -8,6 +8,9 @@ unless Capistrano::Configuration.respond_to?(:instance)
 end
 
 Capistrano::Configuration.instance(:must_exist).load do
+  # Prevent capistrano from creating log, system and pids folders.
+  set :shared_children, Array.new
+
   namespace :deploy do
     desc "Empty task, overriden by #{__FILE__}"
     task :finalize_update do
@@ -19,18 +22,19 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "[internal] Setup contao shared contents"
     task :setup, :roles => :app, :except => { :no_release => true } do
       run <<-CMD
-        #{try_sudo} mkdir -p #{shared_path}/log &&
-        #{try_sudo} mkdir -p #{shared_path}/contenu &&
-        #{try_sudo} mkdir -p #{shared_path}/contenu/images &&
-        #{try_sudo} mkdir -p #{shared_path}/contenu/videos &&
-        #{try_sudo} mkdir -p #{shared_path}/contenu/son &&
-        #{try_sudo} mkdir -p #{shared_path}/contenu/pdfs
+        #{try_sudo} mkdir -p #{shared_path}/logs &&
+        #{try_sudo} mkdir -p #{shared_path}/config &&
+        #{try_sudo} mkdir -p #{shared_path}/contents &&
+        #{try_sudo} mkdir -p #{shared_path}/contents/image &&
+        #{try_sudo} mkdir -p #{shared_path}/contents/video &&
+        #{try_sudo} mkdir -p #{shared_path}/contents/audio &&
+        #{try_sudo} mkdir -p #{shared_path}/contents/pdf
       CMD
     end
 
     desc "[internal] Setup contao's localconfig"
     task :setup_localconfig, :roles => :app, :except => { :no_release => true } do
-      on_rollback { run "rm -f #{shared_path}/localconfig.php" }
+      on_rollback { run "rm -f #{shared_path}/config/localconfig.php" }
 
       localconfig = File.read("public/system/config/localconfig.php.sample")
       mysql_credentials = fetch :mysql_credentials
@@ -48,17 +52,44 @@ Capistrano::Configuration.instance(:must_exist).load do
         localconfig.gsub!(/#DB_NAME#/, mysql_db_name)
       end
 
-      put localconfig, "#{shared_path}/localconfig.php"
+      put localconfig, "#{shared_path}/config/localconfig.php"
     end
 
+    desc "[internal] Setup .htaccess"
+    task :setup_htaccess do
+      unless remote_file_exists?("#{fetch :shared_path}/config/htaccess.txt")
+        begin
+          run <<-CMD
+            #{try_sudo} cp #{fetch :latest_release}/public/.htaccess.default #{fetch :shared_path}/config/htaccess.txt
+          CMD
+        rescue
+          run <<-CMD
+            #{try_sudo} touch #{fetch :shared_path}/config/htaccess.txt
+          CMD
+        end
+      end
+    end
+
+    desc "[internal] Fix contao's symlinks to the shared path"
     task :fix_links, :roles => :app, :except => { :no_release => true } do
+      # Remove files
       run <<-CMD
-        #{try_sudo} rm -rf #{fetch :latest_release}/public/tl_files/durable/contenu &&
-        #{try_sudo} rm -rf #{fetch :latest_release}/log &&
-        #{try_sudo} ln -nsf #{fetch :shared_path}/contenu #{fetch :latest_release}/public/tl_files/durable/contenu &&
-        #{try_sudo} ln -nsf #{fetch :shared_path}/htaccess.txt #{fetch :latest_release}/public/.htaccess &&
-        #{try_sudo} ln -nsf #{fetch :shared_path}/localconfig.php #{fetch :latest_release}/public/system/config/localconfig.php &&
-        #{try_sudo} ln -nsf #{fetch :shared_path}/log #{fetch :latest_release}/log
+        #{try_sudo} rm -f #{fetch :contents_path} &&
+        #{try_sudo} rm -rf #{fetch :latest_release}/public/system/logs &&
+        #{try_sudo} rm -f #{fetch :latest_release}/public/system/config/localconfig.php &&
+        #{try_sudo} rm -f #{fetch :latest_release}/public/.htaccess
+      CMD
+
+      run <<-CMD
+        mkdir -p #{File.dirname(fetch :contents_path)}
+      CMD
+
+      # Create symlinks
+      run <<-CMD
+        #{try_sudo} ln -nsf #{fetch :shared_path}/contents #{fetch :contents_path} &&
+        #{try_sudo} ln -nsf #{fetch :shared_path}/config/htaccess.txt #{fetch :latest_release}/public/.htaccess &&
+        #{try_sudo} ln -nsf #{fetch :shared_path}/config/localconfig.php #{fetch :latest_release}/public/system/config/localconfig.php &&
+        #{try_sudo} ln -nsf #{fetch :shared_path}/logs #{fetch :latest_release}/public/system/logs
       CMD
     end
   end
@@ -67,6 +98,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   after "deploy:setup", "contao:setup"
   after "contao:setup", "contao:setup_localconfig"
   after "deploy:finalize_update", "contao:fix_links"
+  before "contao:fix_links", "contao:setup_htaccess"
   after "contao:fix_links", "deploy:cleanup"
   after "deploy:restart", "deploy:fix_permissions"
 

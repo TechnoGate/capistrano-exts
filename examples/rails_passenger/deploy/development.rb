@@ -23,10 +23,30 @@ set :branch, "master"
 set :use_sudo, false
 
 # Define deployments options
-set :deploy_to,   "/home/vhosts/#{application}"
+# NOTE: Do not use current_path here but use latest_release instead.
+set :deploy_to,   -> { "/home/vhosts/#{fetch :stage}/#{fetch :application}" }
+set :logs_path,   -> { "#{fetch :deploy_to}/logs" }
+set :public_path, -> { "#{fetch :latest_release}/public" }
+
+# How should we deploy?
+# Valid options:
+# => checkout: this deployment strategy does an SCM checkout on each target
+#              host. This is the default deployment strategy for Capistrano.
+#
+# => copy: this deployment strategy work by preparing the source code locally,
+#          compressing it, copying the file to each target host, and
+#          uncompressing it to the deployment directory.
+#          NOTE: This strategy has more options you can configure, please refer
+#                to capistrano/recipes/deploy/strategy/copy.rb (in capistrano)
+#                source or documentation for more information
+#
+# => export: this deployment strategy does an SCM export on each target host.
+#
+# => remote_cache: this deployment strategy keeps a cached checkout of the
+#                  source code on each remote server. Each deploy simply updates
+#                  the cached checkout, and then does a copy from the cached
+#                  copy to the final deployment location.
 set :deploy_via,  :remote_cache
-set :logs_path,   "#{deploy_to}/logs"
-set :public_path, -> { "#{current_path}/public" }
 
 # Keep only the last 5 releases
 set :keep_releases, 5
@@ -149,5 +169,19 @@ set :web_server_mode, :passenger
 # => What is the path to the socket file
 # set :reverse_proxy_socket, -> { "#{shared_path}/sockets/unicorn.sock"}
 
+#
+#
+#############
+
+#############
+# Contao
+#
+
+# Where do you store contao contents ?
+# The contents are stored in the shared path because they are uploaded from
+# contao's admin section
+# set :contents_path, -> { "#{fetch :public_path}/tl_files/contents"}
+
+#
 #
 #############
