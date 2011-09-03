@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = Capistrano::Extensions::Version::STRING.dup
   s.authors     = ["Wael Nasreddine"]
   s.email       = ["wael.nasreddine@gmail.com"]
-  s.homepage    = "https://github.com/Extensions/capistrano-exts"
+  s.homepage    = "https://github.com/TechnoGate/capistrano-exts"
   s.summary     = %q{Handy extensions for Capistrano}
   s.description = s.summary
 
@@ -33,7 +33,7 @@ Gem::Specification.new do |s|
 
   # Development / Test dependencies
   s.add_development_dependency('rspec', '>=2.6.0')
-  s.add_development_dependency('mocha', '>=0.2.12')
-  s.add_development_dependency('factory_girl', '>=2.0.5')
-  s.add_development_dependency('faker19', '>=1.0.5')
+  # s.add_development_dependency('mocha', '>=0.2.12')
+  # s.add_development_dependency('factory_girl', '>=2.0.5')
+  # s.add_development_dependency('faker19', '>=1.0.5')
 end

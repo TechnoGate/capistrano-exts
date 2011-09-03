@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'faker'
 require 'rspec'
 
 # Require the library (without receipts)
@@ -12,7 +11,7 @@ RENDERED_TEMPLATES_PATH = File.expand_path(File.join File.dirname(__FILE__), 're
 include Capistrano::Extensions
 include Server
 
-# Require factories
+# Require support files
 Dir[ROOT_PATH + "/spec/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
