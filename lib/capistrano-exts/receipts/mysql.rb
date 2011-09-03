@@ -266,4 +266,5 @@ Capistrano::Configuration.instance(:must_exist).load do
   before "mysql:export_db_dump", "mysql:backup_db"
   before "mysql:create_db_user", "mysql:root_credentials"
   after  "mysql:create_db_user", "mysql:write_db_credentials"
+  after  "mysql:write_db_credentials", "mysql:create_db"
 end

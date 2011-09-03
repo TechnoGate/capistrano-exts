@@ -63,7 +63,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   # Dependencies
   after "deploy:setup", "contao:setup"
   after "contao:setup", "contao:setup_localconfig"
-  after "contao:setup_localconfig", "mysql:create_db"
   after "deploy:finalize_update", "contao:fix_links"
   after "contao:fix_links", "deploy:cleanup"
   after "deploy:restart", "deploy:fix_permissions"
