@@ -1,9 +1,9 @@
 # Here you can set the server which you would like to, each server
 # each role can have multiple servers, each server defined as user@server.com:port
 # => port can be omiped and it defaults to 22
-role :web, 'root@nasreddine.com:22'
-role :app, 'root@nasreddine.com:22'
-role :db, 'root@nasreddine.com:22', primary: true
+role :web, 'root@example.com:22'
+role :app, 'root@example.com:22'
+role :db, 'root@example.com:22', primary: true
 
 # Permissions and ownership
 # Uncomment if necessary...
