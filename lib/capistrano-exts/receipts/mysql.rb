@@ -55,7 +55,24 @@ Capistrano::Configuration.instance(:must_exist).load do
               '#{mysql_db_name}'
           CMD
         rescue
-          puts "WARNING: The database doesn't exist."
+          puts "WARNING: The database doesn't exist or you do not have permissions to drop it, trying to drop all tables inside of it."
+          begin
+            run <<-CMD
+              mysqldump \
+                --host='#{mysql_credentials[:host]}' \
+                --user='#{mysql_credentials[:user]}' \
+                --password='#{mysql_credentials[:pass]}' \
+                --add-drop-table --no-data '#{mysql_db_name}' |\
+                grep '^DROP' | \
+                mysql \
+                --host='#{mysql_credentials[:host]}' \
+                --user='#{mysql_credentials[:user]}' \
+                --password='#{mysql_credentials[:pass]}' \
+                '#{mysql_db_name}'
+            CMD
+          rescue
+            puts "WARNING: The database does not exist."
+          end
         end
       end
     end
