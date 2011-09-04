@@ -227,7 +227,17 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :write_credentials do
       unless exists?(:mysql_credentials_file) and remote_file_exists?(fetch :mysql_credentials_file)
         mysql_credentials_file = fetch :mysql_credentials_file
-        put mysql_credentials_formatted(fetch :mysql_credentials), mysql_credentials_file
+        random_file = random_tmp_file(mysql_credentials_formatted(fetch :mysql_credentials))
+        put mysql_credentials_formatted(fetch :mysql_credentials), random_file
+
+        begin
+          run <<-CMD
+            #{try_sudo} mv #{random_file} #{mysql_credentials_file}
+          CMD
+        rescue Capistrano::CommandError
+          puts "WARNING: Apparently you do not have permissions to write to #{mysql_credentials_file}."
+          find_and_execute_task("mysql:print_credentials")
+        end
       else
         puts "WARNING: mysql_credentials_file is not defined in config.rb you have to manually copy the following info into a credential file and define it"
         find_and_execute_task("mysql:print_credentials")
@@ -294,7 +304,17 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :write_root_credentials do
       unless exists?(:mysql_root_credentials_file) and remote_file_exists?(fetch :mysql_root_credentials_file)
         mysql_root_credentials_file = fetch :mysql_root_credentials_file
-        put mysql_credentials_formatted(fetch :mysql_root_credentials), mysql_root_credentials_file
+        random_file = random_tmp_file(mysql_root_credentials_formatted(fetch :mysql_root_credentials))
+        put mysql_root_credentials_formatted(fetch :mysql_root_credentials), random_file
+
+        begin
+          run <<-CMD
+            #{try_sudo} mv #{random_file} #{mysql_root_credentials_file}
+          CMD
+        rescue Capistrano::CommandError
+          puts "WARNING: Apparently you do not have permissions to write to #{mysql_root_credentials_file}."
+          find_and_execute_task("mysql:print_root_credentials")
+        end
       else
         puts "WARNING: mysql_root_credentials_file is not defined in config.rb you have to manually copy the following info into a credential file and define it"
         find_and_execute_task("mysql:print_root_credentials")
