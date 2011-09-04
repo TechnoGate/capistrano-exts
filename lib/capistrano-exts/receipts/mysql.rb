@@ -1,4 +1,5 @@
 require 'capistrano'
+require 'capistrano/errors'
 require 'capistrano-exts/receipts/deploy'
 
 # Verify that Capistrano is version 2
@@ -31,7 +32,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           run <<-CMD
             #{try_sudo} bzip2 -9 '#{MYSQL_DB_BACKUP_PATH}'
           CMD
-        rescue
+        rescue Capistrano::CommandError
           puts "WARNING: The database doesn't exist."
         end
       else
@@ -54,7 +55,7 @@ Capistrano::Configuration.instance(:must_exist).load do
               drop --force \
               '#{mysql_db_name}'
           CMD
-        rescue
+        rescue Capistrano::CommandError
           puts "WARNING: The database doesn't exist or you do not have permissions to drop it, trying to drop all tables inside of it."
           begin
             run <<-CMD
@@ -70,7 +71,7 @@ Capistrano::Configuration.instance(:must_exist).load do
                 --password='#{mysql_credentials[:pass]}' \
                 '#{mysql_db_name}'
             CMD
-          rescue
+          rescue Capistrano::CommandError
             puts "WARNING: The database doesn't exist or you do not have permissions to drop it."
           end
         end
@@ -112,15 +113,13 @@ Capistrano::Configuration.instance(:must_exist).load do
           CMD
 
           set :mysql_credentials, {
-            # TODO: The host is not always localhost, it should be the primary
-            #       database server
-            host: 'localhost',
+            host: find_servers(:roles => :db, primary: true).first.to_s.gsub(/^(.*@)?([^:]*)(:.*)?$/, '\2'),
             user: mysql_db_user,
             pass: fetch(:mysql_db_pass),
           }
 
           find_and_execute_task("mysql:write_credentials")
-        rescue
+        rescue Capistrano::CommandError
           puts "WARNING: The user #{application} already exists or you do not have permissions to create it."
           find_and_execute_task("mysql:print_credentials")
         end
@@ -141,7 +140,7 @@ Capistrano::Configuration.instance(:must_exist).load do
               --password='#{mysql_credentials[:pass]}' \
               create '#{mysql_db_name}'
           CMD
-        rescue
+        rescue Capistrano::CommandError
           puts "WARNING: The database already exists or you do not have permissions to create it."
         end
       end
@@ -226,9 +225,9 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "[internal] write database credentials"
     task :write_credentials do
-      mysql_credentials_file = fetch :mysql_credentials_file
-      unless exists?(:mysql_credentials_file) and remote_file_exists?(mysql_credentials_file)
-          put mysql_credentials_formatted(fetch :mysql_credentials), mysql_credentials_file
+      unless exists?(:mysql_credentials_file) and remote_file_exists?(fetch :mysql_credentials_file)
+        mysql_credentials_file = fetch :mysql_credentials_file
+        put mysql_credentials_formatted(fetch :mysql_credentials), mysql_credentials_file
       else
         puts "WARNING: mysql_credentials_file is not defined in config.rb you have to manually copy the following info into a credential file and define it"
         find_and_execute_task("mysql:print_credentials")
@@ -237,14 +236,14 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Get Mysql credentials"
     task :credentials, :roles => :app, :except => { :no_release => true } do
-      mysql_credentials_file = fetch :mysql_credentials_file
-
       unless exists?(:mysql_credentials)
         # We haven't got the credentials yet, look for them
-        if exists?(:mysql_credentials_file) and remote_file_exists?(mysql_credentials_file)
+        if exists?(:mysql_credentials_file) and remote_file_exists?(fetch :mysql_credentials_file)
+          mysql_credentials_file = fetch :mysql_credentials_file
+
           begin
             set :mysql_credentials_file_contents, capture("cat #{mysql_credentials_file}")
-          rescue
+          rescue Capistrano::CommandError
             set :mysql_credentials, false
           end
 
@@ -293,10 +292,9 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "[internal] write database root credentials"
     task :write_root_credentials do
-      mysql_root_credentials = fetch :mysql_root_credentials
-      mysql_root_credentials_file = fetch :mysql_root_credentials_file
-      unless exists?(:mysql_root_credentials_file) and remote_file_exists?(mysql_root_credentials_file)
-          put mysql_credentials_formatted(fetch :mysql_root_credentials), mysql_root_credentials_file
+      unless exists?(:mysql_root_credentials_file) and remote_file_exists?(fetch :mysql_root_credentials_file)
+        mysql_root_credentials_file = fetch :mysql_root_credentials_file
+        put mysql_credentials_formatted(fetch :mysql_root_credentials), mysql_root_credentials_file
       else
         puts "WARNING: mysql_root_credentials_file is not defined in config.rb you have to manually copy the following info into a credential file and define it"
         find_and_execute_task("mysql:print_root_credentials")
@@ -305,14 +303,14 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Get Mysql root_credentials"
     task :root_credentials, :roles => :app, :except => { :no_release => true } do
-      mysql_root_credentials_file = fetch :mysql_root_credentials_file
-
       unless exists?(:mysql_root_credentials)
         # We haven't got the root_credentials yet, look for them
-        if exists?(:mysql_root_credentials_file) and remote_file_exists?(mysql_root_credentials_file)
+        if exists?(:mysql_root_credentials_file) and remote_file_exists?(fetch :mysql_root_credentials_file)
+          mysql_root_credentials_file = fetch :mysql_root_credentials_file
+
           begin
             set :mysql_root_credentials_file_contents, capture("cat #{mysql_root_credentials_file}")
-          rescue
+          rescue Capistrano::CommandError
             set :mysql_root_credentials, false
           end
 

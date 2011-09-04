@@ -1,4 +1,5 @@
 require 'capistrano'
+require 'capistrano/errors'
 require 'capistrano-exts/receipts/deploy'
 require 'capistrano-exts/receipts/mysql'
 
@@ -62,7 +63,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           run <<-CMD
             #{try_sudo} cp #{fetch :latest_release}/public/.htaccess.default #{fetch :shared_path}/config/htaccess.txt
           CMD
-        rescue
+        rescue Capistrano::CommandError
           run <<-CMD
             #{try_sudo} touch #{fetch :shared_path}/config/htaccess.txt
           CMD
