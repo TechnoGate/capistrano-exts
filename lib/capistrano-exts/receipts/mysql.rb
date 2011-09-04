@@ -154,12 +154,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       mysql_db_name = fetch :mysql_db_name
 
       # Find out at which index the file is located ?
-      stages = fetch :stages
-      if stages.include?(ARGV.first.to_sym)
-        argv_file_index = 2
-      else
-        argv_file_index = 1
-      end
+      argv_file_index = ARGV.index("mysql:import_db_dump") + 1
 
       unless ARGV.size >= (argv_file_index + 1) and File.exists?(ARGV[argv_file_index])
         puts "ERROR: please run 'cap mysql:import_db_dump <sql dump>'"
@@ -199,12 +194,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       mysql_credentials = fetch :mysql_credentials
 
       # Find out at which index the file is located ?
-      stages = fetch :stages
-      if stages.include?(ARGV.first.to_sym)
-        argv_file_index = 2
-      else
-        argv_file_index = 1
-      end
+      argv_file_index = ARGV.index("mysql:export_db_dump") + 1
 
       if ARGV.size < (argv_file_index + 1) or File.exists?(ARGV[argv_file_index])
         puts "ERROR: please run 'cap mysql:export_db_dump <sql dump>'"
