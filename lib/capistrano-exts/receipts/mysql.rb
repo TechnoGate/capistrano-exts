@@ -71,7 +71,7 @@ Capistrano::Configuration.instance(:must_exist).load do
                 '#{mysql_db_name}'
             CMD
           rescue
-            puts "WARNING: The database does not exist."
+            puts "WARNING: The database doesn't exist or you do not have permissions to drop it."
           end
         end
       end
@@ -113,7 +113,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
           find_and_execute_task("mysql:write_db_credentials")
         rescue
-          puts "WARNING: The user #{application} already exists."
+          puts "WARNING: The user #{application} already exists or you do not have permissions to create it."
           find_and_execute_task("mysql:print_db_credentials")
         end
       end
@@ -151,7 +151,7 @@ Capistrano::Configuration.instance(:must_exist).load do
               create '#{mysql_db_name}'
           CMD
         rescue
-          puts "WARNING: The database already exists, it hasn't been modified, drop it manually if necessary."
+          puts "WARNING: The database already exists or you do not have permissions to create it."
         end
       end
     end
