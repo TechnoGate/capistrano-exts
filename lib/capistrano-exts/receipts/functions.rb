@@ -64,11 +64,11 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   # Helper for some mysql tasks
-  def mysql_credentials
+  def mysql_credentials_formatted(mysql_credentials)
     return <<-EOS
-      hostname: localhost
-      username: #{mysql_db_user}
-      password: #{fetch :mysql_db_pass}
+      hostname: #{mysql_credentials[:host]}
+      username: #{mysql_credentials[:user]}
+      password: #{mysql_credentials[:pass]}
     EOS
   end
 end

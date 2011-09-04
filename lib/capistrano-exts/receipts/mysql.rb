@@ -111,28 +111,19 @@ Capistrano::Configuration.instance(:must_exist).load do
             rm -f #{random_file}
           CMD
 
-          find_and_execute_task("mysql:write_db_credentials")
+          set :mysql_credentials, {
+            # TODO: The host is not always localhost, it should be the primary
+            #       database server
+            host: 'localhost',
+            user: mysql_db_user,
+            pass: fetch(:mysql_db_pass),
+          }
+
+          find_and_execute_task("mysql:write_credentials")
         rescue
           puts "WARNING: The user #{application} already exists or you do not have permissions to create it."
-          find_and_execute_task("mysql:print_db_credentials")
+          find_and_execute_task("mysql:print_credentials")
         end
-      end
-    end
-
-    desc "write database credentials"
-    task :write_db_credentials do
-      mysql_credentials_file = fetch :mysql_credentials_file
-      unless exists?(:mysql_credentials_file) and remote_file_exists?(mysql_credentials_file)
-          put mysql_credentials, mysql_credentials_file
-      end
-    end
-
-    desc "print database credentials"
-    task :print_db_credentials do
-      mysql_credentials_file = fetch :mysql_credentials_file
-      unless exists?(:mysql_credentials_file) and remote_file_exists?(mysql_credentials_file)
-        puts "WARNING: mysql_credentials_file is not defined in config.rb you have to manually copy the following info into a credential file and define it"
-        puts mysql_credentials
       end
     end
 
@@ -225,6 +216,25 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
 
+    # TODO: credentials and root_credentials are exactly the same code with
+    #       one variable changing, we need some meta-programming for them!!
+
+    desc "print database credentials"
+    task :print_credentials do
+      puts mysql_credentials_formatted(fetch :mysql_credentials)
+    end
+
+    desc "[internal] write database credentials"
+    task :write_credentials do
+      mysql_credentials_file = fetch :mysql_credentials_file
+      unless exists?(:mysql_credentials_file) and remote_file_exists?(mysql_credentials_file)
+          put mysql_credentials_formatted(fetch :mysql_credentials), mysql_credentials_file
+      else
+        puts "WARNING: mysql_credentials_file is not defined in config.rb you have to manually copy the following info into a credential file and define it"
+        find_and_execute_task("mysql:print_credentials")
+      end
+    end
+
     desc "Get Mysql credentials"
     task :credentials, :roles => :app, :except => { :no_release => true } do
       mysql_credentials_file = fetch :mysql_credentials_file
@@ -247,31 +257,58 @@ Capistrano::Configuration.instance(:must_exist).load do
                 user: mysql_credentials_file_contents.match(mysql_credentials_user_regex).try(:[], mysql_credentials_user_regex_match).try(:chomp),
                 pass: mysql_credentials_file_contents.match(mysql_credentials_pass_regex).try(:[], mysql_credentials_pass_regex_match).try(:chomp),
               }
-
-              if mysql_credentials[:user].present? and mysql_credentials[:pass].present?
-                set :mysql_credentials, mysql_credentials
-              end
             end
           end
         end
 
         # Verify that we got them!
-        if !exists?(:mysql_credentials)
-          set :mysql_credentials, {
-            host: ask("What is the hostname used to access the database", default: 'localhost', validate: /.+/),
-            user: ask("What is the username used to access the database", default: nil, validate: /.+/),
-            pass: ask("What is the password used to access the database", default: nil, validate: /.+/, echo: false),
+        if mysql_credentials.blank? or mysql_credentials[:user].blank? or mysql_credentials[:pass].blank?
+          mysql_credentials = {
+            host: ask("What is the hostname used to access the database",
+                      default: mysql_credentials.try(:[], :host) || 'localhost',
+                      validate: /.+/),
+            user: ask("What is the username used to access the database",
+                      default: mysql_credentials.try(:[], :user),
+                      validate: /.+/),
+            pass: ask("What is the password used to access the database",
+                      default: mysql_credentials.try(:[], :pass),
+                      validate: /.+/,
+                      echo: false),
           }
+        end
+
+        # Finally set it so it's available and write it to the server.
+        if mysql_credentials[:user].present? and mysql_credentials[:pass].present?
+          set :mysql_credentials, mysql_credentials
+          find_and_execute_task("mysql:write_credentials")
         end
       end
     end
 
-    desc "Get Mysql root credentials"
+    # REFACTOR!!
+    desc "print database root credentials"
+    task :print_root_credentials do
+      puts mysql_credentials_formatted(fetch :mysql_root_credentials)
+    end
+
+    desc "[internal] write database root credentials"
+    task :write_root_credentials do
+      mysql_root_credentials = fetch :mysql_root_credentials
+      mysql_root_credentials_file = fetch :mysql_root_credentials_file
+      unless exists?(:mysql_root_credentials_file) and remote_file_exists?(mysql_root_credentials_file)
+          put mysql_credentials_formatted(fetch :mysql_root_credentials), mysql_root_credentials_file
+      else
+        puts "WARNING: mysql_root_credentials_file is not defined in config.rb you have to manually copy the following info into a credential file and define it"
+        find_and_execute_task("mysql:print_root_credentials")
+      end
+    end
+
+    desc "Get Mysql root_credentials"
     task :root_credentials, :roles => :app, :except => { :no_release => true } do
       mysql_root_credentials_file = fetch :mysql_root_credentials_file
 
       unless exists?(:mysql_root_credentials)
-        # We haven't got the credentials yet, look for them
+        # We haven't got the root_credentials yet, look for them
         if exists?(:mysql_root_credentials_file) and remote_file_exists?(mysql_root_credentials_file)
           begin
             set :mysql_root_credentials_file_contents, capture("cat #{mysql_root_credentials_file}")
@@ -281,30 +318,42 @@ Capistrano::Configuration.instance(:must_exist).load do
 
           if exists?(:mysql_root_credentials_file_contents)
             mysql_root_credentials_file_contents = fetch :mysql_root_credentials_file_contents
+
             unless mysql_root_credentials_file_contents.blank?
               mysql_root_credentials = {
                 host: mysql_root_credentials_file_contents.match(mysql_root_credentials_host_regex).try(:[], mysql_root_credentials_host_regex_match).try(:chomp),
                 user: mysql_root_credentials_file_contents.match(mysql_root_credentials_user_regex).try(:[], mysql_root_credentials_user_regex_match).try(:chomp),
                 pass: mysql_root_credentials_file_contents.match(mysql_root_credentials_pass_regex).try(:[], mysql_root_credentials_pass_regex_match).try(:chomp),
               }
-
-              if mysql_root_credentials[:user].present? and mysql_root_credentials[:pass].present?
-                set :mysql_root_credentials, mysql_root_credentials
-              end
             end
           end
         end
 
         # Verify that we got them!
-        if !exists?(:mysql_root_credentials)
-          set :mysql_root_credentials, {
-            host: ask("What is the hostname used to access the database", default: 'localhost', validate: /.+/),
-            user: ask("What is the username used to access the database", default: nil, validate: /.+/),
-            pass: ask("What is the password used to access the database", default: nil, validate: /.+/, echo: false),
+        if mysql_root_credentials.blank? or mysql_root_credentials[:user].blank? or mysql_root_credentials[:pass].blank?
+          mysql_root_credentials = {
+            host: ask("What is the hostname used to access the database",
+                      default: mysql_root_credentials.try(:[], :host) || 'localhost',
+                      validate: /.+/),
+            user: ask("What is the username used to access the database",
+                      default: mysql_root_credentials.try(:[], :user),
+                      validate: /.+/),
+            pass: ask("What is the password used to access the database",
+                      default: mysql_root_credentials.try(:[], :pass),
+                      validate: /.+/,
+                      echo: false),
           }
+        end
+
+        # Finally set it so it's available and write it to the server.
+        if mysql_root_credentials[:user].present? and mysql_root_credentials[:pass].present?
+          set :mysql_root_credentials, mysql_root_credentials
+          find_and_execute_task("mysql:write_root_credentials")
         end
       end
     end
+    # REFACTOR!!
+
   end
 
   before "mysql:backup_db", "mysql:credentials"
@@ -314,4 +363,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   before "mysql:export_db_dump", "mysql:backup_db"
   before "mysql:create_db_user", "mysql:root_credentials"
   after  "mysql:create_db_user", "mysql:create_db"
+
+  before "mysql:print_credentials", "mysql:credentials"
+  before "mysql:print_root_credentials", "mysql:root_credentials"
 end
