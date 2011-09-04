@@ -232,7 +232,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         begin
           run <<-CMD
-            #{try_sudo} mv #{random_file} #{mysql_credentials_file}
+            #{try_sudo} cp #{random_file} #{mysql_credentials_file}; \
+            #{try_sudo} rm -f #{random_file}
           CMD
         rescue Capistrano::CommandError
           puts "WARNING: Apparently you do not have permissions to write to #{mysql_credentials_file}."
@@ -309,7 +310,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         begin
           run <<-CMD
-            #{try_sudo} mv #{random_file} #{mysql_root_credentials_file}
+            #{try_sudo} cp #{random_file} #{mysql_root_credentials_file}; \
+            #{try_sudo} rm -f #{random_file}
           CMD
         rescue Capistrano::CommandError
           puts "WARNING: Apparently you do not have permissions to write to #{mysql_root_credentials_file}."

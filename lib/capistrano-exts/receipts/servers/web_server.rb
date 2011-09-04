@@ -84,11 +84,18 @@ Capistrano::Configuration.instance(:must_exist).load do
             put web_server_auth_file_contents, random_file
 
             run <<-CMD
-              #{try_sudo} mv #{random_file} #{web_server_auth_file}
+              #{try_sudo} cp #{random_file} #{web_server_auth_file}; \
+              #{try_sudo} rm -f #{random_file}
             CMD
 
             # Store the unencrypted version of the contents
-            put web_server_auth_file_unencrypted_contents, "#{fetch :deploy_to}/.http_basic_auth"
+            put web_server_auth_file_unencrypted_contents, random_file
+
+            run <<-CMD
+              #{try_sudo} cp #{random_file} #{fetch :deploy_to}/.http_basic_auth; \
+              #{try_sudo} rm -f #{random_file}
+            CMD
+
             puts "This site uses http basic auth, the credentials are:"
             puts web_server_auth_file_unencrypted_contents
           end
@@ -112,7 +119,8 @@ Capistrano::Configuration.instance(:must_exist).load do
             put web_conf_contents, random_file
 
             run <<-CMD
-              #{try_sudo} mv #{random_file} #{web_conf_file}
+              #{try_sudo} cp #{random_file} #{web_conf_file}; \
+              #{try_sudo} rm -f #{random_file}
             CMD
           end
         end
