@@ -49,7 +49,7 @@ Capistrano::Configuration.instance(:must_exist).load do
             unencrypted_contents = Array.new
 
             web_server_auth_credentials.each do |credentials|
-              if credentials[:password].is_a?(Proc)
+              if credentials[:password].respond_to?(:call)
                 password = credentials[:password].call
               else
                 password = credentials[:password]
