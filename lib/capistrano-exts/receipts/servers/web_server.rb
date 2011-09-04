@@ -102,7 +102,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         end
 
         desc "print authentification file"
-        task :print_web_server_auth_file do
+        task :print_web_server_http_auth do
           puts capture("cat #{fetch :deploy_to}/.http_basic_auth")
         end
 
