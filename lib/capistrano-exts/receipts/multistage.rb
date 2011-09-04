@@ -34,7 +34,7 @@ Capistrano::Configuration.instance.load do
   end
 
   on :load do
-    if stages.include?(ARGV.first)
+    if stages.include?(ARGV.first.to_sym)
       # Execute the specified stage so that recipes required in stage can contribute to task list
       find_and_execute_task(ARGV.first) if ARGV.any?{ |option| option =~ /-T|--tasks|-e|--explain/ }
     else

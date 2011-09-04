@@ -153,12 +153,20 @@ Capistrano::Configuration.instance(:must_exist).load do
       mysql_credentials = fetch :mysql_credentials
       mysql_db_name = fetch :mysql_db_name
 
-      unless ARGV.size >=2 and File.exists?(ARGV[1])
+      # Find out at which index the file is located ?
+      stages = fetch :stages
+      if stages.include?(ARGV.first.to_sym)
+        argv_file_index = 2
+      else
+        argv_file_index = 1
+      end
+
+      unless ARGV.size >= (argv_file_index + 1) and File.exists?(ARGV[argv_file_index])
         puts "ERROR: please run 'cap mysql:import_db_dump <sql dump>'"
         exit 1
       else
         # The database dump name
-        dump_sql_file = ARGV.delete_at(1)
+        dump_sql_file = ARGV.delete_at(argv_file_index)
 
         if mysql_credentials.present?
           drop_db
@@ -190,13 +198,21 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       mysql_credentials = fetch :mysql_credentials
 
-      unless ARGV.size >=2 or File.exists?(ARGV[1])
-        puts "ERROR: please run 'cap mysql:import_db_dump <sql dump>'"
+      # Find out at which index the file is located ?
+      stages = fetch :stages
+      if stages.include?(ARGV.first.to_sym)
+        argv_file_index = 2
+      else
+        argv_file_index = 1
+      end
+
+      if ARGV.size < (argv_file_index + 1) or File.exists?(ARGV[argv_file_index])
+        puts "ERROR: please run 'cap mysql:export_db_dump <sql dump>'"
         puts "       <sql dump> should not exist"
         exit 1
       else
         # The database dump name
-        dump_sql_file = ARGV.delete_at(1)
+        dump_sql_file = ARGV.delete_at(argv_file_index)
 
         if mysql_credentials.present?
           run <<-CMD
