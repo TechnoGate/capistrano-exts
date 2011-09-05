@@ -22,6 +22,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   namespace :contao do
     desc "[internal] Setup contao shared contents"
     task :setup, :roles => :app, :except => { :no_release => true } do
+      shared_path = fetch :shared_path
       run <<-CMD
         #{try_sudo} mkdir -p #{shared_path}/logs &&
         #{try_sudo} mkdir -p #{shared_path}/config &&
@@ -53,7 +54,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         localconfig.gsub!(/#DB_NAME#/, mysql_db_name)
       end
 
-      put localconfig, "#{shared_path}/config/localconfig.php"
+      put localconfig, "#{fetch :shared_path}/config/localconfig.php"
     end
 
     desc "[internal] Setup .htaccess"
@@ -74,18 +75,21 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "[internal] Fix contao's symlinks to the shared path"
     task :fix_links, :roles => :app, :except => { :no_release => true } do
       contents_path = fetch :contents_path, "#{fetch :public_path}/tl_files/contents"
+      current_path = fetch :current_path
+      latest_release = fetch :latest_release
+      shared_path = fetch :shared_path
 
       # At this point, the current_path does not exists and by running an mkdir
       # later, we're actually breaking stuff.
       # So replace current_path with latest_release in the contents_path string
-      contents_path.gsub!(%r{#{current_path}}, fetch(:latest_release))
+      contents_path.gsub! %r{#{current_path}}, latest_release
 
       # Remove files
       run <<-CMD
         #{try_sudo} rm -f #{contents_path} &&
-        #{try_sudo} rm -rf #{fetch :latest_release}/public/system/logs &&
-        #{try_sudo} rm -f #{fetch :latest_release}/public/system/config/localconfig.php &&
-        #{try_sudo} rm -f #{fetch :latest_release}/public/.htaccess
+        #{try_sudo} rm -rf #{latest_release}/public/system/logs &&
+        #{try_sudo} rm -f #{latest_release}/public/system/config/localconfig.php &&
+        #{try_sudo} rm -f #{latest_release}/public/.htaccess
       CMD
 
       run <<-CMD
@@ -94,10 +98,10 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       # Create symlinks
       run <<-CMD
-        #{try_sudo} ln -nsf #{fetch :shared_path}/contents #{contents_path} &&
-        #{try_sudo} ln -nsf #{fetch :shared_path}/config/htaccess.txt #{fetch :latest_release}/public/.htaccess &&
-        #{try_sudo} ln -nsf #{fetch :shared_path}/config/localconfig.php #{fetch :latest_release}/public/system/config/localconfig.php &&
-        #{try_sudo} ln -nsf #{fetch :shared_path}/logs #{fetch :latest_release}/public/system/logs
+        #{try_sudo} ln -nsf #{shared_path}/contents #{contents_path} &&
+        #{try_sudo} ln -nsf #{shared_path}/config/htaccess.txt #{latest_release}/public/.htaccess &&
+        #{try_sudo} ln -nsf #{shared_path}/config/localconfig.php #{latest_release}/public/system/config/localconfig.php &&
+        #{try_sudo} ln -nsf #{shared_path}/logs #{latest_release}/public/system/logs
       CMD
     end
   end
