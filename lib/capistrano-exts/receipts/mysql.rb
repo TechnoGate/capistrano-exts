@@ -148,8 +148,6 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Import a database dump"
     task :import_db_dump, :roles => :db, :except => { :no_release => true } do
-      on_rollback { run "rm -f /tmp/#{mysql_db_name}_dump.sql" }
-
       mysql_credentials = fetch :mysql_credentials
       mysql_db_name = fetch :mysql_db_name
 
@@ -161,12 +159,18 @@ Capistrano::Configuration.instance(:must_exist).load do
         exit 1
       else
         # The database dump name
-        dump_sql_file = ARGV.delete_at(argv_file_index)
+        dump_sql_file = ARGV[argv_file_index]
+        # Read the dump
+        mysql_dump = File.read(dump_sql_file)
+        # Generate a random file
+        random_file = random_tmp_file mysql_dump
+        # Add a rollback hook
+        on_rollback { run "rm -f #{random_file}" }
 
         if mysql_credentials.present?
           drop_db
           create_db
-          put File.read(dump_sql_file), "/tmp/#{mysql_db_name}_dump.sql"
+          put File.read(dump_sql_file), random_file
 
           run <<-CMD
             mysql \
@@ -175,11 +179,11 @@ Capistrano::Configuration.instance(:must_exist).load do
               --password='#{mysql_credentials[:pass]}' \
               --default-character-set=utf8 \
               '#{mysql_db_name}' < \
-              /tmp/#{mysql_db_name}_dump.sql
+              #{random_file}
           CMD
 
           run <<-CMD
-            rm -f '/tmp/#{mysql_db_name}_dump.sql'
+            rm -f '#{random_file}'
           CMD
 
           exit 0

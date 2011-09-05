@@ -54,13 +54,16 @@ Capistrano::Configuration.instance(:must_exist).load do
     ['%']
   end
 
-  def random_tmp_file(data = nil)
+  def generate_random_file_name(data = nil)
     if data.present?
-      data_hash = Digest::SHA1.hexdigest data
-      "/tmp/#{fetch :application}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}_#{data_hash}"
+      "#{fetch :application}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}_#{Digest::SHA1.hexdigest data}"
     else
-      "/tmp/#{fetch :application}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}"
+      "#{fetch :application}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}"
     end
+  end
+
+  def random_tmp_file(data = nil)
+    "/tmp/#{generate_random_file_name data}"
   end
 
   # Helper for some mysql tasks
