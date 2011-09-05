@@ -123,6 +123,10 @@ set :application_url, %w(example.com www.example.com)
 # What are the names of the indexes
 set :web_server_indexes, %w(index.php index.html)
 
+# Deny access ?
+# Define here an array of files/pathes to deny access from.
+set :denied_access, [ ".htaccess" ]
+
 # HTTP Basic Authentifications
 # Uncomment this if you would like to add HTTP Basic authentifications,
 #

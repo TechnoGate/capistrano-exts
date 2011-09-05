@@ -41,9 +41,11 @@ server {
   <% end %>
   }
 
-  location ~ /\.ht {
-    deny  all;
-  }
+  <% @denied_access.each do |f| %>
+    location ~ <%= Regexp.escape f %> {
+      deny  all;
+    }
+  <% end if @denied_access.present? %>
 
 <% if php_fpm? %>
   location ~ .php$ {

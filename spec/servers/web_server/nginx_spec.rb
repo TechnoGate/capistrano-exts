@@ -208,6 +208,12 @@ describe Nginx do
         subject.php_fpm_port = 5454
         subject.render.should =~ %r{\s+fastcgi_pass\s+localhost:5454.+$}
       end
+
+      it "should render 'denied_access'" do
+        subject.denied_access = ["/system/logs", "/tl_file/.htaccess"]
+        subject.render.should =~ /location ~ \/system\/logs {.*deny\s+all;.*}/m
+        subject.render.should =~ /location ~ \/tl_file\/\\.htaccess {.*deny\s+all;.*}/m
+      end
     end
 
     describe ":passenger" do
