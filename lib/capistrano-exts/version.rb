@@ -3,7 +3,7 @@ module Capistrano
     module Version #:nodoc:
       MAJOR = 1
       MINOR = 3
-      TINY = 5
+      TINY = 6
 
       ARRAY  = [MAJOR, MINOR, TINY]
       STRING = ARRAY.join(".")
