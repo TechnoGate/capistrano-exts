@@ -33,7 +33,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         #{try_sudo} mkdir -p #{shared_path}/contents/pdf
       CMD
 
-      deny_htaccess = "order deny,allow"
+      deny_htaccess = "order deny,allow\n"
       deny_htaccess << "deny from all"
 
       put deny_htaccess, "#{shared_path}/logs/.htaccess"
