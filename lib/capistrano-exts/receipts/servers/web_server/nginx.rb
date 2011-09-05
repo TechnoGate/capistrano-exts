@@ -24,7 +24,7 @@ Capistrano::Configuration.instance(:must_exist).load do
             nginx.public_path = fetch :public_path
             nginx.logs_path   = fetch :logs_path
             nginx.application_url = fetch :application_url
-            nginx.denied_access = fetch :denied_access
+            nginx.denied_access = fetch :denied_access if exists?(:denied_access)
 
             nginx.listen_port = fetch(:web_server_listen_port) if exists?(:web_server_listen_port)
 
