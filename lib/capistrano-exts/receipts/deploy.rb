@@ -33,4 +33,5 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   # Dependencies
   before "deploy", "deploy:check_if_remote_ready"
+  after "deploy:restart", "deploy:fix_permissions"
 end

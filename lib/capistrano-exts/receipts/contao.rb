@@ -1,5 +1,6 @@
 require 'capistrano'
 require 'capistrano/errors'
+require 'capistrano-exts/receipts/functions'
 require 'capistrano-exts/receipts/deploy'
 require 'capistrano-exts/receipts/mysql'
 
@@ -25,12 +26,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       shared_path = fetch :shared_path
       run <<-CMD
         #{try_sudo} mkdir -p #{shared_path}/logs &&
-        #{try_sudo} mkdir -p #{shared_path}/config &&
-        #{try_sudo} mkdir -p #{shared_path}/contents &&
-        #{try_sudo} mkdir -p #{shared_path}/contents/image &&
-        #{try_sudo} mkdir -p #{shared_path}/contents/video &&
-        #{try_sudo} mkdir -p #{shared_path}/contents/audio &&
-        #{try_sudo} mkdir -p #{shared_path}/contents/pdf
+        #{try_sudo} mkdir -p #{shared_path}/config
       CMD
 
       deny_htaccess = "order deny,allow\n"
@@ -79,31 +75,18 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "[internal] Fix contao's symlinks to the shared path"
     task :fix_links, :roles => :app, :except => { :no_release => true } do
-      contents_path = fetch :contents_path, "#{fetch :public_path}/tl_files/contents"
-      current_path = fetch :current_path
       latest_release = fetch :latest_release
       shared_path = fetch :shared_path
 
-      # At this point, the current_path does not exists and by running an mkdir
-      # later, we're actually breaking stuff.
-      # So replace current_path with latest_release in the contents_path string
-      contents_path.gsub! %r{#{current_path}}, latest_release
-
       # Remove files
       run <<-CMD
-        #{try_sudo} rm -f #{contents_path} &&
         #{try_sudo} rm -rf #{latest_release}/public/system/logs &&
         #{try_sudo} rm -f #{latest_release}/public/system/config/localconfig.php &&
         #{try_sudo} rm -f #{latest_release}/public/.htaccess
       CMD
 
-      run <<-CMD
-        mkdir -p #{File.dirname(contents_path)}
-      CMD
-
       # Create symlinks
       run <<-CMD
-        #{try_sudo} ln -nsf #{shared_path}/contents #{contents_path} &&
         #{try_sudo} ln -nsf #{shared_path}/config/htaccess.txt #{latest_release}/public/.htaccess &&
         #{try_sudo} ln -nsf #{shared_path}/config/localconfig.php #{latest_release}/public/system/config/localconfig.php &&
         #{try_sudo} ln -nsf #{shared_path}/logs #{latest_release}/public/system/logs
@@ -116,8 +99,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   after "contao:setup", "contao:setup_localconfig"
   after "deploy:finalize_update", "contao:fix_links"
   before "contao:fix_links", "contao:setup_htaccess"
-  after "contao:fix_links", "deploy:cleanup"
-  after "deploy:restart", "deploy:fix_permissions"
 
   # Mysql Credentials
   before "contao:setup_localconfig", "mysql:credentials"

@@ -48,7 +48,25 @@ set :deploy_via,  :remote_cache
 set :keep_releases, 5
 
 # Using RVM? Set this to the ruby version/gemset to use
-set :rvm_ruby_string, "1.9.2"
+set :rvm_ruby_string, "1.9.3"
+
+#############
+# Contents
+#
+
+# Here you can set all the contents folders, a content folder is a shared folder
+# public or private but the contents are shared between all releases.
+# The contents_folders is a hash of key/value where the key is the name of the folder
+# created under 'shared_path/contents' and symlinked to the value (absolute path)
+# you can use public_path/current_path/deploy_to etc...
+# set :contents_folder, {
+#                         'image' => "#{fetch :public_path}/images",
+#                         'video' => "#{fetch :public_path}/videos",
+#                       }
+
+#
+#
+#############
 
 #############
 # Mysql
@@ -169,20 +187,6 @@ set :web_server_mode, :reverse_proxy
 # set :reverse_proxy_server_port, 45410
 # => What is the path to the socket file
 # set :reverse_proxy_socket, -> { "#{shared_path}/sockets/unicorn.sock"}
-
-#
-#
-#############
-
-#############
-# Contao
-#
-
-# Where do you store contao contents ?
-# The contents are stored in the shared path because they are uploaded from
-# contao's admin section
-# Uncomment if necessary (default to public_path/tl_files/contents)
-# set :contents_path, -> { "#{fetch :public_path}/tl_files/contents"}
 
 #
 #
