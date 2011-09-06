@@ -13,9 +13,11 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :backup_db, :roles => :db, :except => { :no_release => true } do
       mysql_credentials = fetch :mysql_credentials
       mysql_db_name = fetch :mysql_db_name
-      MYSQL_DB_BACKUP_PATH = "#{deploy_to}/backups/#{mysql_db_name}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.sql"
+      deploy_to = fetch :deploy_to
+      set :latest_db_dump, "#{deploy_to}/backups/#{mysql_db_name}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.sql"
+      latest_db_dump = fetch :latest_db_dump
 
-      on_rollback { run "rm -f #{MYSQL_DB_BACKUP_PATH}" }
+      on_rollback { run "rm -f #{latest_db_dump}" }
 
       if exists?(:mysql_credentials)
         begin
@@ -26,11 +28,11 @@ Capistrano::Configuration.instance(:must_exist).load do
               --password='#{mysql_credentials[:pass]}' \
               --default-character-set=utf8 \
               '#{mysql_db_name}' > \
-              '#{MYSQL_DB_BACKUP_PATH}'
+              '#{latest_db_dump}'
           CMD
 
           run <<-CMD
-            #{try_sudo} bzip2 -9 '#{MYSQL_DB_BACKUP_PATH}'
+            #{try_sudo} bzip2 -9 '#{latest_db_dump}'
           CMD
         rescue Capistrano::CommandError
           puts "WARNING: The database doesn't exist."
@@ -159,9 +161,9 @@ Capistrano::Configuration.instance(:must_exist).load do
         exit 1
       else
         # The database dump name
-        dump_sql_file = ARGV[argv_file_index]
+        import_filename_argv = ARGV[argv_file_index]
         # Read the dump
-        mysql_dump = File.read(dump_sql_file)
+        mysql_dump = File.read(import_filename_argv)
         # Generate a random file
         random_file = random_tmp_file mysql_dump
         # Add a rollback hook
@@ -170,7 +172,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         if mysql_credentials.present?
           drop_db
           create_db
-          put File.read(dump_sql_file), random_file
+          put File.read(import_filename_argv), random_file
 
           run <<-CMD
             mysql \
@@ -193,35 +195,39 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Export a database dump"
     task :export_db_dump, :roles => :db, :except => { :no_release => true } do
-      on_rollback { run "rm -f /tmp/#{File.basename MYSQL_DB_BACKUP_PATH}{,.bz2" }
+      latest_db_dump = fetch :latest_db_dump
+      on_rollback { run "rm -f /tmp/#{File.basename latest_db_dump}{,.bz2" }
 
       mysql_credentials = fetch :mysql_credentials
 
       # Find out at which index the file is located ?
       argv_file_index = ARGV.index("mysql:export_db_dump") + 1
 
-      if ARGV.size < (argv_file_index + 1) or File.exists?(ARGV[argv_file_index])
-        puts "ERROR: please run 'cap mysql:export_db_dump <sql dump>'"
-        puts "       <sql dump> should not exist"
-        exit 1
+      # The database dump name
+      export_filename_argv = ARGV.try(:[], argv_file_index)
+
+      # Generate the file name
+      if export_filename_argv and not export_filename_argv =~ /.+:.+/ and not File.exists?(export_filename_argv)
+        export_filename = export_filename_argv
       else
-        # The database dump name
-        dump_sql_file = ARGV.delete_at(argv_file_index)
+        export_filename = random_tmp_file
+      end
 
-        if mysql_credentials.present?
-          run <<-CMD
-            cp #{MYSQL_DB_BACKUP_PATH}.bz2 /tmp &&
-            bunzip2 /tmp/#{File.basename MYSQL_DB_BACKUP_PATH}.bz2
-          CMD
+      # Get the dump
+      if mysql_credentials.present?
+        run <<-CMD
+          cp #{latest_db_dump}.bz2 /tmp &&
+          bunzip2 /tmp/#{File.basename latest_db_dump}.bz2
+        CMD
 
-          get "/tmp/#{File.basename MYSQL_DB_BACKUP_PATH}", dump_sql_file
+        get "/tmp/#{File.basename latest_db_dump}", export_filename
 
-          run <<-CMD
-            rm -f /tmp/#{File.basename MYSQL_DB_BACKUP_PATH}
-          CMD
+        run <<-CMD
+          rm -f /tmp/#{File.basename latest_db_dump}
+        CMD
 
-          exit 0
-        end
+        puts "Mysql dump has been downloaded to #{export_filename}"
+        exit 0
       end
     end
 

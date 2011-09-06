@@ -59,19 +59,30 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :export, :roles => :app, :except => { :no_release => true } do
       shared_path = fetch :shared_path
 
-      # Create random file name
-      random_file = random_tmp_file + ".tar.gz"
+      # Find out at which index the file is located ?
+      argv_file_index = ARGV.index("contents:export") + 1
+
+      # The database dump name
+      export_filename_argv = ARGV.try(:[], argv_file_index)
+
+      # Generate the file name
+      if export_filename_argv and not export_filename_argv =~ /.+:.+/ and not File.exists?(export_filename_argv)
+        export_filename = export_filename_argv
+      else
+        export_filename = random_tmp_file + ".tar.gz"
+      end
 
       # Create a tarball of the contents folder
       run <<-CMD
-        cd #{shared_path} &&
-        tar czf #{random_file} --exclude='*~' --exclude='*.tmp' --exclude='*.bak' shared_contents
+        cd #{shared_path}/shared_contents &&
+        tar czf /tmp/#{File.basename export_filename} --exclude='*~' --exclude='*.tmp' --exclude='*.bak' *
       CMD
 
       # Tranfer the contents to the local system
-      get random_file, random_file
+      get random_file, export_filename
 
-      puts "Contents has been downloaded to #{random_file}"
+      puts "Contents has been downloaded to #{export_filename}"
+      exit 0
     end
   end
 
