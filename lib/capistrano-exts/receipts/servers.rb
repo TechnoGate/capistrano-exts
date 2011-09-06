@@ -15,6 +15,38 @@ end
 Capistrano::Configuration.instance(:must_exist).load do
   namespace :deploy do
     namespace :server do
+
+      desc "Send SSH key"
+      task :send_ssh_key do
+        # Find out at which index the file is located ?
+        argv_file_index = ARGV.index("deploy:server:send_ssh_key") + 1
+
+        # The database dump name
+        idrsa_filename_argv = ARGV.try(:[], argv_file_index)
+
+        # Generate the file name
+        if idrsa_filename_argv and not idrsa_filename_argv =~ /.+:.+/ and not File.exists?(idrsa_filename_argv)
+          idrsa_filename = idrsa_filename_argv
+        else
+          idrsa_filename = "#{ENV['HOME']}/.ssh/id_rsa.pub"
+        end
+
+        if File.exists?(idrsa_filename)
+          idrsa_filename_contents = File.read(idrsa_filename).chomp
+          random_file = random_tmp_file idrsa_filename_contents
+
+          run <<-CMD
+            mkdir -p ~/.ssh &&
+            touch ~/.ssh/authorized_keys &&
+            echo '#{idrsa_filename_contents}' > #{random_file} &&
+            cat #{random_file} >> ~/.ssh/authorized_keys &&
+            rm -f #{random_file}
+          CMD
+        else
+          abort "The id_rsa or id_dsa file '#{idrsa_filename}' does not exists."
+        end
+      end
+
       namespace :setup do
         desc "Prepare the server (database server, web server and folders)"
         task :default do

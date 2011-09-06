@@ -79,7 +79,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       CMD
 
       # Tranfer the contents to the local system
-      get random_file, export_filename
+      get "/tmp/#{File.basename export_filename}", export_filename
 
       puts "Contents has been downloaded to #{export_filename}"
       exit 0

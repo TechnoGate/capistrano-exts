@@ -1,5 +1,6 @@
 require 'capistrano'
 require 'capistrano/errors'
+require 'capistrano-exts/receipts/functions'
 require 'capistrano-exts/receipts/deploy'
 
 # Verify that Capistrano is version 2
@@ -210,7 +211,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       if export_filename_argv and not export_filename_argv =~ /.+:.+/ and not File.exists?(export_filename_argv)
         export_filename = export_filename_argv
       else
-        export_filename = random_tmp_file
+        export_filename = random_tmp_file + ".sql"
       end
 
       # Get the dump

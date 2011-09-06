@@ -1,4 +1,6 @@
 require 'capistrano'
+require 'capistrano/errors'
+require 'capistrano-exts/receipts/functions'
 
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)
@@ -29,9 +31,27 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       run "chmod -R g+w #{fetch :latest_release}" if fetch(:group_writable, true)
     end
+
+    desc "[internal] Symlink htdocs"
+    task :symlink_htdocs do
+      deploy_to = fetch :deploy_to
+      if remote_file_exists?("#{deploy_to}/htdocs")
+        begin
+          run <<-CMD
+            #{try_sudo} mv #{deploy_to}/htdocs #{deploy_to}/old_htdocs &&
+            #{try_sudo} ln -nsf #{fetch :public_path} #{deploy_to}/htdocs
+          CMD
+        rescue Capistrano::CommandError
+          puts "WARNING: I couldn't replace the old htdocs please do so manually"
+        end
+      end
+
+      puts "The htdocs folder has been moved to old_htdocs"
+    end
   end
 
   # Dependencies
   before "deploy", "deploy:check_if_remote_ready"
   after "deploy:restart", "deploy:fix_permissions"
+  after "deploy:setup", "deploy:symlink_htdocs"
 end
