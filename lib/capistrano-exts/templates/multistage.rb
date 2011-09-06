@@ -58,7 +58,7 @@ set :rvm_ruby_string, "1.9.2"
 set :mysql_db_name,                           -> { "#{fetch :application}_#{fetch :stage}" }
 
 # What is the database user ?
-# NOTE: This is only used if you run deploy:server:prepare which calls mysql:create_db_user
+# NOTE: This is only used if you run deploy:server:setup which calls mysql:create_db_user
 set :mysql_db_user,                           -> { "#{fetch :application}" }
 
 # Where the database credentials are stored on the server ?
@@ -77,7 +77,7 @@ set :mysql_credentials_pass_regex,            /password: (.*)$/o
 set :mysql_credentials_pass_regex_match,      1
 
 # Where can we find root credentials ?
-# NOTE: These options are only used if you run deploy:server:prepare which calls mysql:create_db_user
+# NOTE: These options are only used if you run deploy:server:setup which calls mysql:create_db_user
 set :mysql_root_credentials_file,             "/root/.mysql_password"
 
 # Define the regex / match that will be ran against the contents of the file above to fetch the hostname

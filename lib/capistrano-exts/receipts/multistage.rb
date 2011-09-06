@@ -27,7 +27,7 @@ Capistrano::Configuration.instance.load do
       begin
         load "#{location}/#{stage}" unless exists?(:multistages)
       rescue LoadError
-        abort "The file #{location}/#{stage} does not exist please run 'cap multistage:prepare'"
+        abort "The file #{location}/#{stage} does not exist please run 'cap multistage:setup'"
       end
       find_and_execute_task('multistage:parse_multistages') if exists?(:multistages)
     end
@@ -57,7 +57,7 @@ Capistrano::Configuration.instance.load do
     end
 
     desc "Stub out the staging config files."
-    task :prepare do
+    task :setup do
       FileUtils.mkdir_p(location)
       stages.each do |name|
         file = File.join(location, name.to_s + ".rb")
@@ -88,5 +88,5 @@ Capistrano::Configuration.instance.load do
     end
   end
 
-  on :start, "multistage:ensure", :except => stages + ['multistage:prepare', 'multistage:parse_multistages']
+  on :start, "multistage:ensure", :except => stages + ['multistage:setup', 'multistage:parse_multistages']
 end

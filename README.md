@@ -44,7 +44,7 @@ set :capistrano_extensions, [:multistage, :git, :deploy, :mysql, :rails, :server
 Then run the command
 
 ```bash
-$ cap multistage:prepare
+$ cap multistage:setup
 ```
 
 Then edit the files found at __config/deploy/*.rb__, that's it you're ready..
@@ -55,7 +55,7 @@ Usage
 The server can be prepared by running:
 
 ```bash
-$ cap deploy:server:prepare deploy:setup
+$ cap deploy:server:setup deploy:setup
 ```
 
 Deploy with

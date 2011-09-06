@@ -12,7 +12,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     namespace :server do
       namespace :db_server do
         desc "[internal] Prepare the database server"
-        task :prepare, :roles => :db do
+        task :setup, :roles => :db do
           # Empty task, server preparation goes into callbacks
         end
 
@@ -24,6 +24,6 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
   end
 
-  before "deploy:server:db_server:prepare", "mysql:create_db_user"
-  after  "deploy:server:db_server:prepare", "deploy:server:db_server:finish"
+  before "deploy:server:db_server:setup", "mysql:create_db_user"
+  after  "deploy:server:db_server:setup", "deploy:server:db_server:finish"
 end
