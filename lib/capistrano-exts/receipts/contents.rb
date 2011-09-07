@@ -75,7 +75,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       # Create a tarball of the contents folder
       run <<-CMD
         cd #{shared_path}/shared_contents &&
-        tar czf /tmp/#{File.basename export_filename} --exclude='*~' --exclude='*.tmp' --exclude='*.bak' *
+        tar chzf /tmp/#{File.basename export_filename} --exclude='*~' --exclude='*.tmp' --exclude='*.bak' *
       CMD
 
       # Tranfer the contents to the local system
