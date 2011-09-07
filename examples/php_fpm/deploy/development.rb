@@ -74,6 +74,9 @@ set :contents_folder, {
 # Mysql
 #
 
+# Where is located the primary database folder?
+set :mysql_db_server,                         'localhost'
+
 # What is the database name for this project/stage ?
 set :mysql_db_name,                           -> { "#{fetch :application}_#{fetch :stage}" }
 

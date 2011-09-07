@@ -116,7 +116,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           CMD
 
           set :mysql_credentials, {
-            host: find_servers(:roles => :db, primary: true).first.to_s.gsub(/^(.*@)?([^:]*)(:.*)?$/, '\2'),
+            host: fetch(:mysql_db_server, 'localhost'),
             user: mysql_db_user,
             pass: fetch(:mysql_db_pass),
           }
@@ -292,10 +292,10 @@ Capistrano::Configuration.instance(:must_exist).load do
         if mysql_credentials.blank? or mysql_credentials[:user].blank? or mysql_credentials[:pass].blank?
           mysql_credentials = {
             host: ask("What is the hostname used to access the database",
-                      default: mysql_credentials.try(:[], :host) || 'localhost',
+                      default: mysql_credentials.try(:[], :host) || fetch(:mysql_db_server, 'localhost'),
                       validate: /.+/),
             user: ask("What is the username used to access the database",
-                      default: mysql_credentials.try(:[], :user),
+                      default: mysql_credentials.try(:[], :user) || fetch(:mysql_db_user),
                       validate: /.+/),
             pass: ask("What is the password used to access the database",
                       default: mysql_credentials.try(:[], :pass),
@@ -370,7 +370,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         if mysql_root_credentials.blank? or mysql_root_credentials[:user].blank? or mysql_root_credentials[:pass].blank?
           mysql_root_credentials = {
             host: ask("What is the hostname used to access the database",
-                      default: mysql_root_credentials.try(:[], :host) || 'localhost',
+                      default: mysql_root_credentials.try(:[], :host) || fetch(:mysql_db_server, 'localhost'),
                       validate: /.+/),
             user: ask("What is the username used to access the database",
                       default: mysql_root_credentials.try(:[], :user),
