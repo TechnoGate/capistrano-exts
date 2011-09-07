@@ -74,4 +74,9 @@ Capistrano::Configuration.instance(:must_exist).load do
       password: #{mysql_credentials[:pass]}
     EOS
   end
+
+  # Read a remote file
+  def read(file)
+    capture("cat #{file}")
+  end
 end

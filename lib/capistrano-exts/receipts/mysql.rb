@@ -288,7 +288,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           mysql_credentials_file = fetch :mysql_credentials_file
 
           begin
-            set :mysql_credentials_file_contents, capture("cat #{mysql_credentials_file}")
+            set :mysql_credentials_file_contents, read(mysql_credentials_file)
           rescue Capistrano::CommandError
             set :mysql_credentials, false
           end
@@ -366,7 +366,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           mysql_root_credentials_file = fetch :mysql_root_credentials_file
 
           begin
-            set :mysql_root_credentials_file_contents, capture("cat #{mysql_root_credentials_file}")
+            set :mysql_root_credentials_file_contents, read(mysql_root_credentials_file)
           rescue Capistrano::CommandError
             set :mysql_root_credentials, false
           end
