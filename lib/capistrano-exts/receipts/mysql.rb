@@ -276,7 +276,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         end
       else
         puts "WARNING: mysql_credentials_file is not defined or it already exists on the server."
-        find_and_execute_task("mysql:print_credentials")
+        find_and_execute_task("mysql:print_credentials") unless ARGV.include?("mysql:print_credentials")
       end
     end
 
@@ -354,7 +354,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         end
       else
         puts "WARNING: mysql_root_credentials_file is not defined or it already exists on the server."
-        find_and_execute_task("mysql:print_root_credentials")
+        find_and_execute_task("mysql:print_root_credentials") unless ARGV.include?("mysql:print_root_credentials")
       end
     end
 
