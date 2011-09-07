@@ -25,6 +25,22 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
 
+    desc "Backup the contents folder"
+    task :backup, :roles => :app, :except => { :no_release => true } do
+      backup_path = fetch :backup_path, "#{fetch :deploy_to}/backups"
+      set :latest_contents_backup, "#{backup_path}/#{application}_shared_contents_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.tar.gz"
+      latest_contents_backup = fetch :latest_contents_backup
+
+      # Setup a rollback hook
+      on_rollback { run "rm -f #{latest_contents_backup}" }
+
+      # Create a tarball of the contents folder
+      run <<-CMD
+        cd #{shared_path}/shared_contents &&
+        tar chzf #{latest_contents_backup} --exclude='*~' --exclude='*.tmp' --exclude='*.bak' *
+      CMD
+    end
+
     desc "[internal] Fix contao's symlinks to the shared path"
     task :fix_links, :roles => :app, :except => { :no_release => true } do
       contents_folder = fetch :contents_folder
@@ -58,6 +74,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Export the contents folder"
     task :export, :roles => :app, :except => { :no_release => true } do
       shared_path = fetch :shared_path
+      latest_contents_backup = fetch :latest_contents_backup
 
       # Find out at which index the file is located ?
       argv_file_index = ARGV.index("contents:export") + 1
@@ -72,14 +89,8 @@ Capistrano::Configuration.instance(:must_exist).load do
         export_filename = random_tmp_file + ".tar.gz"
       end
 
-      # Create a tarball of the contents folder
-      run <<-CMD
-        cd #{shared_path}/shared_contents &&
-        tar chzf /tmp/#{File.basename export_filename} --exclude='*~' --exclude='*.tmp' --exclude='*.bak' *
-      CMD
-
       # Tranfer the contents to the local system
-      get "/tmp/#{File.basename export_filename}", export_filename
+      get latest_contents_backup, export_filename
 
       puts "Contents has been downloaded to #{export_filename}"
       exit 0
@@ -88,4 +99,5 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   after "deploy:setup", "contents:setup"
   after "deploy:finalize_update", "contents:fix_links"
+  before "contents:export", "contents:backup"
 end
