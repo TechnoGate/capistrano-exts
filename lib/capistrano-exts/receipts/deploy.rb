@@ -32,6 +32,22 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "chmod -R g+w #{fetch :latest_release}" if fetch(:group_writable, true)
     end
 
+    desc "[internal] create the required folders."
+    task :folders, :roles => :app do
+      backup_path = fetch :backup_path, "#{fetch :deploy_to}/backups"
+
+      run <<-CMD
+        mkdir -p #{fetch :deploy_to} &&
+        mkdir -p #{backup_path}
+      CMD
+
+      if exists? :logs_path
+        run <<-CMD
+          mkdir -p #{fetch :logs_path}
+        CMD
+      end
+    end
+
     desc "[internal] Symlink public folder"
     task :symlink_public_folders, :roles => :web, :except => { :no_release => true } do
       deploy_to = fetch :deploy_to
@@ -61,5 +77,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   # Dependencies
   before "deploy", "deploy:check_if_remote_ready"
   after "deploy:restart", "deploy:fix_permissions"
+  after "deploy:setup", "deploy:folders"
   after "deploy:setup", "deploy:symlink_public_folders"
 end

@@ -54,16 +54,8 @@ Capistrano::Configuration.instance(:must_exist).load do
         end
 
         task :folders, :roles => :app do
-          run <<-CMD
-            mkdir -p #{fetch :deploy_to} &&
-            mkdir -p #{fetch :deploy_to}/backups
-          CMD
-
-          if exists? :logs_path
-            run <<-CMD
-              mkdir -p #{fetch :logs_path}
-            CMD
-          end
+          # Use setup:folders
+          find_and_execute_task("setup:folders")
         end
 
         task :finish do
