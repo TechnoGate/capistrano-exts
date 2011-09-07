@@ -8,7 +8,7 @@ unless Capistrano::Configuration.respond_to?(:instance)
 end
 
 Capistrano::Configuration.instance(:must_exist).load do
-  namespace :deploy do
+  namespace :git do
     desc "Check if the branch is ready"
     task :check_if_branch_is_ready, :roles => :app, :except => { :no_release => true } do
       unless `git rev-parse #{branch}` == `git rev-parse origin/#{branch}`
@@ -32,6 +32,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   # Dependencies
-  before "deploy", "deploy:check_if_branch_is_ready"
-  after "deploy:check_if_branch_is_ready", "deploy:check_revision"
+  before "deploy", "git:check_if_branch_is_ready"
+  after "git:check_if_branch_is_ready", "git:check_revision"
 end
