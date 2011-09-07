@@ -55,7 +55,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   def generate_random_file_name(data = nil)
-    if data.present?
+    if data
       "#{fetch :application}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S-%L')}_#{Digest::SHA1.hexdigest data}"
     else
       "#{fetch :application}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S-%L')}"
