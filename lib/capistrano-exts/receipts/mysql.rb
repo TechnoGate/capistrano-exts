@@ -250,165 +250,94 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
 
-    # TODO: credentials and root_credentials are exactly the same code with
-    #       one variable changing, we need some meta-programming for them!!
-
-    desc "print database credentials"
-    task :print_credentials do
-      puts mysql_credentials_formatted(fetch :mysql_credentials)
-    end
-
-    desc "[internal] write database credentials"
-    task :write_credentials do
-      unless exists?(:mysql_credentials_file) and remote_file_exists?(fetch :mysql_credentials_file)
-        mysql_credentials_file = fetch :mysql_credentials_file
-        random_file = random_tmp_file(mysql_credentials_formatted(fetch :mysql_credentials))
-        put mysql_credentials_formatted(fetch :mysql_credentials), random_file
-
-        begin
-          run <<-CMD
-            #{try_sudo} cp #{random_file} #{mysql_credentials_file}; \
-            #{try_sudo} rm -f #{random_file}
-          CMD
-        rescue Capistrano::CommandError
-          puts "WARNING: Apparently you do not have permissions to write to #{mysql_credentials_file}."
-          find_and_execute_task("mysql:print_credentials")
-        end
-      else
-        puts "WARNING: mysql_credentials_file is not defined or it already exists on the server."
-        find_and_execute_task("mysql:print_credentials") unless ARGV.include?("mysql:print_credentials")
+    ['credentials', 'root_credentials'].each do |var|
+      desc "print database #{var.gsub(/_/, ' ')}"
+      task "print_#{var}" do
+        puts mysql_credentials_formatted(fetch "mysql_#{var}".to_sym)
       end
-    end
 
-    desc "Get Mysql credentials"
-    task :credentials, :roles => :app, :except => { :no_release => true } do
-      unless exists?(:mysql_credentials)
-        # We haven't got the credentials yet, look for them
-        if exists?(:mysql_credentials_file) and remote_file_exists?(fetch :mysql_credentials_file)
-          mysql_credentials_file = fetch :mysql_credentials_file
+      desc "[internal] write database #{var.gsub(/_/, ' ')}"
+      task "write_#{var}" do
+        unless exists?("mysql_#{var}_file".to_sym) and remote_file_exists?(fetch "mysql_#{var}_file".to_sym)
+          mysql_credentials_file = fetch "mysql_#{var}_file".to_sym
+          random_file = random_tmp_file(mysql_credentials_formatted(fetch "mysql_#{var}".to_sym))
+          put mysql_credentials_formatted(fetch "mysql_#{var}".to_sym), random_file
 
           begin
-            set :mysql_credentials_file_contents, read(mysql_credentials_file)
+            run <<-CMD
+              #{try_sudo} cp #{random_file} #{mysql_credentials_file}; \
+              #{try_sudo} rm -f #{random_file}
+            CMD
           rescue Capistrano::CommandError
-            set :mysql_credentials, false
+            puts "WARNING: Apparently you do not have permissions to write to #{mysql_credentials_file}."
+            find_and_execute_task("mysql:print_#{var}")
           end
+        else
+          puts "WARNING: mysql_#{var}_file is not defined or it already exists on the server."
+          find_and_execute_task("mysql:print_#{var}") unless ARGV.include?("mysql:print_#{var}")
+        end
+      end
 
-          if exists?(:mysql_credentials_file_contents)
-            mysql_credentials_file_contents = fetch :mysql_credentials_file_contents
+      desc "Get Mysql #{var.gsub(/_/, ' ')}"
+      task "#{var}", :roles => :app, :except => { :no_release => true } do
+        unless exists?("mysql_#{var}".to_sym)
+          # Fetch configs
+          mysql_credentials_host_regex = fetch "mysql_#{var}_host_regex".to_sym
+          mysql_credentials_host_regex_match = fetch "mysql_#{var}_host_regex_match".to_sym
 
-            unless mysql_credentials_file_contents.blank?
-              mysql_credentials = {
-                host: mysql_credentials_file_contents.match(mysql_credentials_host_regex).try(:[], mysql_credentials_host_regex_match).try(:chomp),
-                user: mysql_credentials_file_contents.match(mysql_credentials_user_regex).try(:[], mysql_credentials_user_regex_match).try(:chomp),
-                pass: mysql_credentials_file_contents.match(mysql_credentials_pass_regex).try(:[], mysql_credentials_pass_regex_match).try(:chomp),
-              }
+          mysql_credentials_user_regex = fetch "mysql_#{var}_user_regex".to_sym
+          mysql_credentials_user_regex_match = fetch "mysql_#{var}_user_regex_match".to_sym
+
+          mysql_credentials_pass_regex = fetch "mysql_#{var}_pass_regex".to_sym
+          mysql_credentials_pass_regex_match = fetch "mysql_#{var}_pass_regex_match".to_sym
+
+          # We haven't got the credentials yet, look for them
+          if exists?("mysql_#{var}_file".to_sym) and remote_file_exists?(fetch "mysql_#{var}_file".to_sym)
+            mysql_credentials_file = fetch "mysql_#{var}_file".to_sym
+
+            begin
+              set "mysql_#{var}_file_contents".to_sym, read(mysql_credentials_file)
+            rescue Capistrano::CommandError
+              set "mysql_#{var}".to_sym, false
+            end
+
+            if exists?("mysql_#{var}_file_contents".to_sym)
+              mysql_credentials_file_contents = fetch "mysql_#{var}_file_contents".to_sym
+
+              unless mysql_credentials_file_contents.blank?
+                mysql_credentials = {
+                  host: mysql_credentials_file_contents.match(mysql_credentials_host_regex).try(:[], mysql_credentials_host_regex_match).try(:chomp),
+                  user: mysql_credentials_file_contents.match(mysql_credentials_user_regex).try(:[], mysql_credentials_user_regex_match).try(:chomp),
+                  pass: mysql_credentials_file_contents.match(mysql_credentials_pass_regex).try(:[], mysql_credentials_pass_regex_match).try(:chomp),
+                }
+              end
             end
           end
-        end
 
-        # Verify that we got them!
-        if mysql_credentials.blank? or mysql_credentials[:user].blank? or mysql_credentials[:pass].blank?
-          mysql_credentials = {
-            host: ask("What is the hostname used to access the database",
-                      default: mysql_credentials.try(:[], :host) || fetch(:mysql_db_server, 'localhost'),
-                      validate: /.+/),
-            user: ask("What is the username used to access the database",
-                      default: mysql_credentials.try(:[], :user) || fetch(:mysql_db_user),
-                      validate: /.+/),
-            pass: ask("What is the password used to access the database",
-                      default: mysql_credentials.try(:[], :pass),
-                      validate: /.+/,
-                      echo: false),
-          }
-        end
-
-        # Finally set it so it's available and write it to the server.
-        if mysql_credentials[:user].present? and mysql_credentials[:pass].present?
-          set :mysql_credentials, mysql_credentials
-          find_and_execute_task("mysql:write_credentials")
-        end
-      end
-    end
-
-    # REFACTOR!!
-    desc "print database root credentials"
-    task :print_root_credentials do
-      puts mysql_credentials_formatted(fetch :mysql_root_credentials)
-    end
-
-    desc "[internal] write database root credentials"
-    task :write_root_credentials do
-      unless exists?(:mysql_root_credentials_file) and remote_file_exists?(fetch :mysql_root_credentials_file)
-        mysql_root_credentials_file = fetch :mysql_root_credentials_file
-        random_file = random_tmp_file(mysql_credentials_formatted(fetch :mysql_root_credentials))
-        put mysql_credentials_formatted(fetch :mysql_root_credentials), random_file
-
-        begin
-          run <<-CMD
-            #{try_sudo} cp #{random_file} #{mysql_root_credentials_file}; \
-            #{try_sudo} rm -f #{random_file}
-          CMD
-        rescue Capistrano::CommandError
-          puts "WARNING: Apparently you do not have permissions to write to #{mysql_root_credentials_file}."
-          find_and_execute_task("mysql:print_root_credentials")
-        end
-      else
-        puts "WARNING: mysql_root_credentials_file is not defined or it already exists on the server."
-        find_and_execute_task("mysql:print_root_credentials") unless ARGV.include?("mysql:print_root_credentials")
-      end
-    end
-
-    desc "Get Mysql root_credentials"
-    task :root_credentials, :roles => :app, :except => { :no_release => true } do
-      unless exists?(:mysql_root_credentials)
-        # We haven't got the root_credentials yet, look for them
-        if exists?(:mysql_root_credentials_file) and remote_file_exists?(fetch :mysql_root_credentials_file)
-          mysql_root_credentials_file = fetch :mysql_root_credentials_file
-
-          begin
-            set :mysql_root_credentials_file_contents, read(mysql_root_credentials_file)
-          rescue Capistrano::CommandError
-            set :mysql_root_credentials, false
+          # Verify that we got them!
+          if mysql_credentials.blank? or mysql_credentials[:user].blank? or mysql_credentials[:pass].blank?
+            mysql_credentials = {
+              host: ask("What is the hostname used to access the database",
+                        default: mysql_credentials.try(:[], :host) || fetch(:mysql_db_server, 'localhost'),
+                        validate: /.+/),
+              user: ask("What is the username used to access the database",
+                        default: mysql_credentials.try(:[], :user) || ((var == 'credentials') ? fetch(:mysql_db_user) : nil),
+                        validate: /.+/),
+              pass: ask("What is the password used to access the database",
+                        default: mysql_credentials.try(:[], :pass),
+                        validate: /.+/,
+                        echo: false),
+            }
           end
 
-          if exists?(:mysql_root_credentials_file_contents)
-            mysql_root_credentials_file_contents = fetch :mysql_root_credentials_file_contents
-
-            unless mysql_root_credentials_file_contents.blank?
-              mysql_root_credentials = {
-                host: mysql_root_credentials_file_contents.match(mysql_root_credentials_host_regex).try(:[], mysql_root_credentials_host_regex_match).try(:chomp),
-                user: mysql_root_credentials_file_contents.match(mysql_root_credentials_user_regex).try(:[], mysql_root_credentials_user_regex_match).try(:chomp),
-                pass: mysql_root_credentials_file_contents.match(mysql_root_credentials_pass_regex).try(:[], mysql_root_credentials_pass_regex_match).try(:chomp),
-              }
-            end
+          # Finally set it so it's available and write it to the server.
+          if mysql_credentials[:user].present? and mysql_credentials[:pass].present?
+            set "mysql_#{var}".to_sym, mysql_credentials
+            find_and_execute_task("mysql:write_#{var}")
           end
-        end
-
-        # Verify that we got them!
-        if mysql_root_credentials.blank? or mysql_root_credentials[:user].blank? or mysql_root_credentials[:pass].blank?
-          mysql_root_credentials = {
-            host: ask("What is the hostname used to access the database",
-                      default: mysql_root_credentials.try(:[], :host) || fetch(:mysql_db_server, 'localhost'),
-                      validate: /.+/),
-            user: ask("What is the username used to access the database",
-                      default: mysql_root_credentials.try(:[], :user),
-                      validate: /.+/),
-            pass: ask("What is the password used to access the database",
-                      default: mysql_root_credentials.try(:[], :pass),
-                      validate: /.+/,
-                      echo: false),
-          }
-        end
-
-        # Finally set it so it's available and write it to the server.
-        if mysql_root_credentials[:user].present? and mysql_root_credentials[:pass].present?
-          set :mysql_root_credentials, mysql_root_credentials
-          find_and_execute_task("mysql:write_root_credentials")
         end
       end
     end
-    # REFACTOR!!
-
   end
 
   before "mysql:backup_db", "mysql:credentials"
