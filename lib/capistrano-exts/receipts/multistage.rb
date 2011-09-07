@@ -86,6 +86,38 @@ Capistrano::Configuration.instance.load do
       # Parse multistages
       multistages[stage].each { |config, value| set config, value }
     end
+
+    # Synchronisations tasks
+    # Don't you just love metaprogramming? I know I fucking do!
+    stages.each do |target_stage|
+      stages.reject { |s| s == target_stage }.each do |source_stage|
+        desc "Synchronise #{target_stage} with #{source_stage}"
+        task "sync_#{target_stage}_with_#{source_stage}", :roles => :app, :except => { :no_release => true } do
+          # Ask for a confirmation
+          response = ask("I am going to synchronise '#{target_stage}' with '#{source_stage}', it means I will overwrite both the database and the contents of '#{target_stage}' with those of '#{source_stage}', are you really sure you would like to continue (Yes, [No], Abort)", default:'N')
+          if response =~ /(no?)|(a(bort)?|\n)/i
+            abort "Canceled by the user."
+          end
+
+          # Generate a random folder name
+          random_folder = random_tmp_file
+
+          # Create the folder
+          FileUtils.mkdir_p random_folder
+
+          # Get the database/contents of the source
+          system "bundle exec cap #{source_stage} mysql:export_db_dump #{random_folder}/database.sql"
+          system "bundle exec cap #{source_stage} contents:export #{random_folder}/contents.tar.gz"
+
+          # Send them to the target
+          system "echo 'yes' | bundle exec cap #{target_stage} mysql:import_db_dump #{random_folder}/database.sql"
+          system "echo 'yes' | bundle exec cap #{target_stage} contents:import #{random_folder}/contents.tar.gz"
+
+          # Remove the entire folder
+          FileUtils.rm_rf random_folder
+        end
+      end
+    end
   end
 
   on :start, "multistage:ensure", :except => stages + ['multistage:setup', 'multistage:parse_multistages']
