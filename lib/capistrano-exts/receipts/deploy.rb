@@ -32,26 +32,34 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "chmod -R g+w #{fetch :latest_release}" if fetch(:group_writable, true)
     end
 
-    desc "[internal] Symlink htdocs"
-    task :symlink_htdocs do
+    desc "[internal] Symlink public folder"
+    task :symlink_public_folders, :roles => :web, :except => { :no_release => true } do
       deploy_to = fetch :deploy_to
-      if remote_file_exists?("#{deploy_to}/htdocs")
-        begin
-          run <<-CMD
-            #{try_sudo} mv #{deploy_to}/htdocs #{deploy_to}/old_htdocs &&
-            #{try_sudo} ln -nsf #{fetch :public_path} #{deploy_to}/htdocs
-          CMD
-        rescue Capistrano::CommandError
-          puts "WARNING: I couldn't replace the old htdocs please do so manually"
+
+      ['htdocs', 'httpdocs', 'www'].each do |folder|
+        if remote_file_exists?("#{deploy_to}/#{folder}")
+          begin
+            # Make sure the old folder exists
+            run <<-CMD
+              mkdir -p #{deploy_to}/old
+            CMD
+
+            run <<-CMD
+              #{try_sudo} mv #{deploy_to}/#{folder} #{deploy_to}/old/#{folder} &&
+              #{try_sudo} ln -nsf #{fetch :public_path} #{deploy_to}/#{folder}
+            CMD
+          rescue Capistrano::CommandError
+            puts "WARNING: I couldn't replace the old htdocs please do so manually"
+          end
         end
       end
 
-      puts "The htdocs folder has been moved to old_htdocs"
+      puts "The public folders has been moved to the old folder"
     end
   end
 
   # Dependencies
   before "deploy", "deploy:check_if_remote_ready"
   after "deploy:restart", "deploy:fix_permissions"
-  after "deploy:setup", "deploy:symlink_htdocs"
+  after "deploy:setup", "deploy:symlink_public_folders"
 end
