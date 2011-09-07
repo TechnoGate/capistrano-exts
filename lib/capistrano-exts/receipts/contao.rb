@@ -50,6 +50,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       # Add MySQL credentials
       unless localconfig.blank? or mysql_credentials.blank?
+        localconfig.gsub!(/#DB_HOST#/, mysql_credentials[:host])
         localconfig.gsub!(/#DB_USER#/, mysql_credentials[:user])
         localconfig.gsub!(/#DB_PASS#/, mysql_credentials[:pass])
         localconfig.gsub!(/#DB_NAME#/, mysql_db_name)
