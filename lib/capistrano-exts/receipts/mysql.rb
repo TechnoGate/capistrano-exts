@@ -15,7 +15,9 @@ Capistrano::Configuration.instance(:must_exist).load do
       mysql_credentials = fetch :mysql_credentials
       mysql_db_name = fetch :mysql_db_name
       deploy_to = fetch :deploy_to
-      set :latest_db_dump, "#{deploy_to}/backups/#{mysql_db_name}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.sql"
+      backup_path = fetch :backup_path, "#{fetch :deploy_to}/backups"
+
+      set :latest_db_dump, "#{backup_path}/#{mysql_db_name}_#{Time.now.strftime('%d-%m-%Y_%H-%M-%S')}.sql"
       latest_db_dump = fetch :latest_db_dump
 
       on_rollback { run "rm -f #{latest_db_dump}" }
@@ -99,6 +101,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           EOS
         end
 
+        # Upload the script
         put mysql_create, random_file
 
         begin
@@ -164,16 +167,28 @@ Capistrano::Configuration.instance(:must_exist).load do
         # The database dump name
         import_filename_argv = ARGV[argv_file_index]
         # Read the dump
-        mysql_dump = File.read(import_filename_argv)
+        contents_dump = File.read(import_filename_argv)
         # Generate a random file
-        random_file = random_tmp_file mysql_dump
+        random_file = random_tmp_file contents_dump
         # Add a rollback hook
         on_rollback { run "rm -f #{random_file}" }
 
         if mysql_credentials.present?
-          drop_db
-          create_db
-          put File.read(import_filename_argv), random_file
+          # Ask for a confirmation
+          response = ask("I am going to replace the database of #{fetch :application} with the contents of #{import_filename_argv}, are you sure you would like to continue (Yes, [No], Abort)", default:'N')
+          if response =~ /(no?)|(a(bort)?|\n)/i
+            abort "Canceled by the user."
+          end
+
+          # Transfer the SQL file to the server
+          # TODO: Try upload(filename, remote_file_name) function instead
+          put contents_dump, random_file
+
+          # Drop the database
+          find_and_execute_task("mysql:drop_db")
+
+          # Create the database
+          find_and_execute_task("mysql:create_db")
 
           run <<-CMD
             mysql \
@@ -185,10 +200,13 @@ Capistrano::Configuration.instance(:must_exist).load do
               #{random_file}
           CMD
 
+          # Remove the uploaded file
           run <<-CMD
             rm -f '#{random_file}'
           CMD
 
+          # Exit because capistrano will rollback, the next argument is a file name and not a task
+          # TODO: Find a better solution!
           exit 0
         end
       end

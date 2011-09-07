@@ -23,6 +23,7 @@ set :use_sudo, false
 set :deploy_to,   -> { "/home/vhosts/#{fetch :stage}/#{fetch :application}" }
 set :logs_path,   -> { "#{fetch :deploy_to}/logs" }
 set :public_path, -> { "#{fetch :current_path}/public" }
+set :backup_path, -> { "#{fetch :deploy_to}/backups" }
 
 # How should we deploy?
 # Valid options:
