@@ -82,7 +82,6 @@ set :mysql_db_server,                         'localhost'
 set :mysql_db_name,                           -> { "#{fetch :application}_#{fetch :stage}" }
 
 # What is the database user ?
-# NOTE: This is only used if you run deploy:server:setup which calls mysql:create_db_user
 set :mysql_db_user,                           -> { "#{fetch :application}" }
 
 # Where the database credentials are stored on the server ?
