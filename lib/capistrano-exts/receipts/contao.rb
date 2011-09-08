@@ -29,6 +29,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         #{try_sudo} mkdir -p #{shared_path}/config
       CMD
 
+      # TODO: The deny access should follow denied_access config
       deny_htaccess = "order deny,allow\n"
       deny_htaccess << "deny from all"
 
@@ -37,26 +38,30 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "[internal] Setup contao's localconfig"
     task :setup_localconfig, :roles => :app, :except => { :no_release => true } do
-      on_rollback { run "rm -f #{shared_path}/config/localconfig.php" }
+      unless remote_files_exists?("#{fetch :shared_path}/config/localconfig.php")
+        on_rollback { run "rm -f #{shared_path}/config/localconfig.php" }
 
-      localconfig = File.read("public/system/config/localconfig.php.sample")
-      mysql_credentials = fetch :mysql_credentials
-      mysql_db_name = fetch :mysql_db_name
+        localconfig = File.read("public/system/config/localconfig.php.sample")
+        mysql_credentials = fetch :mysql_credentials
+        mysql_db_name = fetch :mysql_db_name
 
-      # localconfig
-      if mysql_credentials.blank?
-        puts "WARNING: The mysql credential file can't be found, localconfig has just been copied from the sample file"
+        # localconfig
+        if mysql_credentials.blank?
+          puts "WARNING: The mysql credential file can't be found, localconfig has just been copied from the sample file"
+        end
+
+        # Add MySQL credentials
+        unless localconfig.blank? or mysql_credentials.blank?
+          localconfig.gsub!(/#DB_HOST#/, mysql_credentials[:host])
+          localconfig.gsub!(/#DB_USER#/, mysql_credentials[:user])
+          localconfig.gsub!(/#DB_PASS#/, mysql_credentials[:pass])
+          localconfig.gsub!(/#DB_NAME#/, mysql_db_name)
+        end
+
+        put localconfig, "#{fetch :shared_path}/config/localconfig.php"
+      else
+        puts "WARNING: The file '#{fetch :shared_path}/config/localconfig.php' already exists, not overwriting."
       end
-
-      # Add MySQL credentials
-      unless localconfig.blank? or mysql_credentials.blank?
-        localconfig.gsub!(/#DB_HOST#/, mysql_credentials[:host])
-        localconfig.gsub!(/#DB_USER#/, mysql_credentials[:user])
-        localconfig.gsub!(/#DB_PASS#/, mysql_credentials[:pass])
-        localconfig.gsub!(/#DB_NAME#/, mysql_db_name)
-      end
-
-      put localconfig, "#{fetch :shared_path}/config/localconfig.php"
     end
 
     desc "[internal] Setup .htaccess"
