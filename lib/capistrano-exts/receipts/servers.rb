@@ -54,8 +54,8 @@ Capistrano::Configuration.instance(:must_exist).load do
         end
 
         task :folders, :roles => :app do
-          # Use setup:folders
-          find_and_execute_task("setup:folders")
+          # Use deploy:folders
+          find_and_execute_task("deploy:folders")
         end
 
         task :finish do
