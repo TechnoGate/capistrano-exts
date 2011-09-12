@@ -8,8 +8,13 @@ Gem::Specification.new do |s|
   s.authors     = ["Wael Nasreddine"]
   s.email       = ["wael.nasreddine@gmail.com"]
   s.homepage    = "https://github.com/TechnoGate/capistrano-exts"
-  s.summary     = %q{Handy extensions for Capistrano}
-  s.description = s.summary
+  s.summary     = %q{Set of helper tasks to help with the initial server configuration and application provisioning.}
+  s.description = <<-EOD
+capistrano-exts is a set of helper tasks to help with the initial server
+configuration and application provisioning. Things like creating the directory
+structure, setting up that database, and other one-off you might find yourself
+doing by hand far too often.
+EOD
 
   s.rubyforge_project = "capistrano-exts"
 
