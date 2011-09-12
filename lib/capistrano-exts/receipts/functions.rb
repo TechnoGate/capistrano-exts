@@ -79,4 +79,17 @@ Capistrano::Configuration.instance(:must_exist).load do
   def read(file)
     capture("cat #{file}")
   end
+
+  # ask_for_confirmation(what)
+  # This function asks the user for confirmation (confirm running the task)
+  # If the user answers no, then the task won't be executed.
+  def ask_for_confirmation(what, options = {})
+    unless exists?(:force) and fetch(:force) == true
+      # Ask for a confirmation
+      response = ask(what, options)
+      if response =~ /(no?)|(a(bort)?|\n)/i
+        abort "Canceled by the user."
+      end
+    end
+  end
 end

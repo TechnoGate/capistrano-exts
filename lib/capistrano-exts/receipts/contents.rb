@@ -115,10 +115,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         on_rollback { run "rm -f #{random_file}" }
 
         # Ask for a confirmation
-        response = ask("I am going to add/replace all the files in the contents folder of #{fetch :application} with the contents of #{import_filename_argv}, are you sure you would like to continue (Yes, [No], Abort)", default:'N')
-        if response =~ /(no?)|(a(bort)?|\n)/i
-          abort "Canceled by the user."
-        end
+        ask_for_confirmation "I am going to add/replace all the files in the contents folder of #{fetch :application} with the contents of #{import_filename_argv}, are you sure you would like to continue (Yes, [No], Abort)", default:'N'
 
         # Transfer the SQL file to the server
         # TODO: Try upload(filename, remote_file_name) function instead

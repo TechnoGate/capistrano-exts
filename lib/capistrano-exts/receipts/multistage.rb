@@ -3,6 +3,7 @@
 # To allow configuration in either seperate files or in-line configurations
 
 require 'capistrano'
+require 'capistrano-exts/receipts/functions'
 require 'fileutils'
 
 unless Capistrano::Configuration.respond_to?(:instance)
@@ -94,10 +95,7 @@ Capistrano::Configuration.instance.load do
         desc "Synchronise #{target_stage}'s database with #{source_stage}"
         task "sync_#{target_stage}_database_with_#{source_stage}", :roles => :db, :except => { :no_release => true } do
           # Ask for a confirmation
-          response = ask("I am going to synchronise '#{target_stage}' database with '#{source_stage}', it means I will overwrite the database of '#{target_stage}' with those of '#{source_stage}', are you really sure you would like to continue (Yes, [No], Abort)", default:'N')
-          if response =~ /(no?)|(a(bort)?|\n)/i
-            abort "Canceled by the user."
-          end
+          ask_for_confirmation "I am going to synchronise '#{target_stage}' database with '#{source_stage}', it means I will overwrite the database of '#{target_stage}' with those of '#{source_stage}', are you really sure you would like to continue (Yes, [No], Abort)", default:'N'
 
           # Generate a random folder name
           random_folder = random_tmp_file
@@ -109,7 +107,7 @@ Capistrano::Configuration.instance.load do
           system "bundle exec cap #{source_stage} mysql:export_db_dump #{random_folder}/database.sql"
 
           # Send it to the target
-          system "yes | bundle exec cap #{target_stage} mysql:import_db_dump #{random_folder}/database.sql"
+          system "bundle exec cap -S force=true #{target_stage} mysql:import_db_dump #{random_folder}/database.sql"
 
           # Remove the entire folder
           FileUtils.rm_rf random_folder
@@ -118,10 +116,7 @@ Capistrano::Configuration.instance.load do
         desc "Synchronise #{target_stage}'s contents with #{source_stage}"
         task "sync_#{target_stage}_contents_with_#{source_stage}", :roles => :app, :except => { :no_release => true } do
           # Ask for a confirmation
-          response = ask("I am going to synchronise '#{target_stage}' contents with '#{source_stage}', it means I will overwrite the contents of '#{target_stage}' with those of '#{source_stage}', are you really sure you would like to continue (Yes, [No], Abort)", default:'N')
-          if response =~ /(no?)|(a(bort)?|\n)/i
-            abort "Canceled by the user."
-          end
+          ask_for_confirmation "I am going to synchronise '#{target_stage}' contents with '#{source_stage}', it means I will overwrite the contents of '#{target_stage}' with those of '#{source_stage}', are you really sure you would like to continue (Yes, [No], Abort)", default:'N'
 
           # Generate a random folder name
           random_folder = random_tmp_file
@@ -133,7 +128,7 @@ Capistrano::Configuration.instance.load do
           system "bundle exec cap #{source_stage} contents:export #{random_folder}/contents.tar.gz"
 
           # Send them to the target
-          system "yes | bundle exec cap #{target_stage} contents:import #{random_folder}/contents.tar.gz"
+          system "bundle exec cap -S force=true #{target_stage} contents:import #{random_folder}/contents.tar.gz"
 
           # Remove the entire folder
           FileUtils.rm_rf random_folder
@@ -142,16 +137,13 @@ Capistrano::Configuration.instance.load do
         desc "Synchronise #{target_stage} with #{source_stage}"
         task "sync_#{target_stage}_with_#{source_stage}", :roles => [:app, :db], :except => { :no_release => true } do
           # Ask for a confirmation
-          response = ask("I am going to synchronise '#{target_stage}' with '#{source_stage}', it means I will overwrite both the database and the contents of '#{target_stage}' with those of '#{source_stage}', are you really sure you would like to continue (Yes, [No], Abort)", default:'N')
-          if response =~ /(no?)|(a(bort)?|\n)/i
-            abort "Canceled by the user."
-          end
+          ask_for_confirmation "I am going to synchronise '#{target_stage}' with '#{source_stage}', it means I will overwrite both the database and the contents of '#{target_stage}' with those of '#{source_stage}', are you really sure you would like to continue (Yes, [No], Abort)", default:'N'
 
           # Synchronise the database
-          system "yes | bundle exec cap multistage:sync_#{target_stage}_database_with_#{source_stage}"
+          system "bundle exec cap -S force=true multistage:sync_#{target_stage}_database_with_#{source_stage}"
 
           # Synchronise the contents
-          system "yes | bundle exec cap multistage:sync_#{target_stage}_contents_with_#{source_stage}"
+          system "bundle exec cap -S force=true multistage:sync_#{target_stage}_contents_with_#{source_stage}"
         end
       end
     end
