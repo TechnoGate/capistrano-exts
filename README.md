@@ -135,9 +135,12 @@ The **contents\_file** is of course optional, if not given a random file in
 
 ### Sync
 
-Capistrano exts has special tasks defined under the **multistage** namespace for syncing one stage with another, and the tasks are generate on runtime depending
-on the stages you have defined, for example, if you have a staging and a production stage, you can develop your application on the staging area and then sync
-one or both of the database and contents of the production with those of staging like so:
+Capistrano exts has special tasks defined under the **multistage** namespace
+for syncing one stage with another, and the tasks are generate on runtime
+depending on the stages you have defined, for example, if you have a staging
+and a production stage, you can develop your application on the staging area
+and then sync one or both of the database and contents of the production stage
+with those of staging like so:
 
 Sync the database only
 
