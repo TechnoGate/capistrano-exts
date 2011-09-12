@@ -148,10 +148,10 @@ Capistrano::Configuration.instance.load do
           end
 
           # Synchronise the database
-          system "yes | bundle exec multistage:sync_#{target_stage}_database_with_#{source_stage}"
+          system "yes | bundle exec cap multistage:sync_#{target_stage}_database_with_#{source_stage}"
 
           # Synchronise the contents
-          system "yes | bundle exec multistage:sync_#{target_stage}_contents_with_#{source_stage}"
+          system "yes | bundle exec cap multistage:sync_#{target_stage}_contents_with_#{source_stage}"
         end
       end
     end
