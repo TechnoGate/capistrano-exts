@@ -10,13 +10,13 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/TechnoGate/capistrano-exts"
   s.summary     = %q{Set of helper tasks to help with the initial server configuration and application provisioning.}
   s.description = <<-EOD
-capistrano-exts is a set of helper tasks to help with the initial server
+Capistrano exts is a set of helper tasks to help with the initial server
 configuration and application provisioning. Things like creating the directory
 structure, setting up that database, and other one-off you might find yourself
-doing by hand far too often.
+doing by hand far too often. It provides many helpful post-deployment tasks to
+help you import/export database and contents as well as sync one stage with
+another.
 EOD
-
-  s.rubyforge_project = "capistrano-exts"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

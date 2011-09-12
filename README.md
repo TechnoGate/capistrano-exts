@@ -1,9 +1,11 @@
-# Capistrano Extensions [![Build Status](http://travis-ci.org/TechnoGate/capistrano-exts.png)](http://travis-ci.org/TechnoGate/capistrano-exts)
+# Capistrano Exts [![Build Status](http://travis-ci.org/TechnoGate/capistrano-exts.png)](http://travis-ci.org/TechnoGate/capistrano-exts)
 
-capistrano-exts is a set of helper tasks to help with the initial server
+Capistrano exts is a set of helper tasks to help with the initial server
 configuration and application provisioning. Things like creating the directory
 structure, setting up that database, and other one-off you might find yourself
-doing by hand far too often.
+doing by hand far too often. It provides many helpful post-deployment tasks to
+help you import/export database and contents as well as sync one stage with
+another.
 
 # Installation
 
