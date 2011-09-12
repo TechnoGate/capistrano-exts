@@ -1,0 +1,688 @@
+2011-09-12  Wael Nasreddine <wael.nasreddine@gmail.com>
+
+  * lib/capistrano-exts/receipts/contao.rb: MISC: Typo in the function name
+
+  * lib/capistrano-exts/receipts/functions.rb: MISC: The options hash should
+  not be mandatory.
+
+2011-09-08  Wael Nasreddine <wael.nasreddine@gmail.com>
+
+  * lib/capistrano-exts/receipts/contao.rb: MISC: Do not overwrite the
+  generated localconfig.php.
+
+  * README.md: MISC: Add a require false which is required for rails.
+
+  * README.md, lib/capistrano-exts/version.rb: MISC: Bump to version 1.8.1.
+
+  * lib/capistrano-exts/receipts/servers.rb: MISC: Typo in the task name.
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.8.0
+
+2011-09-07  Wael Nasreddine <wael.nasreddine@gmail.com>
+
+  * lib/capistrano-exts/receipts/mysql.rb: MISC: Refactor the *_credentials and
+  *_root_credentials to one iteration.
+
+  * lib/capistrano-exts/receipts/functions.rb,
+  lib/capistrano-exts/receipts/git.rb, lib/capistrano-exts/receipts/mysql.rb,
+  lib/capistrano-exts/receipts/servers/web_server.rb: MISC: Refactor the
+  capture(cat..) to read(..).
+
+  * lib/capistrano-exts/receipts/mysql.rb: Do not run the task
+  print_credentials (and for root) if it is already in the ARGV (it will be
+  executed twice.  closes #3 @5m
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.7.0
+
+  * lib/capistrano-exts/receipts/multistage.rb: MISC: Add a task that will
+  synchronise any stage with any other stage with confirmation of course.
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.6.0
+
+  * examples/php_fpm/deploy/development.rb,
+  examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  lib/capistrano-exts/receipts/mysql.rb,
+  lib/capistrano-exts/templates/multistage.rb: MISC: Add a new config param to
+  setup the backups path.
+
+  * lib/capistrano-exts/receipts/functions.rb: MISC: Using data.present? breaks
+  if data are binary.
+
+  * lib/capistrano-exts/receipts/deploy.rb,
+  lib/capistrano-exts/receipts/servers.rb: MISC: Add a task deploy:folders and
+  use it in deploy:setup:server:folders and after deploy:setup as well, this
+  will ensure folders are available in shared hosts.
+
+  * lib/capistrano-exts/receipts/contents.rb: MISC: Add a task to import the
+  contents folder.
+
+  * lib/capistrano-exts/receipts/contents.rb: MISC: Add a task to back the
+  contents folder before exporting them and use the backup file to export the
+  contents.
+
+  * lib/capistrano-exts/receipts/contao.rb: MISC: Replace the DB_HOST in the
+  localconfig as well.
+
+  * examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  lib/capistrano-exts/templates/multistage.rb: MISC: Remove a misleadin comment
+  in the config file.
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.5.1
+
+  * examples/php_fpm/deploy/development.rb,
+  examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  lib/capistrano-exts/receipts/mysql.rb,
+  lib/capistrano-exts/templates/multistage.rb: MISC: We should be able to
+  specify the username and the hostname of the database, we should not parse
+  the db role because it should be SSHable, it can't be on a shared hosting.
+
+  * lib/capistrano-exts/receipts/contents.rb: MISC: Add the h option to the tar
+  command, this will replace symlinks with regular files.
+
+  * lib/capistrano-exts/receipts/git.rb: Rename deploy to git
+
+  * lib/capistrano-exts/receipts/deploy.rb: MISC: Move more default public
+  folder out of the way.
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.5.0
+
+  * lib/capistrano-exts/receipts/contents.rb,
+  lib/capistrano-exts/receipts/deploy.rb,
+  lib/capistrano-exts/receipts/mysql.rb,
+  lib/capistrano-exts/receipts/servers.rb: MISC: Add a task to send the ssh key
+  and another to move the htdocs folder if it does indeed exist.
+
+2011-09-06  Wael Nasreddine <wael.nasreddine@gmail.com>
+
+  * lib/capistrano-exts/receipts/contents.rb,
+  lib/capistrano-exts/receipts/mysql.rb: MISC: Export file name should not be
+  mandatory.'
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.4.0
+
+  * lib/capistrano-exts/receipts/functions.rb: MISC: Add the millisecond to the
+  generated file name, to prevent any race condition that might arise.
+
+  * README.md, examples/php_fpm/deploy/development.rb,
+  examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  lib/capistrano-exts/receipts/contao.rb,
+  lib/capistrano-exts/receipts/contents.rb,
+  lib/capistrano-exts/receipts/deploy.rb,
+  lib/capistrano-exts/templates/multistage.rb: MISC: Add a contents receipt to
+  import/export contents.
+
+  * README.md, examples/php_fpm/deploy/development.rb,
+  examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  lib/capistrano-exts/receipts/multistage.rb,
+  lib/capistrano-exts/receipts/servers.rb,
+  lib/capistrano-exts/receipts/servers/db_server.rb,
+  lib/capistrano-exts/receipts/servers/web_server.rb,
+  lib/capistrano-exts/templates/multistage.rb: Rename all :prepare tasks to
+  :setup which is a more appropriate name  @10m
+
+2011-09-05  Wael Nasreddine <wael.nasreddine@gmail.com>
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.3.6
+
+  * lib/capistrano-exts/receipts/contao.rb: MISC: Add a \n after order
+  deny,allow
+
+  * .../receipts/servers/web_server/nginx.rb: MISC: Define denied_access only
+  if it exists.
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.3.5
+
+  * examples/php_fpm/deploy/development.rb,
+  examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  .../receipts/servers/web_server/nginx.rb,
+  lib/capistrano-exts/templates/multistage.rb,
+  .../templates/web_servers/nginx.conf.erb,
+  spec/rendered_templates/nginx_php_fpm.conf,
+  spec/servers/web_server/nginx_spec.rb: MISC: Implement a denied_access.
+
+  * lib/capistrano-exts/receipts/contao.rb: MISC: Deny access from logs folder.
+
+  * lib/capistrano-exts/receipts/contao.rb: MISC: Use fetch
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.3.4
+
+  * lib/capistrano-exts/receipts/functions.rb,
+  lib/capistrano-exts/receipts/mysql.rb: Use a random remote file name to avoid
+  race condition  closes #2 @5m
+
+2011-09-04  Wael Nasreddine <wael.nasreddine@gmail.com>
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.3.3
+
+  * lib/capistrano-exts/receipts/mysql.rb: Enhance how we look for the sql file
+  in {import,export}_db_dump  Instead of expecting just one more argument (like
+  staging in 'cap staging mysql:import_db_dump), look for the index of the task
+  we're requesting and add one to it.. This way wherever the task has been
+  added to the call, we are able to fetch the file name from the command line
+  string  refs #1 @10m
+
+  * lib/capistrano-exts/receipts/servers/web_server.rb: MISC: Rename
+  print_web_server_http_auth to print_http_auth.
+
+  * lib/capistrano-exts/receipts/servers/web_server.rb: Rename
+  print_web_server_auth_file to print_web_server_http_auth.
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.3.2
+
+  * lib/capistrano-exts/receipts/multistage.rb,
+  lib/capistrano-exts/receipts/mysql.rb: Fix mysql:import_db_dump and
+  mysql:export_db_dump  closes #1 @13m
+
+  * README.md, lib/capistrano-exts/version.rb: Bump to version 1.3.1
+
+  * lib/capistrano-exts/receipts/mysql.rb: MISC: Fix a few issues with mysql
+  receipt.
+
+  * lib/capistrano-exts/version.rb: Bump to version 1.3.0
+
+  * lib/capistrano-exts/receipts/mysql.rb,
+  lib/capistrano-exts/receipts/servers/web_server.rb: MISC: Use cp/rm instead
+  of mv.
+
+  * lib/capistrano-exts/receipts/mysql.rb: MISC: Do not write to the target
+  folder directly but instead write it to a temporary file and move it with
+  try_sudo.
+
+  * lib/capistrano-exts/receipts/contao.rb,
+  lib/capistrano-exts/receipts/mysql.rb,
+  lib/capistrano-exts/receipts/servers/web_server.rb: MISC: The database server
+  should not be localhost but instead the primary database server.
+
+  * lib/capistrano-exts/receipts/servers/web_server.rb: MISC: Instead of
+  looking for a proc, better is to look if it responds to :call.
+
+  * lib/capistrano-exts/version.rb: Bump to version 1.2.0
+
+  * lib/capistrano-exts/receipts/functions.rb,
+  lib/capistrano-exts/receipts/mysql.rb: MISC: Make sure we do have a user and
+  a pass, don't assume that if we have a hash we do have auth.
+
+  * lib/capistrano-exts/receipts/servers/web_server.rb: MISC: Add a new task
+  that prints the http_basic_auth for easier access to these informations.
+
+  * lib/capistrano-exts/receipts/mysql.rb: MISC: Enhance the warnings (user
+  experience)
+
+  * lib/capistrano-exts/receipts/mysql.rb: MISC: If we couldn't drop the
+  database (if we do not have permissions to do so) try dropping all tables.
+
+2011-09-03  Wael Nasreddine <wael.nasreddine@gmail.com>
+
+  * spec/spec_helper.rb: MISC: in 34f771f5ddfa0b5274396e75d3b45e92d67ee3c0 I
+  have remove some gems, disable mocha for the moment.
+
+  * lib/capistrano-exts/version.rb: Bump to version 1.1.5
+
+  * examples/php_fpm/deploy/development.rb,
+  examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  lib/capistrano-exts/receipts/contao.rb,
+  lib/capistrano-exts/receipts/servers/web_server.rb,
+  lib/capistrano-exts/templates/multistage.rb: MISC: Calling the latest_relase
+  this early (deploy:server:prepare) breaks because capistrano is trying to run
+  ls -x on the server.
+
+  * lib/capistrano-exts/version.rb: Bump to version 1.1.4
+
+  * capistrano-exts.gemspec, spec/spec_helper.rb, spec/support/factories.rb:
+  MISC: Fix the homepage url and remove some non-used developement gems.
+
+  * lib/capistrano-exts/version.rb: Bump to version 1.1.3
+
+  * lib/capistrano-exts/receipts/contao.rb,
+  lib/capistrano-exts/templates/multistage.rb: MISC: Assign a default for
+  public_path.
+
+  * examples/php_fpm/deploy/development.rb,
+  examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  lib/capistrano-exts/receipts/contao.rb,
+  lib/capistrano-exts/templates/multistage.rb: MISC: Fix a few minor issues and
+  add some more comments in the config file.
+
+  * lib/capistrano-exts/version.rb: Bump to version 1.1.2
+
+  * lib/capistrano-exts/templates/multistage.rb: MISC: Rename nasreddine.com to
+  example.com in the server-details in the template.
+
+  * lib/capistrano-exts/version.rb: Bump to version 1.1.1
+
+  * lib/capistrano-exts/receipts/multistage.rb: MISC: Print some info while
+  preparing the multistage.
+
+  * lib/capistrano-exts/version.rb: Bump to version 1.1.0
+
+  * lib/capistrano-exts/receipts/contao.rb,
+  lib/capistrano-exts/receipts/mysql.rb: MISC: Add some rollback callbacks.
+
+  * examples/php_fpm/deploy/development.rb,
+  examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  lib/capistrano-exts/receipts/contao.rb,
+  lib/capistrano-exts/receipts/deploy.rb,
+  lib/capistrano-exts/receipts/functions.rb,
+  lib/capistrano-exts/receipts/mysql.rb,
+  lib/capistrano-exts/templates/multistage.rb: MISC: Add some comments
+  explaining the configurations.
+
+  * README.md: MISC: Wrong gem name.
+
+  * lib/capistrano-exts/receipts/mysql.rb: MISC: Make sure we have parsed the
+  credentials, if the regex does not match we would have gotten a few
+  surprises.
+
+  * lib/capistrano-exts/receipts/functions.rb,
+  lib/capistrano-exts/receipts/mysql.rb,
+  lib/capistrano-exts/receipts/servers.rb,
+  lib/capistrano-exts/receipts/servers/db_server.rb,
+  lib/capistrano-exts/receipts/servers/web_server.rb: MISC: Fix a few minor
+  issues, it has been tested now.
+
+  * lib/capistrano-exts/receipts/contao.rb,
+  lib/capistrano-exts/receipts/mysql.rb: MISC: Create the database once the
+  server is setup and not after contao:setup
+
+  * lib/capistrano-exts/receipts/functions.rb,
+  lib/capistrano-exts/receipts/mysql.rb,
+  lib/capistrano-exts/receipts/servers/db_server.rb,
+  lib/capistrano-exts/receipts/servers/web_server.rb: MISC: Create the database
+  user and add it to the mysql_credentials_file.
+
+  * examples/php_fpm/deploy/development.rb,
+  examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  lib/capistrano-exts/servers/web_server.rb,
+  lib/capistrano-exts/servers/web_server/nginx.rb,
+  lib/capistrano-exts/templates/multistage.rb, spec/requests/nginx_spec.rb,
+  spec/servers/web_server/nginx_spec.rb: MISC: Rename rails_reverse_proxy to
+  reverse_proxy.
+
+  * lib/capistrano-exts/version.rb: Bump to version 1.0.1
+
+  * examples/php_fpm/deploy/development.rb,
+  examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  lib/capistrano-exts/servers/web_server.rb,
+  lib/capistrano-exts/servers/web_server/nginx.rb,
+  lib/capistrano-exts/templates/multistage.rb,
+  .../templates/web_servers/nginx.conf.erb, spec/requests/nginx_spec.rb,
+  spec/servers/web_server/nginx_spec.rb: MISC: Write all tests for nginx and
+  fix a minor issue with reverse_proxy_socket
+
+  * .travis.yml, capistrano-exts.gemspec: MISC: Remove jruby testing for the
+  moment, I should look at it later.
+
+  * .travis.yml: MISC: Let's try without bundle exec.
+
+  * .travis.yml: MISC: Let bundle install everything.
+
+  * Gemfile, capistrano-exts.gemspec: MISC: Disable growl_notify because it
+  only works on Mac, keep it commented as a guideline.
+
+  * .travis.yml, Gemfile, capistrano-exts.gemspec: MISC: Make sure rspec is
+  included in test group.
+
+  * .travis.yml: MISC: Still trying to fix travis-ci
+
+  * .../receipts/servers/web_server/apache.rb,
+  .../receipts/servers/web_server/nginx.rb: MISC: Use fetch()
+
+  * lib/capistrano-exts/receipts/contao.rb,
+  lib/capistrano-exts/receipts/deploy.rb: MISC: Move contao:fix_permissions to
+  deploy:fix_permissions, and chmod g+w if group_writable, by default true.
+
+  * .travis.yml: MISC: Don't install developement nor staging groups.
+
+  * README.md, examples/php_fpm/deploy.rb, examples/rails_passenger/deploy.rb,
+  examples/rails_reverse_proxy/deploy.rb, lib/capistrano-exts/receipts/base.rb,
+  lib/capistrano-exts/receipts/contao.rb,
+  lib/capistrano-exts/receipts/deploy.rb, lib/capistrano-exts/receipts/git.rb,
+  lib/capistrano-exts/receipts/mysql.rb, lib/capistrano-exts/receipts/rails.rb,
+  lib/capistrano-exts/receipts/servers.rb,
+  lib/capistrano-exts/templates/multistage.rb: MISC: Replace base with deploy.
+
+  * README.md: MISC: A new line is needed before block codes.
+
+  * MIT-LICENSE, README.md: MISC: Add a very basic README and a License.
+
+  * examples/rails_passenger/deploy.rb, examples/rails_reverse_proxy/deploy.rb,
+  lib/capistrano-exts/receipts/rails.rb: MISC: Rails applications should
+  require rails and not contao.
+
+2011-09-02  Wael Nasreddine <wael.nasreddine@gmail.com>
+
+  * .travis.yml: MISC: Add travis-ci config file.
+
+  * examples/php_fpm/deploy.rb, examples/php_fpm/deploy/development.rb,
+  examples/php_fpm/deploy/production.rb, examples/php_fpm/deploy/staging.rb,
+  examples/rails_passenger/deploy.rb,
+  examples/rails_passenger/deploy/development.rb,
+  examples/rails_passenger/deploy/production.rb,
+  examples/rails_passenger/deploy/staging.rb,
+  examples/rails_reverse_proxy/deploy.rb,
+  examples/rails_reverse_proxy/deploy/development.rb,
+  examples/rails_reverse_proxy/deploy/production.rb,
+  examples/rails_reverse_proxy/deploy/staging.rb,
+  lib/capistrano-exts/templates/multistage.rb: MISC: Add some examples.
+
+  * lib/capistrano-exts/templates/multistage.rb: MISC: Fix a typo in the
+  template file.
+
+  * spec/requests/nginx_spec.rb, spec/servers/web_server/nginx_spec.rb: MISC:
+  Fix the tests.
+
+  * Gemfile, Guardfile, capistrano-extensions.gemspec, capistrano-exts.gemspec,
+  lib/capistrano-extensions.rb, lib/capistrano-extensions/core_ext.rb,
+  .../core_ext/string/filters.rb, lib/capistrano-extensions/receipts.rb,
+  lib/capistrano-extensions/receipts/base.rb,
+  lib/capistrano-extensions/receipts/contao.rb,
+  lib/capistrano-extensions/receipts/functions.rb,
+  lib/capistrano-extensions/receipts/git.rb,
+  lib/capistrano-extensions/receipts/god.rb,
+  lib/capistrano-extensions/receipts/multistage.rb,
+  lib/capistrano-extensions/receipts/mysql.rb,
+  lib/capistrano-extensions/receipts/rails.rb,
+  lib/capistrano-extensions/receipts/servers.rb,
+  .../receipts/servers/db_server.rb, .../receipts/servers/web_server.rb,
+  lib/capistrano-extensions/receipts/unicorn.rb,
+  lib/capistrano-extensions/servers/utils/erb.rb,
+  .../servers/utils/variables.rb,
+  lib/capistrano-extensions/servers/web_server.rb,
+  .../servers/web_server/nginx.rb,
+  lib/capistrano-extensions/templates/multistage.rb,
+  .../templates/web_servers/nginx.conf.erb,
+  lib/capistrano-extensions/version.rb, lib/capistrano-exts.rb,
+  lib/capistrano-exts/core_ext.rb,
+  lib/capistrano-exts/core_ext/string/filters.rb,
+  lib/capistrano-exts/receipts.rb, lib/capistrano-exts/receipts/base.rb,
+  lib/capistrano-exts/receipts/contao.rb,
+  lib/capistrano-exts/receipts/functions.rb,
+  lib/capistrano-exts/receipts/git.rb, lib/capistrano-exts/receipts/god.rb,
+  lib/capistrano-exts/receipts/multistage.rb,
+  lib/capistrano-exts/receipts/mysql.rb, lib/capistrano-exts/receipts/rails.rb,
+  lib/capistrano-exts/receipts/servers.rb,
+  lib/capistrano-exts/receipts/servers/db_server.rb,
+  lib/capistrano-exts/receipts/servers/web_server.rb,
+  .../receipts/servers/web_server/apache.rb,
+  .../receipts/servers/web_server/nginx.rb,
+  lib/capistrano-exts/receipts/unicorn.rb,
+  lib/capistrano-exts/servers/utils/erb.rb,
+  lib/capistrano-exts/servers/utils/variables.rb,
+  lib/capistrano-exts/servers/web_server.rb,
+  lib/capistrano-exts/servers/web_server/nginx.rb,
+  lib/capistrano-exts/templates/multistage.rb,
+  .../templates/web_servers/nginx.conf.erb, lib/capistrano-exts/version.rb,
+  spec/spec_helper.rb: MISC: Rename the extension to capistrano-exts as an
+  existing gem exists with that name and add some useful tasks for nginx and
+  apache.
+
+  * lib/capistrano-extensions/receipts/multistage.rb,
+  lib/capistrano-extensions/receipts/mysql.rb,
+  .../receipts/servers/web_server.rb,
+  lib/capistrano-extensions/servers/web_server.rb,
+  lib/capistrano-extensions/templates/multistage.rb,
+  .../templates/web_servers/nginx.conf.erb: MISC: MySQL needs a host and fix a
+  few minor issues.
+
+  * lib/capistrano-extensions.rb, lib/capistrano-extensions/receipts/contao.rb,
+  lib/capistrano-extensions/receipts/functions.rb,
+  lib/capistrano-extensions/receipts/mysql.rb,
+  lib/capistrano-extensions/receipts/servers.rb,
+  .../receipts/servers/db_server.rb, .../receipts/servers/web_server.rb,
+  lib/capistrano-extensions/servers/web_server.rb,
+  .../servers/web_server/nginx.rb: MISC: Web configuration and passwords are
+  complete..
+
+  * lib/capistrano-extensions/version.rb: MISC: Define Version::ARRAY in case
+  we use it later.
+
+  * capistrano-extensions.gemspec, lib/capistrano-extensions.rb,
+  lib/capistrano-extensions/core_ext.rb, .../core_ext/string/filters.rb,
+  lib/capistrano-extensions/receipts.rb,
+  lib/capistrano-extensions/receipts/base.rb,
+  lib/capistrano-extensions/receipts/contao.rb,
+  lib/capistrano-extensions/receipts/functions.rb,
+  lib/capistrano-extensions/receipts/git.rb,
+  lib/capistrano-extensions/receipts/god.rb,
+  lib/capistrano-extensions/receipts/mysql.rb,
+  .../receipts/servers/web_server.rb,
+  lib/capistrano-extensions/servers/utils/erb.rb,
+  .../servers/utils/variables.rb,
+  lib/capistrano-extensions/servers/web_server.rb,
+  .../servers/web_server/nginx.rb, lib/capistrano-extensions/version.rb,
+  spec/spec_helper.rb: MISC: Make sure we run in a specific role, don't let
+  active_support overwrite capture and move the functions to functions.rb
+
+  * lib/capistrano-extensions/receipts/base.rb,
+  lib/capistrano-extensions/receipts/contao.rb,
+  lib/capistrano-extensions/receipts/rails.rb: MISC: Replace blank?() and
+  present?() with the one given by active_support's core_ext.
+
+  * capistrano-extensions.gemspec: MISC: Change the summary.
+
+  * lib/capistrano-extensions/receipts/multistage.rb: MISC: Bring home all of
+  capistrano-ext features.
+
+  * lib/capistrano-extensions/receipts.rb, .../receipts/configurations.rb,
+  lib/capistrano-extensions/receipts/multistage.rb: MISC: Include most of
+  capistrano-ext functionalities.
+
+  * Gemfile, Guardfile, capistrano-extensions.gemspec,
+  capistrano-technogate.gemspec, lib/capistrano-extensions.rb,
+  lib/capistrano-extensions/core_ext.rb, .../core_ext/string/filters.rb,
+  lib/capistrano-extensions/receipts.rb,
+  lib/capistrano-extensions/receipts/base.rb, .../receipts/configurations.rb,
+  lib/capistrano-extensions/receipts/contao.rb,
+  lib/capistrano-extensions/receipts/god.rb,
+  lib/capistrano-extensions/receipts/mysql.rb,
+  lib/capistrano-extensions/receipts/rails.rb,
+  lib/capistrano-extensions/receipts/servers.rb,
+  .../receipts/servers/db_server.rb, .../receipts/servers/web_server.rb,
+  lib/capistrano-extensions/receipts/unicorn.rb,
+  lib/capistrano-extensions/servers/utils/erb.rb,
+  .../servers/utils/variables.rb,
+  lib/capistrano-extensions/servers/web_server.rb,
+  .../servers/web_server/nginx.rb, .../templates/web_servers/nginx.conf.erb,
+  lib/capistrano-extensions/version.rb, lib/capistrano-technogate.rb,
+  lib/capistrano-technogate/core_ext.rb, .../core_ext/string/filters.rb,
+  lib/capistrano-technogate/receipts/base.rb, .../receipts/configurations.rb,
+  lib/capistrano-technogate/receipts/contao.rb,
+  lib/capistrano-technogate/receipts/god.rb,
+  lib/capistrano-technogate/receipts/mysql.rb,
+  lib/capistrano-technogate/receipts/rails.rb,
+  lib/capistrano-technogate/receipts/servers.rb,
+  .../receipts/servers/db_server.rb, .../receipts/servers/web_server.rb,
+  lib/capistrano-technogate/receipts/unicorn.rb,
+  lib/capistrano-technogate/servers/utils/erb.rb,
+  .../servers/utils/variables.rb,
+  lib/capistrano-technogate/servers/web_server.rb,
+  .../servers/web_server/nginx.rb, .../templates/web_servers/nginx.conf.erb,
+  lib/capistrano-technogate/version.rb, spec/spec_helper.rb: MISC: Rename this
+  project to capistrano-extensions.
+
+  * capistrano-technogate.gemspec, lib/capistrano-technogate/receipts/base.rb,
+  lib/capistrano-technogate/receipts/servers.rb,
+  .../receipts/servers/db_server.rb, .../receipts/servers/web_server.rb,
+  .../templates/web_servers/nginx.conf.erb,
+  spec/servers/web_server/nginx_spec.rb: MISC: deploy:server are still in
+  progress.
+
+2011-09-01  Wael Nasreddine <wael.nasreddine@gmail.com>
+
+  * capistrano-technogate.gemspec, lib/capistrano-technogate.rb,
+  lib/capistrano-technogate/core_ext.rb,
+  lib/capistrano-technogate/core_ext/README.rdoc,
+  lib/capistrano-technogate/core_ext/object/blank.rb,
+  lib/capistrano-technogate/core_ext/object/try.rb,
+  .../core_ext/string/encoding.rb, .../core_ext/string/filters.rb: MISC: Why
+  not use active_support/core_ext ?
+
+  * lib/capistrano-technogate/receipts/servers.rb,
+  .../receipts/servers/db_server.rb, .../receipts/servers/web_server.rb: MISC:
+  Add tasks for server preparations, tasks need to be implemented.
+
+  * spec/rendered_templates/nginx_php_fpm.conf: MISC: Fix the test.
+
+  * .../core_ext/string/filters.rb,
+  lib/capistrano-technogate/servers/utils/erb.rb,
+  lib/capistrano-technogate/servers/web_server.rb,
+  .../templates/web_servers/nginx.conf.erb,
+  spec/rendered_templates/nginx_php_fpm.conf: MISC: Beautify the output a
+  little bit.
+
+  * lib/capistrano-technogate/servers/web_server.rb,
+  spec/rendered_templates/nginx_php_fpm.conf, spec/requests/nginx_spec.rb,
+  spec/servers/web_server/nginx_spec.rb, spec/spec_helper.rb: MISC: Complete
+  the nginx template for php_fpm.
+
+  * lib/capistrano-technogate/servers/web_server.rb,
+  spec/servers/web_server/nginx_spec.rb: MISC: Finish php_fpm functionality.
+
+  * lib/capistrano-technogate/servers/utils/erb.rb,
+  lib/capistrano-technogate/servers/web_server.rb,
+  .../templates/web_servers/nginx.conf.erb,
+  spec/servers/web_server/nginx_spec.rb: MISC: A few enhancements.
+
+  * Guardfile, capistrano-technogate.gemspec: MISC: Enable guard for bundler
+  and rspec
+
+  * .../servers/utils/variables.rb,
+  lib/capistrano-technogate/servers/web_server.rb,
+  .../servers/web_server/common.rb, .../servers/web_server/nginx.rb: MISC:
+  Replace the template variables by a meta-programming for easier maintenance.
+
+  * Rakefile, capistrano-technogate.gemspec, lib/capistrano-technogate.rb,
+  lib/capistrano-technogate/core_ext.rb,
+  lib/capistrano-technogate/core_ext/README.rdoc,
+  lib/capistrano-technogate/core_ext/object/blank.rb,
+  lib/capistrano-technogate/core_ext/object/try.rb,
+  .../core_ext/string/encoding.rb, lib/capistrano-technogate/receipts/base.rb,
+  .../receipts/configurations.rb, lib/capistrano-technogate/receipts/contao.rb,
+  lib/capistrano-technogate/receipts/god.rb,
+  lib/capistrano-technogate/receipts/mysql.rb,
+  lib/capistrano-technogate/receipts/rails.rb,
+  lib/capistrano-technogate/receipts/servers.rb,
+  lib/capistrano-technogate/receipts/unicorn.rb,
+  lib/capistrano-technogate/servers/utils/erb.rb,
+  .../servers/web_server/common.rb, .../servers/web_server/nginx.rb,
+  .../templates/web_servers/nginx.conf.erb,
+  lib/capistrano-technogate/version.rb, lib/capistrano/technogate/base.rb,
+  lib/capistrano/technogate/configurations.rb,
+  lib/capistrano/technogate/contao.rb, lib/capistrano/technogate/god.rb,
+  lib/capistrano/technogate/mysql.rb, lib/capistrano/technogate/rails.rb,
+  lib/capistrano/technogate/unicorn.rb, lib/capistrano/technogate/version.rb,
+  spec/servers/web_server/nginx_spec.rb, spec/spec_helper.rb,
+  spec/support/factories.rb: MISC: Major redesign.
+
+2011-08-31  Wael Nasreddine <wael.nasreddine@gmail.com>
+
+  * lib/capistrano/technogate/base.rb,
+  lib/capistrano/technogate/configurations.rb,
+  lib/capistrano/technogate/mysql.rb: MISC: Add a function parsing mysql root
+  credentials.
+
+  * lib/capistrano/technogate/version.rb: MISC: Bump to version 0.1.1
+
+  * lib/capistrano/technogate/rails.rb: MISC: Before running
+  deploy:assets:precompile make sure bundle:install has ran.
+
+  * lib/capistrano/technogate/version.rb: MISC: Bump to version 0.1.0
+
+  * lib/capistrano/technogate/configurations.rb,
+  lib/capistrano/technogate/contao.rb, lib/capistrano/technogate/mysql.rb,
+  lib/capistrano/technogate/rails.rb: MISC: Move MySQL tasks into it's own
+  file.
+
+  * lib/capistrano/technogate/base.rb, lib/capistrano/technogate/contao.rb,
+  lib/capistrano/technogate/version.rb: MISC: If contao is included, overwrite
+  deploy:finalize_update.
+
+  * capistrano-technogate.gemspec: MISC: Add github projet page as the home
+  page.
+
+  * ..gemspec, .gitignore, Gemfile, Rakefile, base.rb,
+  capistrano-technogate.gemspec, configurations.rb, contao.rb, god.rb,
+  lib/capistrano/technogate/base.rb,
+  lib/capistrano/technogate/configurations.rb,
+  lib/capistrano/technogate/contao.rb, lib/capistrano/technogate/god.rb,
+  lib/capistrano/technogate/mysql.rb, lib/capistrano/technogate/rails.rb,
+  lib/capistrano/technogate/unicorn.rb, lib/capistrano/technogate/version.rb,
+  mysql.rb, rails.rb, unicorn.rb: Initial gem.
+
+  * base.rb, configurations.rb, mysql.rb: MISC: Import modifications from my
+  latest projects.
+
+2011-08-25  Wael Nasreddine <wael.nasreddine@gmail.com>
+
+  * contao.rb: Commit contao.rb
+
+  * base.rb, configurations.rb, god.rb, rails.rb, unicorn.rb: MISC: Adjust the
+  receipts.
+
+  * base.rb, configurations.rb, god.rb, rails.rb: Initial Import.
