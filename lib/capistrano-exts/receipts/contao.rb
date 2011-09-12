@@ -38,7 +38,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "[internal] Setup contao's localconfig"
     task :setup_localconfig, :roles => :app, :except => { :no_release => true } do
-      unless remote_files_exists?("#{fetch :shared_path}/config/localconfig.php")
+      unless remote_file_exists?("#{fetch :shared_path}/config/localconfig.php")
         on_rollback { run "rm -f #{shared_path}/config/localconfig.php" }
 
         localconfig = File.read("public/system/config/localconfig.php.sample")
