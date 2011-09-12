@@ -50,7 +50,7 @@ $ cap multistage:setup
 This command will create default configuration files in the folder
 __config/deploy__, one configuration file for each stage you defined above,
 before deploying the project to a stage you should carefully edit the
-configuration file.
+configuration files.
 
 # Usage
 
@@ -108,7 +108,7 @@ $ cap [stage] contents:import /tmp/contents.tar.gz
 N.B: The tarball will be extracted in **shared/shared\_contents** so you
 should make sure you have the
 [**contents\_folder**](https://github.com/TechnoGate/capistrano-exts/blob/master/lib/capistrano-exts/templates/multistage.rb#L54)
-in the stage's deploy configuration.
+in the configuration file of the stage.
 
 
 ### Exporting the database
@@ -133,6 +133,51 @@ $ cap [stage] mysql:export_db_dump [contents_file]
 The **contents\_file** is of course optional, if not given a random file in
 /tmp will be created.
 
+### Sync
+
+Capistrano exts has special tasks defined under the **multistage** namespace for syncing one stage with another, and the tasks are generate on runtime depending
+on the stages you have defined, for example, if you have a staging and a production stage, you can develop your application on the staging area and then sync
+one or both of the database and contents of the production with those of staging like so:
+
+Sync the database only
+
+```bash
+$ cap multistage:sync_production_database_with_staging
+```
+
+Sync the contents only
+
+```bash
+$ cap multistage:sync_production_contents_with_staging
+```
+
+Sync both
+
+```bash
+$ cap multistage:sync_production_with_staging
+```
 
 # License
-This code is free to use under the terms of the MIT license.
+
+## This code is free to use under the terms of the MIT license.
+
+Copyright (c) 2011 Wael Nasreddine <wael.nasreddine@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
