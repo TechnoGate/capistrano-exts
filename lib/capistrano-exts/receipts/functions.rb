@@ -32,7 +32,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       return newpass
   end
 
-  def ask(what, options)
+  def ask(what, options = {})
     default = options[:default]
     validate = options[:validate] || /(y(es)?)|(no?)|(a(bort)?|\n)/i
     echo = (options[:echo].nil?) ? true : options[:echo]
