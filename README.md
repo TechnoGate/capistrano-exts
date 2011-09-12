@@ -147,19 +147,19 @@ with those of staging like so:
 Sync the database only
 
 ```bash
-$ cap multistage:sync_production_database_with_staging
+$ cap multistage:sync:production_database_with_staging
 ```
 
 Sync the contents only
 
 ```bash
-$ cap multistage:sync_production_contents_with_staging
+$ cap multistage:sync:production_contents_with_staging
 ```
 
 Sync both
 
 ```bash
-$ cap multistage:sync_production_with_staging
+$ cap multistage:sync:production_with_staging
 ```
 
 # License
