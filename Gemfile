@@ -1,5 +1,9 @@
 source "http://rubygems.org"
 
+group :development, :test do
+  gem 'cuken', path: '/Users/wael/Projects/Playground/cuken'
+end
+
 # Specify your gem's dependencies in capistrano-exts.gemspec
 gemspec
 

@@ -38,6 +38,10 @@ EOD
 
   # Development / Test dependencies
   s.add_development_dependency('rspec', '~>2.6.0')
+  s.add_development_dependency('vagrant', '~>0.8.6')
+  # s.add_development_dependency('cuken', '~>0.1.14')
+  s.add_development_dependency('cucumber', '~>1.0.3')
+  s.add_development_dependency('cucumber-nagios', '~>0.9.2')
   # s.add_development_dependency('mocha', '~>0.2.12')
   # s.add_development_dependency('factory_girl', '~>2.0.5')
   # s.add_development_dependency('faker19', '~>1.0.5')
