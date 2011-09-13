@@ -64,8 +64,18 @@ set :rvm_ruby_string, "1.9.3"
 # created under 'shared_path/contents' and symlinked to the value (absolute path)
 # you can use public_path/current_path/deploy_to etc...
 set :contents_folder, {
-                        'contenu' => "#{fetch :public_path}/tl_files/durable/contenu",
-                      }
+  'contenu' => "#{fetch :public_path}/tl_files/durable/contenu",
+}
+
+# Here you can define which files/folder you would like to keep, these files
+# and folders are not considered contents so they will not be synced from one
+# server to another with the tasks mulltistage:sync:* instead they will be kept
+# between versions in the shared/items folder
+set :shared_items, [
+  'public/.htaccess',
+  'public/sitemap.xml',
+  'public/robots.txt',
+]
 
 #
 #

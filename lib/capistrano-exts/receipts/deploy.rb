@@ -38,7 +38,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       run <<-CMD
         mkdir -p #{fetch :deploy_to} &&
-        mkdir -p #{backup_path}
+        mkdir -p #{backup_path} &&
+        mkdir -p #{fetch :shared_path}/items
       CMD
 
       if exists? :logs_path
@@ -72,6 +73,39 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       puts "The public folders has been moved to the old folder"
     end
+
+    desc "Shared items"
+    task :shared_items, :roles => :app, :except => { :no_release => true } do
+      if exists?(:shared_items)
+        shared_items = fetch :shared_items
+        shared_path = fetch :shared_path
+        latest_release = fetch :latest_release
+
+        shared_items.each do |f|
+          file_name = f.gsub(/\//, '_')
+          unless remote_file_exists?("#{shared_path}/items/#{file_name}")
+            begin
+              run <<-CMD
+                #{try_sudo} cp #{latest_release}/#{f} #{shared_path}/items/#{file_name}
+              CMD
+            rescue Capistrano::CommandError
+              run <<-CMD
+                #{try_sudo} touch #{shared_path}/items/#{file_name}
+              CMD
+              puts "WARNING: You should edit #{shared_path}/items/#{file_name}"
+            end
+          end
+
+          begin
+            run <<-CMD
+              #{try_sudo} ln -nsf #{shared_path}/items/#{file_name} #{latest_release}/#{f}
+            CMD
+          rescue Capistrano::CommandError
+            abort "Unable to create a link for '#{shared_path}/items/#{file_name}' at '#{latest_release}/#{f}'"
+          end
+        end
+      end
+    end
   end
 
   # Dependencies
@@ -79,4 +113,5 @@ Capistrano::Configuration.instance(:must_exist).load do
   after "deploy:restart", "deploy:fix_permissions"
   after "deploy:setup", "deploy:folders"
   after "deploy:setup", "deploy:symlink_public_folders"
+  after "deploy:finalize_update", "deploy:shared_items"
 end

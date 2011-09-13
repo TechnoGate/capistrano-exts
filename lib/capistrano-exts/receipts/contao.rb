@@ -64,21 +64,6 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
 
-    desc "[internal] Setup .htaccess"
-    task :setup_htaccess do
-      unless remote_file_exists?("#{fetch :shared_path}/config/htaccess.txt")
-        begin
-          run <<-CMD
-            #{try_sudo} cp #{fetch :latest_release}/public/.htaccess.default #{fetch :shared_path}/config/htaccess.txt
-          CMD
-        rescue Capistrano::CommandError
-          run <<-CMD
-            #{try_sudo} touch #{fetch :shared_path}/config/htaccess.txt
-          CMD
-        end
-      end
-    end
-
     desc "[internal] Fix contao's symlinks to the shared path"
     task :fix_links, :roles => :app, :except => { :no_release => true } do
       latest_release = fetch :latest_release
@@ -87,13 +72,11 @@ Capistrano::Configuration.instance(:must_exist).load do
       # Remove files
       run <<-CMD
         #{try_sudo} rm -rf #{latest_release}/public/system/logs &&
-        #{try_sudo} rm -f #{latest_release}/public/system/config/localconfig.php &&
-        #{try_sudo} rm -f #{latest_release}/public/.htaccess
+        #{try_sudo} rm -f #{latest_release}/public/system/config/localconfig.php
       CMD
 
       # Create symlinks
       run <<-CMD
-        #{try_sudo} ln -nsf #{shared_path}/config/htaccess.txt #{latest_release}/public/.htaccess &&
         #{try_sudo} ln -nsf #{shared_path}/config/localconfig.php #{latest_release}/public/system/config/localconfig.php &&
         #{try_sudo} ln -nsf #{shared_path}/logs #{latest_release}/public/system/logs
       CMD
@@ -104,7 +87,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   after "deploy:setup", "contao:setup"
   after "contao:setup", "contao:setup_localconfig"
   after "deploy:finalize_update", "contao:fix_links"
-  before "contao:fix_links", "contao:setup_htaccess"
 
   # Mysql Credentials
   before "contao:setup_localconfig", "mysql:credentials"
