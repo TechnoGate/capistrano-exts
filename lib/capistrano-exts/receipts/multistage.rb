@@ -141,10 +141,10 @@ Capistrano::Configuration.instance.load do
             ask_for_confirmation "I am going to synchronise '#{target_stage}' with '#{source_stage}', it means I will overwrite both the database and the contents of '#{target_stage}' with those of '#{source_stage}', are you really sure you would like to continue (Yes, [No], Abort)", default:'N'
 
             # Synchronise the database
-            system "bundle exec cap -S force=true multistage:#{target_stage}_database_with_#{source_stage}"
+            system "bundle exec cap -S force=true multistage:sync:#{target_stage}_database_with_#{source_stage}"
 
             # Synchronise the contents
-            system "bundle exec cap -S force=true multistage:#{target_stage}_contents_with_#{source_stage}"
+            system "bundle exec cap -S force=true multistage:sync:#{target_stage}_contents_with_#{source_stage}"
           end
         end
       end
