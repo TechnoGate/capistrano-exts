@@ -20,7 +20,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Fix permissions"
     task :fix_permissions, :roles => :app do
-      unless exists?(:app_owner) or exists?(:app_group)
+      if exists?(:app_owner) or exists?(:app_group)
         run <<-CMD
           #{try_sudo} chown -R \
             #{fetch :app_owner, 'www-data'}:#{fetch :app_group, 'www-data'} \
