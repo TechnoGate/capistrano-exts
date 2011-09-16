@@ -78,6 +78,9 @@ set :rvm_ruby_string, "1.9.3"
 #   'public/robots.txt',
 # ]
 
+# Link config files
+set :configuration_files, ['database.yml']
+
 #
 #
 #############
