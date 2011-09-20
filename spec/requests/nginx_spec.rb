@@ -28,11 +28,62 @@ describe Nginx do
   end
 
   describe ":passenger" do
+    subject { Nginx.new :passenger}
 
+    before(:each) do
+      @application_url  = %w(technogate.fr www.technogate.fr)
+      @application      = 'technogate'
+      @public_path      = '/home/vhosts/technogate/public'
+
+      subject.application_url = @application_url
+      subject.application     = @application
+      subject.public_path     = @public_path
+    end
+
+    it "should render the correct file" do
+      expected_result = File.read File.join(RENDERED_TEMPLATES_PATH, 'nginx_passenger.conf')
+      subject.render.should == expected_result
+    end
   end
 
-  describe ":reverse_proxy" do
+  describe ":reverse_proxy socket" do
+    subject { Nginx.new :reverse_proxy}
 
+    before(:each) do
+      @application_url      = %w(technogate.fr www.technogate.fr)
+      @application          = 'technogate'
+      @reverse_proxy_socket = '/home/vhosts/technogate/tmp/unicorn.sock'
+
+      subject.application_url       = @application_url
+      subject.application           = @application
+      subject.reverse_proxy_socket  = @reverse_proxy_socket
+    end
+
+    it "should render the correct file" do
+      expected_result = File.read File.join(RENDERED_TEMPLATES_PATH, 'nginx_reverse_proxy_socket.conf')
+      subject.render.should == expected_result
+    end
+  end
+
+  describe ":reverse_proxy address" do
+    subject { Nginx.new :reverse_proxy}
+
+    before(:each) do
+      @application_url              = %w(technogate.fr www.technogate.fr)
+      @application                  = 'technogate'
+      @reverse_proxy_server_address = 'localhost'
+      @reverse_proxy_server_port    = '8080'
+
+      subject.application_url               = @application_url
+      subject.application                   = @application
+      subject.reverse_proxy_server_address  = @reverse_proxy_server_address
+      subject.reverse_proxy_server_port     = @reverse_proxy_server_port
+    end
+
+    it "should render the correct file" do
+      expected_result = File.read File.join(RENDERED_TEMPLATES_PATH, 'nginx_reverse_proxy_address.conf')
+      subject.render.should == expected_result
+    end
   end
 
 end
