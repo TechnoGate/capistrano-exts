@@ -70,7 +70,7 @@ Capistrano::Configuration.instance.load do
             f.write File.read(File.expand_path(File.join File.dirname(__FILE__), '..', 'templates', 'multistage.rb'))
           end
 
-          puts "#{name} configurations has been written to #{file}, please open and edit it."
+          logger.info "#{name} configurations has been written to #{file}, please open and edit it."
         end
       end
     end

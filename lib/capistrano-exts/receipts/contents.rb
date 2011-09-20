@@ -92,7 +92,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       # Tranfer the contents to the local system
       get latest_contents_backup, export_filename
 
-      puts "Contents has been downloaded to #{export_filename}"
+      logger.info "Contents has been downloaded to #{export_filename}"
       exit 0
     end
 
@@ -102,7 +102,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       argv_file_index = ARGV.index("contents:import") + 1
 
       unless ARGV.size >= (argv_file_index + 1) and File.exists?(ARGV[argv_file_index])
-        puts "ERROR: please run 'cap import <gzipped tar>'"
+        logger.important "ERROR: please run 'cap import <gzipped tar>'"
         exit 1
       else
         # The contents file name

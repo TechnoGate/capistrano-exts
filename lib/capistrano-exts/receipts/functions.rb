@@ -38,7 +38,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           run <<-CMD
             #{try_sudo} touch #{path}/#{file_name}
           CMD
-          puts "WARNING: You should edit '#{path}/#{file_name}' or re-create it as a folder if that's your intention."
+          logger.info "WARNING: You should edit '#{path}/#{file_name}' or re-create it as a folder if that's your intention."
         end
       end
 

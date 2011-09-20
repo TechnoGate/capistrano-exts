@@ -38,7 +38,7 @@ Capistrano::Configuration.instance(:must_exist).load do
             #{try_sudo} bzip2 -9 '#{latest_db_dump}'
           CMD
         rescue Capistrano::CommandError
-          puts "WARNING: The database doesn't exist."
+          logger.info "WARNING: The database doesn't exist."
         end
       else
         abort "MySQL credentials are empty"
@@ -61,7 +61,7 @@ Capistrano::Configuration.instance(:must_exist).load do
               '#{mysql_db_name}'
           CMD
         rescue Capistrano::CommandError
-          puts "WARNING: The database doesn't exist or you do not have permissions to drop it, trying to drop all tables inside of it."
+          logger.info "WARNING: The database doesn't exist or you do not have permissions to drop it, trying to drop all tables inside of it."
           begin
             run <<-CMD
               mysqldump \
@@ -77,7 +77,7 @@ Capistrano::Configuration.instance(:must_exist).load do
                 '#{mysql_db_name}'
             CMD
           rescue Capistrano::CommandError
-            puts "WARNING: The database doesn't exist or you do not have permissions to drop it."
+            logger.info "WARNING: The database doesn't exist or you do not have permissions to drop it."
           end
         end
       end
@@ -126,7 +126,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
           find_and_execute_task("mysql:write_credentials")
         rescue Capistrano::CommandError
-          puts "WARNING: The user #{application} already exists or you do not have permissions to create it."
+          logger.info "WARNING: The user #{application} already exists or you do not have permissions to create it."
           find_and_execute_task("mysql:print_credentials")
         end
       end
@@ -147,7 +147,7 @@ Capistrano::Configuration.instance(:must_exist).load do
               create '#{mysql_db_name}'
           CMD
         rescue Capistrano::CommandError
-          puts "WARNING: The database already exists or you do not have permissions to create it."
+          logger.info "WARNING: The database already exists or you do not have permissions to create it."
         end
       end
     end
@@ -161,7 +161,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       argv_file_index = ARGV.index("mysql:import_db_dump") + 1
 
       unless ARGV.size >= (argv_file_index + 1) and File.exists?(ARGV[argv_file_index])
-        puts "ERROR: please run 'cap mysql:import_db_dump <sql dump>'"
+        logger.important "ERROR: please run 'cap mysql:import_db_dump <sql dump>'"
         exit 1
       else
         # The database dump name
@@ -242,7 +242,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           rm -f /tmp/#{File.basename latest_db_dump}
         CMD
 
-        puts "Mysql dump has been downloaded to #{export_filename}"
+        logger.info "Mysql dump has been downloaded to #{export_filename}"
         exit 0
       end
     end
@@ -250,7 +250,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     ['credentials', 'root_credentials'].each do |var|
       desc "print database #{var.gsub(/_/, ' ')}"
       task "print_#{var}" do
-        puts mysql_credentials_formatted(fetch "mysql_#{var}".to_sym)
+        logger.trace credentials_formatted(fetch "mysql_#{var}".to_sym)
       end
 
       desc "[internal] write database #{var.gsub(/_/, ' ')}"
@@ -266,11 +266,11 @@ Capistrano::Configuration.instance(:must_exist).load do
               #{try_sudo} rm -f #{random_file}
             CMD
           rescue Capistrano::CommandError
-            puts "WARNING: Apparently you do not have permissions to write to #{mysql_credentials_file}."
+            logger.info "WARNING: Apparently you do not have permissions to write to #{mysql_credentials_file}."
             find_and_execute_task("mysql:print_#{var}")
           end
         else
-          puts "WARNING: mysql_#{var}_file is not defined or it already exists on the server."
+          logger.info "WARNING: mysql_#{var}_file is not defined or it already exists on the server."
           find_and_execute_task("mysql:print_#{var}") unless ARGV.include?("mysql:print_#{var}")
         end
       end

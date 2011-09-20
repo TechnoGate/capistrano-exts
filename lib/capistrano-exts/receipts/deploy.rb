@@ -13,8 +13,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Check if the remote is ready, should we run cap deploy:setup?"
     task :check_if_remote_ready, :roles => :web do
       unless remote_file_exists?("#{shared_path}")
-        puts "ERROR: The project is not ready for deployment."
-        puts "please run `cap deploy:setup"
+        logger.important "ERROR: The project is not ready for deployment."
+        logger.important "please run `cap deploy:setup"
         exit
       end
     end
@@ -67,12 +67,12 @@ Capistrano::Configuration.instance(:must_exist).load do
               #{try_sudo} ln -nsf #{fetch :public_path} #{deploy_to}/#{folder}
             CMD
           rescue Capistrano::CommandError
-            puts "WARNING: I couldn't replace the old htdocs please do so manually"
+            logger.info "WARNING: I couldn't replace the old htdocs please do so manually"
           end
         end
       end
 
-      puts "The public folders has been moved to the old folder"
+      logger.info "The public folders has been moved to the old folder"
     end
   end
 

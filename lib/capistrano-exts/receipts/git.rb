@@ -12,8 +12,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "Check if the branch is ready"
     task :check_if_branch_is_ready, :roles => :app, :except => { :no_release => true } do
       unless `git rev-parse #{branch}` == `git rev-parse origin/#{branch}`
-        puts "ERROR: #{branch} is not the same as origin/#{branch}"
-        puts "Run `git push` to sync changes."
+        logger.important "ERROR: #{branch} is not the same as origin/#{branch}"
+        logger.important "Run `git push` to sync changes."
         exit
       end
     end

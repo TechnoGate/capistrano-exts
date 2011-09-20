@@ -96,14 +96,18 @@ Capistrano::Configuration.instance(:must_exist).load do
               #{try_sudo} rm -f #{random_file}
             CMD
 
-            puts "This site uses http basic auth, the credentials are:"
-            puts web_server_auth_file_unencrypted_contents
+            logger.info "This site uses http basic auth, the credentials are:"
+            web_server_auth_file_unencrypted_contents.split("\n").each do |m|
+              logger.trace "username: #{m.split(':').first.chomp} password: #{m.split(':').last.chomp}"
+            end
           end
         end
 
         desc "print authentification file"
         task :print_http_auth do
-          puts read("#{fetch :deploy_to}/.http_basic_auth")
+          read("#{fetch :deploy_to}/.http_basic_auth").split("\n").each do |m|
+            logger.trace "username: #{m.split(':').first.chomp} password: #{m.split(':').last.chomp}"
+          end
         end
 
         desc "[internal] Write web configuration file"

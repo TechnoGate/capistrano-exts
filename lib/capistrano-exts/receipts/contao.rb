@@ -48,7 +48,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         # localconfig
         if mysql_credentials.blank?
-          puts "WARNING: The mysql credential file can't be found, localconfig has just been copied from the sample file"
+          logger.info "WARNING: The mysql credential file can't be found, localconfig has just been copied from the sample file"
         end
 
         # Add MySQL credentials
@@ -61,7 +61,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         put localconfig, localconfig_php_config_path
       else
-        puts "WARNING: The file '#{localconfig_php_config_path}' already exists, not overwriting."
+        logger.info "WARNING: The file '#{localconfig_php_config_path}' already exists, not overwriting."
       end
     end
 
