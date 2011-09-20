@@ -334,6 +334,27 @@ Capistrano::Configuration.instance(:must_exist).load do
           end
         end
       end
+
+      desc "Create database.yml in shared path"
+      task :write_database_yml, :roles => :db, :except => { :no_release => true } do
+        mysql_credentials = fetch :mysql_credentials
+
+        db_config = <<-EOF
+production:
+  adapter: mysql2
+  encoding: utf8
+  reconnect: false
+  pool: 10
+  database: #{fetch :mysql_db_name}
+  username: #{mysql_credentials[:user]}
+  password: #{mysql_credentials[:pass]}
+EOF
+
+        run <<-CMD
+          mkdir -p #{shared_path}/config
+        CMD
+        put db_config, "#{shared_path}/config/database.yml"
+      end
     end
   end
 
@@ -347,4 +368,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   before "mysql:print_credentials", "mysql:credentials"
   before "mysql:print_root_credentials", "mysql:root_credentials"
+
+  # Write database.yml to shared path when using rails
+  after  "mysql:write_credentials", "mysql:write_database_yml" if exists?(:capistrano_extensions) and capistrano_extensions.include?(:rails)
 end
