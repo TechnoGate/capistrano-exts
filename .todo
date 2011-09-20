@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<todo version="0.1.20">
+    <note priority="high" time="1316510985">
+        Add skip_table_on_sync configuration, if defined, we should not replace these tables on the target's database.
+    </note>
+    <note priority="medium" time="1316510717">
+        Add a postgresql receipt (The postgresql receipt should have the same tasks defined in mysql)
+    </note>
+    <note priority="medium" time="1316510864">
+        Abstract mysql_* and postgresql_* so either can be used by calling 'cap db:*'
+    </note>
+    <note priority="medium" time="1316510880">
+        Add tests using Vagrant (branch vagrant)
+    </note>
+</todo>

@@ -1,0 +1,11 @@
+- Add skip_table_on_sync configuration, if defined, we should not replace these tables on the target's database.
+  (added Tue Sep 20 11:29:45 2011, incomplete, priority high)
+
+- Add a postgresql receipt (The postgresql receipt should have the same tasks defined in mysql)
+  (added Tue Sep 20 11:25:17 2011, incomplete, priority medium)
+
+- Abstract mysql_* and postgresql_* so either can be used by calling 'cap db:*'
+  (added Tue Sep 20 11:27:44 2011, incomplete, priority medium)
+
+- Add tests using Vagrant (branch vagrant)
+  (added Tue Sep 20 11:28:00 2011, incomplete, priority medium)
