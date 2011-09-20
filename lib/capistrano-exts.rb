@@ -2,7 +2,7 @@
 
 # Add it to PATH
 ROOT_PATH = File.expand_path(File.dirname(__FILE__))
-$: << ROOT_PATH if File.directory?(ROOT_PATH) && !$:.include?(ROOT_PATH)
+$: << ROOT_PATH if File.directory?(ROOT_PATH) and not $:.include?(ROOT_PATH)
 
 # Require our core extensions
 require 'capistrano-exts/core_ext'

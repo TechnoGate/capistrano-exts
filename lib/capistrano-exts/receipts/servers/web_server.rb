@@ -71,7 +71,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         desc "[internal] Write authentification file"
         task :write_web_server_auth_file do
-          if exists?(:web_server_auth_file) && !remote_file_exists?(fetch :web_server_auth_file)
+          if exists?(:web_server_auth_file) and not remote_file_exists?(fetch :web_server_auth_file)
             web_server_auth_file = fetch :web_server_auth_file
             web_server_auth_file_contents = fetch :web_server_auth_file_contents
             web_server_auth_file_unencrypted_contents = fetch :web_server_auth_file_unencrypted_contents

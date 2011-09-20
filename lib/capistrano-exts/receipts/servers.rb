@@ -25,7 +25,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         idrsa_filename_argv = ARGV.try(:[], argv_file_index)
 
         # Generate the file name
-        if idrsa_filename_argv && !idrsa_filename_argv =~ /.+:.+/ && !File.exists?(idrsa_filename_argv)
+        if idrsa_filename_argv and not idrsa_filename_argv =~ /.+:.+/ and not File.exists?(idrsa_filename_argv)
           idrsa_filename = idrsa_filename_argv
         else
           idrsa_filename = "#{ENV['HOME']}/.ssh/id_rsa.pub"
