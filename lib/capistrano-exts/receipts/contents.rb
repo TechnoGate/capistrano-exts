@@ -41,7 +41,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       CMD
     end
 
-    desc "[internal] Fix contao's symlinks to the shared path"
+    desc "[internal] Fix symlinks of the contents folders to the shared path"
     task :fix_links, :roles => :app, :except => { :no_release => true } do
       contents_folder = fetch :contents_folder
       current_path = fetch :current_path

@@ -38,8 +38,9 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "[internal] Setup contao's localconfig"
     task :setup_localconfig, :roles => :app, :except => { :no_release => true } do
-      unless remote_file_exists?("#{fetch :shared_path}/config/localconfig.php")
-        on_rollback { run "rm -f #{shared_path}/config/localconfig.php" }
+      localconfig_php_config_path = "#{fetch :shared_path}/config/system_config_localconfig.php"
+      unless remote_file_exists?(localconfig_php_config_path)
+        on_rollback { run "rm -f #{localconfig_php_config_path}" }
 
         localconfig = File.read("public/system/config/localconfig.php.sample")
         mysql_credentials = fetch :mysql_credentials
@@ -58,9 +59,9 @@ Capistrano::Configuration.instance(:must_exist).load do
           localconfig.gsub!(/#DB_NAME#/, mysql_db_name)
         end
 
-        put localconfig, "#{fetch :shared_path}/config/localconfig.php"
+        put localconfig, localconfig_php_config_path
       else
-        puts "WARNING: The file '#{fetch :shared_path}/config/localconfig.php' already exists, not overwriting."
+        puts "WARNING: The file '#{localconfig_php_config_path}' already exists, not overwriting."
       end
     end
 
@@ -71,13 +72,11 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       # Remove files
       run <<-CMD
-        #{try_sudo} rm -rf #{latest_release}/public/system/logs &&
-        #{try_sudo} rm -f #{latest_release}/public/system/config/localconfig.php
+        #{try_sudo} rm -rf #{latest_release}/public/system/logs
       CMD
 
       # Create symlinks
       run <<-CMD
-        #{try_sudo} ln -nsf #{shared_path}/config/localconfig.php #{latest_release}/public/system/config/localconfig.php &&
         #{try_sudo} ln -nsf #{shared_path}/logs #{latest_release}/public/system/logs
       CMD
     end

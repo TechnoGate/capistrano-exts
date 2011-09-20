@@ -15,14 +15,35 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   def link_file(source_file, destination_file)
+    p source_file
+    p destination_file
     if remote_file_exists?(source_file)
-      run "#{try_sudo} ln -nsf #{source_file} #{destination_file}"
+      begin
+        run "#{try_sudo} ln -nsf #{source_file} #{destination_file}"
+      rescue Capistrano::CommandError
+        abort "Unable to create a link for '#{source_file}' at '#{destination_file}'"
+      end
     end
   end
 
-  def link_config_file(config_file, config_path = nil)
-    config_path ||= "#{File.join release_path, 'config'}"
-    link_file("#{File.join shared_path, 'config', config_file}", "#{File.join config_path, config_file}")
+  def link_files(path, files = {})
+    files.each do |f|
+      file_name = f.dup.gsub(/\//, '_')
+      unless remote_file_exists?("#{path}/#{file_name}")
+        begin
+          run <<-CMD
+            #{try_sudo} cp -a #{latest_release}/#{f} #{path}/#{file_name}
+          CMD
+        rescue Capistrano::CommandError
+          run <<-CMD
+            #{try_sudo} touch #{path}/#{file_name}
+          CMD
+          puts "WARNING: You should edit '#{path}/#{file_name}' or re-create it as a folder if that's your intention."
+        end
+      end
+
+      link_file File.join(path, file_name), File.join(fetch(:latest_release), f)
+    end
   end
 
   def gen_pass( len = 8 )

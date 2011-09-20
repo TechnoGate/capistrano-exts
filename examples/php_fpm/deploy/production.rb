@@ -77,6 +77,14 @@ set :shared_items, [
   'public/robots.txt',
 ]
 
+# Here you can define where are the configurations files located, these files
+# are not considered contents so they will not be synced from one
+# server to another with the tasks mulltistage:sync:* instead they will be kept
+# between versions in the shared/config folder
+# set :configuration_files, [
+#   'public/system/config/localconfig.php',
+# ]
+
 #
 #
 #############
