@@ -103,6 +103,12 @@ set :mysql_db_name,                           -> { "#{fetch :application}_#{fetc
 # NOTE: This is only used if you run deploy:server:setup which calls mysql:create_db_user
 set :mysql_db_user,                           -> { "#{fetch :application}" }
 
+# Tables to skip on import
+# set :skip_tables_on_import, [
+#   'tl_formdata',
+#   'tl_formdata_details',
+# ]
+
 # Where the database credentials are stored on the server ?
 set :mysql_credentials_file,                  -> { "#{deploy_to}/.mysql_password"}
 
