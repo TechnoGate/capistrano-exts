@@ -88,9 +88,15 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   # Helper for some mysql tasks
-  def credentials_formatted(credentials)
+  def credentials_formatted(credentials, adapter_mapping = {})
+    if adapter_mapping.include?(credentials[:adapter])
+      adapter = adapter_mapping[credentials[:adapter]]
+    else
+      adapter = credentials[:adapter]
+    end
+
     return <<-EOS
-adapter: #{credentials[:adapter]}
+adapter: #{adapter}
 hostname: #{credentials[:host]}
 username: #{credentials[:user]}
 password: #{credentials[:pass]}
@@ -111,9 +117,10 @@ password: #{credentials[:pass]}
   encoding: utf8
   reconnect: false
   pool: 10
-  database: #{fetch :mysql_db_name}
+  host: #{credentials[:host]}
   username: #{credentials[:user]}
   password: #{credentials[:pass]}
+  database: #{fetch :mysql_db_name}
     EOS
   end
 
