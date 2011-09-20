@@ -18,7 +18,7 @@ gem install capistrano-exts
 or add it to your Gemfile
 
 ```ruby
-gem 'capistrano-exts', '>=1.11.1', :require => false
+gem 'capistrano-exts', '>=1.11.2', :require => false
 ```
 
 # Setup
