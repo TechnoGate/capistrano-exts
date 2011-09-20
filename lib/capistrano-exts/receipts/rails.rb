@@ -30,7 +30,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         begin
           run <<-CMD
-            #{try_sudo} cp #{random_file} #{database_yml_config_path} &&
+            #{try_sudo} cp #{random_file} #{database_yml_config_path}; \
             #{try_sudo} rm -f #{random_file}
           CMD
         rescue Capistrano::CommandError
