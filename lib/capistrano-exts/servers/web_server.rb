@@ -40,7 +40,7 @@ module Capistrano
 
           def php_build_with_force_cgi_redirect?
             # required if PHP was built with --enable-force-cgi-redirect
-            @php_build_with_force_cgi_redirect.present? and @php_build_with_force_cgi_redirect == true
+            @php_build_with_force_cgi_redirect.present? && @php_build_with_force_cgi_redirect == true
           end
 
           def sanity_check
@@ -59,19 +59,19 @@ module Capistrano
             end
 
             if reverse_proxy?
-              if @reverse_proxy_server_address.blank? and @reverse_proxy_server_port.blank? and @reverse_proxy_socket.blank?
+              if @reverse_proxy_server_address.blank? && @reverse_proxy_server_port.blank? && @reverse_proxy_socket.blank?
                 raise ArgumentError, "None of the address, port or socket has been defined."
               end
 
-              if @reverse_proxy_server_address.present? and @reverse_proxy_server_port.blank?
+              if @reverse_proxy_server_address.present? && @reverse_proxy_server_port.blank?
                 raise ArgumentError, "reverse_proxy_server_address is defined but reverse_proxy_server_port is not please define it."
               end
 
-              if @reverse_proxy_server_port.present? and @reverse_proxy_server_address.blank?
+              if @reverse_proxy_server_port.present? && @reverse_proxy_server_address.blank?
                 raise ArgumentError, "reverse_proxy_server_port is defined but reverse_proxy_server_address is not please define it."
               end
 
-              if @reverse_proxy_server_address.present? and @reverse_proxy_server_port.present? and @reverse_proxy_socket.present?
+              if @reverse_proxy_server_address.present? && @reverse_proxy_server_port.present? && @reverse_proxy_socket.present?
                 raise ArgumentError, "you should not define reverse_proxy_server_address, reverse_proxy_server_port and reverse_proxy_socket."
               end
             end

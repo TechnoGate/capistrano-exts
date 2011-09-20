@@ -83,7 +83,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       export_filename_argv = ARGV.try(:[], argv_file_index)
 
       # Generate the file name
-      if export_filename_argv and not export_filename_argv =~ /.+:.+/ and not File.exists?(export_filename_argv)
+      if export_filename_argv && !export_filename_argv =~ /.+:.+/ && !File.exists?(export_filename_argv)
         export_filename = export_filename_argv
       else
         export_filename = random_tmp_file + ".tar.gz"
@@ -101,7 +101,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       # Find out at which index the file is located ?
       argv_file_index = ARGV.index("contents:import") + 1
 
-      unless ARGV.size >= (argv_file_index + 1) and File.exists?(ARGV[argv_file_index])
+      unless ARGV.size >= (argv_file_index + 1) && File.exists?(ARGV[argv_file_index])
         logger.important "ERROR: please run 'cap import <gzipped tar>'"
         exit 1
       else

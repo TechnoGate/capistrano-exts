@@ -160,7 +160,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       # Find out at which index the file is located ?
       argv_file_index = ARGV.index("mysql:import_db_dump") + 1
 
-      unless ARGV.size >= (argv_file_index + 1) and File.exists?(ARGV[argv_file_index])
+      unless ARGV.size >= (argv_file_index + 1) && File.exists?(ARGV[argv_file_index])
         logger.important "ERROR: please run 'cap mysql:import_db_dump <sql dump>'"
         exit 1
       else
@@ -229,7 +229,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       export_filename_argv = ARGV.try(:[], argv_file_index)
 
       # Generate the file name
-      if export_filename_argv and not export_filename_argv =~ /.+:.+/ and not File.exists?(export_filename_argv)
+      if export_filename_argv && !export_filename_argv =~ /.+:.+/ && !File.exists?(export_filename_argv)
         export_filename = export_filename_argv
       else
         export_filename = random_tmp_file + ".sql"
@@ -320,7 +320,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       desc "[internal] write database #{var.gsub(/_/, ' ')}"
       task "write_#{var}" do
-        unless exists?("mysql_#{var}_file".to_sym) and remote_file_exists?(fetch "mysql_#{var}_file".to_sym)
+        unless exists?("mysql_#{var}_file".to_sym) && remote_file_exists?(fetch "mysql_#{var}_file".to_sym)
           mysql_credentials_file = fetch "mysql_#{var}_file".to_sym
           credentials_formatted_content = credentials_formatted(fetch "mysql_#{var}".to_sym)
           random_file = random_tmp_file(credentials_formatted_content)
@@ -355,7 +355,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           mysql_credentials_pass_regex_match = fetch "mysql_#{var}_pass_regex_match".to_sym
 
           # We haven't got the credentials yet, look for them
-          if exists?("mysql_#{var}_file".to_sym) and remote_file_exists?(fetch "mysql_#{var}_file".to_sym)
+          if exists?("mysql_#{var}_file".to_sym) && remote_file_exists?(fetch "mysql_#{var}_file".to_sym)
             mysql_credentials_file = fetch "mysql_#{var}_file".to_sym
 
             begin
@@ -395,7 +395,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           end
 
           # Finally set it so it's available and write it to the server.
-          if mysql_credentials[:user].present? and mysql_credentials[:pass].present?
+          if mysql_credentials[:user].present? && mysql_credentials[:pass].present?
             set "mysql_#{var}".to_sym, mysql_credentials
             find_and_execute_task("mysql:write_#{var}")
           end
