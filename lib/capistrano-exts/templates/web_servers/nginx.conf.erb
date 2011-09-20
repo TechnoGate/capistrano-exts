@@ -21,6 +21,34 @@ server {
   index <%= @indexes.join(' ') %>;
 <% end %>
 
+  # This allows people to use images and css in their maintenance.html file
+  if ($request_filename ~* \.(css|jpg|gif|png)$) {
+    break;
+  }
+  # Rewrite all the requests to the maintenance.html page if it exists.
+  if (-f $document_root/system/maintenance.html) {
+    return 503;
+  }
+  # with 503 error code
+  location @503 {
+    rewrite  ^(.*)$  /system/maintenance.html break;
+  }
+
+<% if passenger? %>
+  passenger_enabled on;
+
+  # Rails errors
+  error_page 404 /404.html;
+  error_page 500 502 504 /500.html;
+  error_page 503 @503;
+
+  <% if mod_rewrite? %>
+  # this serves static files that exist without running other rewrite tests
+  if (-f $request_filename) {
+    break;
+  }
+  <% end %>
+<% else %>
   location / {
   <% if mod_rewrite? %>
     # this serves static files that exist without running other rewrite tests
@@ -46,6 +74,7 @@ server {
       deny  all;
     }
   <% end if @denied_access.present? %>
+<% end %>
 
 <% if php_fpm? %>
   location ~ .php$ {
@@ -77,10 +106,6 @@ server {
     fastcgi_param  REDIRECT_STATUS    200;
   <% end %>
   }
-<% end %>
-
-<% if passenger? %>
-  passenger_enabled on;
 <% end %>
 }
 
