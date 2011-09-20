@@ -15,7 +15,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   namespace :rails do
     desc "Install configuration files"
     task :install_configuration_files, :roles => :app do
-      unless exists?(:configuration_files)
+      if exists?(:configuration_files)
         fetch(:configuration_files).each { |configuration_file| link_config_file(configuration_file) }
       end
     end
