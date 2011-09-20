@@ -12,6 +12,9 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "[internal] Shared items"
     task :shared_items, :roles => :app, :except => { :no_release => true } do
       if exists?(:shared_items)
+        run <<-CMD
+          #{try_sudo} mkdir -p #{fetch :shared_path}/items
+        CMD
         link_files "#{fetch :shared_path}/items", fetch(:shared_items)
       end
     end
@@ -19,6 +22,9 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "[internal] Configuration files"
     task :config_files, :roles => :app, :except => { :no_release => true } do
       if exists?(:configuration_files)
+        run <<-CMD
+          #{try_sudo} mkdir -p #{fetch :shared_path}/config
+        CMD
         link_files "#{fetch :shared_path}/config", fetch(:configuration_files)
       end
     end

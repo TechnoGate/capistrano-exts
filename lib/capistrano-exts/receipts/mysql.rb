@@ -257,8 +257,9 @@ Capistrano::Configuration.instance(:must_exist).load do
       task "write_#{var}" do
         unless exists?("mysql_#{var}_file".to_sym) and remote_file_exists?(fetch "mysql_#{var}_file".to_sym)
           mysql_credentials_file = fetch "mysql_#{var}_file".to_sym
-          random_file = random_tmp_file(mysql_credentials_formatted(fetch "mysql_#{var}".to_sym))
-          put mysql_credentials_formatted(fetch "mysql_#{var}".to_sym), random_file
+          credentials_formatted_content = credentials_formatted(fetch "mysql_#{var}".to_sym)
+          random_file = random_tmp_file(credentials_formatted_content)
+          put credentials_formatted_content, random_file
 
           begin
             run <<-CMD
@@ -303,6 +304,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
               unless mysql_credentials_file_contents.blank?
                 mysql_credentials = {
+                  adapter: 'mysql',
                   host: mysql_credentials_file_contents.match(mysql_credentials_host_regex).try(:[], mysql_credentials_host_regex_match).try(:chomp),
                   user: mysql_credentials_file_contents.match(mysql_credentials_user_regex).try(:[], mysql_credentials_user_regex_match).try(:chomp),
                   pass: mysql_credentials_file_contents.match(mysql_credentials_pass_regex).try(:[], mysql_credentials_pass_regex_match).try(:chomp),
@@ -334,27 +336,6 @@ Capistrano::Configuration.instance(:must_exist).load do
           end
         end
       end
-
-      desc "Create database.yml in shared path"
-      task :write_database_yml, :roles => :db, :except => { :no_release => true } do
-        mysql_credentials = fetch :mysql_credentials
-
-        db_config = <<-EOF
-production:
-  adapter: mysql2
-  encoding: utf8
-  reconnect: false
-  pool: 10
-  database: #{fetch :mysql_db_name}
-  username: #{mysql_credentials[:user]}
-  password: #{mysql_credentials[:pass]}
-EOF
-
-        run <<-CMD
-          mkdir -p #{shared_path}/config
-        CMD
-        put db_config, "#{shared_path}/config/database.yml"
-      end
     end
   end
 
@@ -368,7 +349,4 @@ EOF
 
   before "mysql:print_credentials", "mysql:credentials"
   before "mysql:print_root_credentials", "mysql:root_credentials"
-
-  # Write database.yml to shared path when using rails
-  after  "mysql:write_credentials", "mysql:write_database_yml" if exists?(:capistrano_extensions) and capistrano_extensions.include?(:rails)
 end

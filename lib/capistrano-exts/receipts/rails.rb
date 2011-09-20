@@ -7,23 +7,37 @@ unless Capistrano::Configuration.respond_to?(:instance)
   abort "This extension requires Capistrano 2"
 end
 
-# TODO:
-# => Replace the vars with a call to fetch
-# => Add the vars to examples and the template so it is visible
+RAILS_DB_ADAPTER_MAPPING = {
+  'mysql' => 'mysql2'
+}
 
 Capistrano::Configuration.instance(:must_exist).load do
 
   namespace :rails do
-    desc "Install configuration files"
-    task :install_configuration_files, :roles => :app do
-      if exists?(:configuration_files)
-        fetch(:configuration_files).each { |configuration_file| link_config_file(configuration_file) }
-      end
-    end
+    desc "[internal] Create database.yml in shared path"
+    task :write_database_yml, :roles => :app, :except => { :no_release => true } do
+      database_yml_config_path = "#{fetch :shared_path}/config/config_database.yml"
+      unless remote_file_exists?(database_yml_config_path)
+        on_rollback { run "rm -f #{database_yml_config_path}" }
+        mysql_credentials = fetch :mysql_credentials
 
-    desc "Install rvm config file"
-    task :install_rvmrc_file, :roles => :app do
-      link_file(File.join(fetch(:shared_path), 'rvmrc'), File.join(fetch(:release_path), '.rvmrc'))
+        # Get the db_config
+        db_config = rails_database_yml(mysql_credentials, RAILS_DB_ADAPTER_MAPPING)
+
+        # Generate a remote file name
+        random_file = random_tmp_file(db_config)
+        put db_config, random_file
+
+        begin
+          run <<-CMD
+            #{try_sudo} cp #{random_file} #{database_yml_config_path} &&
+            #{try_sudo} rm -f #{random_file}
+          CMD
+        rescue Capistrano::CommandError
+          logger.info "WARNING: Apparently you do not have permissions to write to #{mysql_credentials_file}."
+          find_and_execute_task("mysql:print_#{var}")
+        end
+      end
     end
   end
 
@@ -33,8 +47,11 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
   end
 
-  after "deploy:finalize_update", "rails:install_configuration_files"
-  after "rails:install_configuration_files", "rails:install_rvmrc_file"
+  # Database.yml file
+  after "files:config_files", "rails:write_database_yml"
+  before "rails:write_database_yml", "mysql:credentials"
+
+  # Restart the server
   after "deploy:restart", "deploy:fix_permissions"
 
   # Capistrano is broken

@@ -88,11 +88,32 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   # Helper for some mysql tasks
-  def mysql_credentials_formatted(mysql_credentials)
+  def credentials_formatted(credentials)
     return <<-EOS
-      hostname: #{mysql_credentials[:host]}
-      username: #{mysql_credentials[:user]}
-      password: #{mysql_credentials[:pass]}
+adapter: #{credentials[:adapter]}
+hostname: #{credentials[:host]}
+username: #{credentials[:user]}
+password: #{credentials[:pass]}
+    EOS
+  end
+
+  # Helper for rails database.yml generator
+  def rails_database_yml(credentials, adapter_mapping = {})
+    if adapter_mapping.include?(credentials[:adapter])
+      adapter = adapter_mapping[credentials[:adapter]]
+    else
+      adapter = credentials[:adapter]
+    end
+
+    return <<-EOS
+#{fetch :rails_env}:
+  adapter: #{adapter}
+  encoding: utf8
+  reconnect: false
+  pool: 10
+  database: #{fetch :mysql_db_name}
+  username: #{credentials[:user]}
+  password: #{credentials[:pass]}
     EOS
   end
 
