@@ -35,9 +35,6 @@ EOD
   s.add_development_dependency('guard-bundler', '>=0.1.3')
   s.add_development_dependency('guard-rspec', '>=0.4.3')
 
-  # Install this gem manually to get growl notifications on Mac OS X
-  # s.add_development_dependency('growl_notify', '0.0.1')
-
   # Development / Test dependencies
   s.add_development_dependency('rspec', '>=2.6.0')
   # s.add_development_dependency('mocha', '>=0.2.12')
