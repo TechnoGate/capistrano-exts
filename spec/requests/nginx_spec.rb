@@ -22,8 +22,13 @@ describe Nginx do
     end
 
     it "should render the correct file" do
-      expected_result = File.read File.join(RENDERED_TEMPLATES_PATH, 'nginx_php_fpm.conf')
-      subject.render.should == expected_result
+      rendered_template = File.join(RENDERED_TEMPLATES_PATH, 'nginx_php_fpm.conf')
+      if ENV['write_templates'] == 'yes'
+        File.open(rendered_template, 'w') { |f| f.write(subject.render) }
+      else
+        expected_result = File.read rendered_template
+        subject.render.should == expected_result
+      end
     end
   end
 
@@ -41,8 +46,13 @@ describe Nginx do
     end
 
     it "should render the correct file" do
-      expected_result = File.read File.join(RENDERED_TEMPLATES_PATH, 'nginx_passenger.conf')
-      subject.render.should == expected_result
+      rendered_template = File.join(RENDERED_TEMPLATES_PATH, 'nginx_passenger.conf')
+      if ENV['write_templates'] == 'yes'
+        File.open(rendered_template, 'w') { |f| f.write(subject.render) }
+      else
+        expected_result = File.read rendered_template
+        subject.render.should == expected_result
+      end
     end
   end
 
@@ -60,8 +70,13 @@ describe Nginx do
     end
 
     it "should render the correct file" do
-      expected_result = File.read File.join(RENDERED_TEMPLATES_PATH, 'nginx_reverse_proxy_socket.conf')
-      subject.render.should == expected_result
+      rendered_template = File.join(RENDERED_TEMPLATES_PATH, 'nginx_reverse_proxy_socket.conf')
+      if ENV['write_templates'] == 'yes'
+        File.open(rendered_template, 'w') { |f| f.write(subject.render) }
+      else
+        expected_result = File.read rendered_template
+        subject.render.should == expected_result
+      end
     end
   end
 
@@ -81,8 +96,13 @@ describe Nginx do
     end
 
     it "should render the correct file" do
-      expected_result = File.read File.join(RENDERED_TEMPLATES_PATH, 'nginx_reverse_proxy_address.conf')
-      subject.render.should == expected_result
+      rendered_template = File.join(RENDERED_TEMPLATES_PATH, 'nginx_reverse_proxy_address.conf')
+      if ENV['write_templates'] == 'yes'
+        File.open(rendered_template, 'w') { |f| f.write(subject.render) }
+      else
+        expected_result = File.read rendered_template
+        subject.render.should == expected_result
+      end
     end
   end
 
