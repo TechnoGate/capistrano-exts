@@ -187,6 +187,9 @@ Capistrano::Configuration.instance(:must_exist).load do
           # Create the database
           find_and_execute_task("mysql:create_db")
 
+          # Backup skiped tables
+          find_and_execute_task "mysql:backup_skiped_tables"
+
           run <<-CMD
             mysql \
               --host='#{mysql_credentials[:host]}' \
@@ -201,6 +204,9 @@ Capistrano::Configuration.instance(:must_exist).load do
           run <<-CMD
             rm -f '#{random_file}'
           CMD
+
+          # Restore skiped tables
+          find_and_execute_task "mysql:restore_skiped_tables"
 
           # Exit because capistrano will rollback, the next argument is a file name and not a task
           # TODO: Find a better solution!
@@ -244,6 +250,65 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         logger.info "Mysql dump has been downloaded to #{export_filename}"
         exit 0
+      end
+    end
+
+    desc "[internal] Backup tables listed in skip_tables_on_import"
+    task :backup_skiped_tables, :roles => :db, :except => { :no_release => true } do
+      if exists?(:skip_tables_on_import)
+        mysql_credentials = fetch :mysql_credentials
+        # Generate a random file
+        random_file = random_tmp_file
+        # Set the random file so it can be accessed later
+        set :backuped_skiped_tables_file, random_file
+        # Add a rollback hook
+        on_rollback { run "rm -f #{random_file}" }
+
+        run <<-CMD
+          #{try_sudo} touch #{random_file}
+        CMD
+
+        fetch(:skip_tables_on_import).each do |t|
+          begin
+            run <<-CMD
+              #{try_sudo} mysqldump \
+                --host='#{mysql_credentials[:host]}'\
+                --user='#{mysql_credentials[:user]}' \
+                --password='#{mysql_credentials[:pass]}' \
+                --default-character-set=utf8 \
+                '#{mysql_db_name}' '#{t}' >> \
+                '#{random_file}'
+            CMD
+          rescue Capistrano::CommandError
+            logger.info "WARNING: It seems the database does not have the table '#{t}', skipping it."
+          end
+        end
+      end
+    end
+
+    desc "[internal] Restore tables listed in skip_tables_on_import"
+    task :restore_skiped_tables, :roles => :db, :except => { :no_release => true } do
+      if exists?(:skip_tables_on_import) && exists?(:backuped_skiped_tables_file)
+        mysql_credentials = fetch :mysql_credentials
+        backuped_skiped_tables_file = fetch :backuped_skiped_tables_file
+
+        begin
+          run <<-CMD
+            mysql \
+              --host='#{mysql_credentials[:host]}' \
+              --user='#{mysql_credentials[:user]}' \
+              --password='#{mysql_credentials[:pass]}' \
+              --default-character-set=utf8 \
+              '#{mysql_db_name}' < \
+              #{backuped_skiped_tables_file}
+          CMD
+
+          run <<-CMD
+            #{try_sudo} rm -f #{backuped_skiped_tables_file}
+          CMD
+        rescue
+          abort "ERROR: I couldn't restore the tables defined in skip_tables_on_import"
+        end
       end
     end
 
@@ -349,4 +414,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   before "mysql:print_credentials", "mysql:credentials"
   before "mysql:print_root_credentials", "mysql:root_credentials"
+
+  # Import_db_dump => backup/restore skiped_tables
+  before "mysql:backup_skiped_tables", "mysql:credentials"
+  before "mysql:restore_skiped_tables", "mysql:credentials"
 end
