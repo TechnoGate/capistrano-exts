@@ -181,14 +181,14 @@ Capistrano::Configuration.instance(:must_exist).load do
           # TODO: Try upload(filename, remote_file_name) function instead
           put contents_dump, random_file
 
+          # Backup skiped tables
+          find_and_execute_task "mysql:backup_skiped_tables"
+
           # Drop the database
           find_and_execute_task("mysql:drop_db")
 
           # Create the database
           find_and_execute_task("mysql:create_db")
-
-          # Backup skiped tables
-          find_and_execute_task "mysql:backup_skiped_tables"
 
           run <<-CMD
             mysql \
