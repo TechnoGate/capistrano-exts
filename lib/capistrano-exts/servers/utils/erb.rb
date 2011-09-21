@@ -9,7 +9,7 @@ module Capistrano
         sanity_check
 
         erb_template = ::ERB.new(File.read(@template))
-        erb_template.result(binding).strip_empty_lines
+        erb_template.result(binding).strip_trailing_whitespace.strip_empty_lines
       end
     end
   end

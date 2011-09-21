@@ -9,4 +9,14 @@ class String
     gsub!(/[\n]{3,}/, "\n\n")
     self
   end
+
+  def strip_trailing_whitespace
+    dup.strip_trailing_whitespace!
+  end
+
+  def strip_trailing_whitespace!
+    strip!
+    gsub!(/[ \t]+$/, '')
+    self
+  end
 end

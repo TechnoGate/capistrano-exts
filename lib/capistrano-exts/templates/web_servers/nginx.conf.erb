@@ -53,9 +53,11 @@ server {
   error_page 500 502 504 /500.html;
 
 <% if passenger? %>
+  # Enable passenger
   passenger_enabled on;
 <% end %>
 
+  # Root Location
   location / {
     # this serves static files that exist without running other rewrite tests
     if (-f $request_filename) {
