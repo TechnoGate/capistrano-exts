@@ -14,8 +14,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   def link_file(source_file, destination_file)
-    p source_file
-    p destination_file
     if remote_file_exists?(source_file)
       begin
         run "#{try_sudo} ln -nsf #{source_file} #{destination_file}"
