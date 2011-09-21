@@ -237,6 +237,33 @@ set :php_fpm_port, '9000'
 #############
 
 #############
+# Rvm
+#
+
+# Enable RVM?
+set :enable_rvm, false
+
+# What's the type of rvm ?
+# :system and :user
+set :rvm_type, :system
+
+# What rvm string should we use ?
+set :rvm_ruby_string, "1.9.2"
+
+# Set the rvm_path, usually you should define rvm_type
+# and this would be defined depending if your rvm is installed system wide or for
+# the user, but if your is installed somewhere different from the default path
+# /usr/local/rvm or $HOME/.rvm then please uncomment and edit the following setting
+# set :rvm_path, "/path/to/rvm"
+
+# Set the rvm bin path, which will be set using the rvm_type
+# set :rvm_bin_path, "/path/to/rvm/bin"
+
+#
+#
+#############
+
+#############
 # Unicorn
 #
 

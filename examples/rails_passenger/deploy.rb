@@ -20,19 +20,26 @@ set :capistrano_extensions, [:multistage, :git, :deploy, :mysql, :rails, :server
 default_run_options[:pty] = true
 ssh_options[:forward_agent] = true
 
+# Bundler
+# set :bundle_gemfile, "Gemfile"
+# set :bundle_dir, File.join(fetch(:shared_path), 'bundle')
+# set :bundle_flags, "--deployment --quiet"
+# set :bundle_without, [:development, :test]
+# set :bundle_cmd, "bundle" # e.g. "/opt/ruby/bin/bundle"
+# set :bundle_roles, [:app]
+
 ##################
 ## DEPENDENCIES ##
 ##################
 
 after "deploy", "deploy:cleanup" # keeps only last 5 releases
 
-###########################
-## DO NOT TOUCH AFTER ME ##
-###########################
+##################
+## REQUIREMENTS ##
+##################
 
 # Require capistrano-exts
 require 'capistrano-exts'
 
-# rvm bootstrap
-# Comment this if ruby is not installed on the server!
-# require "rvm/capistrano"
+# Require bundler tasks
+require 'bundler/capistrano'

@@ -8,7 +8,7 @@ unless Capistrano::Configuration.respond_to?(:instance)
   abort "This extension requires Capistrano 2"
 end
 
-DEFAULT_RECEIPTS = %w{functions deploy web files}
+DEFAULT_RECEIPTS = %w{functions rvm deploy web files}
 
 Capistrano::Configuration.instance(:must_exist).load do
   on :load do
