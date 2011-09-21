@@ -236,3 +236,40 @@ set :php_fpm_port, '9000'
 #
 #
 #############
+
+#############
+# Unicorn
+#
+
+# What's the unicorn binary?
+# Default: unicorn_rails
+# set :unicorn_binary, 'unicorn_rails'
+
+# Where's unicorn pid ?
+# Should be in the shared path or some other folder but not in the current_path!
+# Default: #{fetch :shared_path}/pids/unicorn.pid
+# set :unicorn_pid, -> { "#{fetch :shared_path}/pids/unicorn.pid" }
+
+# Where's unicorn config ?
+# Default: "#{fetch :current_path}/config/unicorn.rb"
+# set :unicorn_config, -> { "#{fetch :current_path}/config/unicorn.rb" }
+
+#
+#
+#############
+
+#############
+# God
+#
+
+# Where's the god binary ?
+# Default: god
+# set :god_binary, 'god'
+
+# where's god config ?
+# Default: "#{fetch :current_path}/config/god.rb"
+# set :god_config, -> { "#{fetch :current_path}/config/unicorn.rb" }
+
+#
+#
+#############

@@ -7,7 +7,10 @@ Capistrano::Configuration.instance(:must_exist).load do
   namespace :god do
     desc "start god, this starts up unicorn server"
     task :start, :roles => :web, :except => {:no_release => true} do
-      run "cd #{current_path} && #{god_binary} -c #{god_config} --log /var/log/god.log --no-syslog --log-level warn"
+      logs_path = fetch(:logs_path)
+      god_config = fetch(:god_config, "#{fetch :current_path}/config/unicorn.rb")
+      god_binary = fetch(:god_binary, 'god')
+      run "cd #{current_path} && #{god_binary} -c #{god_config} --log #{logs_path}/god.log --no-syslog --log-level warn"
     end
 
     desc "stop god, this shutdowns unicorn server"
@@ -25,4 +28,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       'true' ==  capture("if #{god_binary} status; then echo 'true'; fi").strip
     end
   end
+
+  # Dependencies
+  after "deploy:folders", "god:setup"
 end
