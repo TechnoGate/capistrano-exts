@@ -9,3 +9,6 @@
 
 - Add tests using Vagrant (branch vagrant)
   (added Tue Sep 20 11:28:00 2011, incomplete, priority medium)
+
+- In the nginx template file, we need to define the error pages dynamically and not in a hardcoded way.
+  (added Wed Sep 21 10:41:47 2011, incomplete, priority medium)
