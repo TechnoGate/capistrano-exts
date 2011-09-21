@@ -52,5 +52,6 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   # Capistrano is broken
   # See: https://github.com/capistrano/capistrano/issues/81
+  # TODO: Should be conditional, only if bundle:install exists
   before "deploy:assets:precompile", "bundle:install"
 end
