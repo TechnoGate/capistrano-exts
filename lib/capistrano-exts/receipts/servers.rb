@@ -1,8 +1,6 @@
 # encoding: utf-8
 
 # Requirements
-require 'capistrano'
-require 'capistrano-exts/receipts/deploy'
 require 'capistrano-exts/receipts/mysql'
 require 'capistrano-exts/receipts/servers/web_server'
 require 'capistrano-exts/receipts/servers/db_server'

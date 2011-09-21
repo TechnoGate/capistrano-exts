@@ -39,8 +39,8 @@ set :stages, [:development, :staging, :production]
 set :default_stage, :development
 
 # Capistrano extensions
-# Valid extensions: :multistage, :git, :deploy, :mysql, :rails, :contao, :contents, :god, :unicorn, :servers
-set :capistrano_extensions, [:multistage, :git, :deploy, :mysql, :rails, :servers]
+# Valid extensions: :multistage, :git, :mysql, :rails, :contao, :contents, :god, :unicorn, :servers
+set :capistrano_extensions, [:multistage, :git, :mysql, :rails, :servers]
 ```
 
 Then run the command

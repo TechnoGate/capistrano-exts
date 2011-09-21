@@ -1,7 +1,3 @@
-require 'capistrano'
-require 'capistrano-exts/receipts/deploy'
-require 'capistrano-exts/receipts/files'
-
 # Verify that Capistrano is version 2
 unless Capistrano::Configuration.respond_to?(:instance)
   abort "This extension requires Capistrano 2"

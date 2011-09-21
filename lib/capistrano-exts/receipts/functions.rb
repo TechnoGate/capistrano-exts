@@ -1,4 +1,3 @@
-require 'capistrano'
 require 'digest/sha1'
 require 'highline'
 

@@ -2,8 +2,6 @@
 # https://github.com/capistrano/capistrano-ext and has been modified
 # To allow configuration in either seperate files or in-line configurations
 
-require 'capistrano'
-require 'capistrano-exts/receipts/functions'
 require 'fileutils'
 
 unless Capistrano::Configuration.respond_to?(:instance)
