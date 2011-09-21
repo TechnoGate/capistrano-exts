@@ -92,9 +92,13 @@ set :rvm_ruby_string, "1.9.3"
 # Maintenance
 #
 
-# Set the maintenance path (where can capistrano find the maintenance page ?)
-# There's already a page by default.
-# set :maintenance_path, -> { File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'maintenance')) }
+# Set the maintenance path to wherever you have stored the maintenance page,
+# it could be a single file or an entire folder. The template will be parsed
+# with ERB.
+# if it's a folder, capistrano expects an index.html file. You could provide an
+# index.rhtml file and it would be parsed with ERB before uploading to the server
+# set :maintenance_path,
+#   File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'maintenance'))
 
 #
 #
