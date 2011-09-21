@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title><%= title || 'System down for maintenance' %></title>
+    <link type="text/css" rel="stylesheet" href="<%= maintenance_url %>/stylesheets/styles.css">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <section>
+       <article>
+         <div class="inside">
+           <p class="reason">
+             The system is down for <%= reason ? reason : "maintenance" %>
+             as of <%= Time.now.strftime("%H:%M %Z") %>.
+           </p>
+           <p class="duration">
+             It'll be back <%= deadline ? deadline : "shortly" %>.
+           </p>
+         </div>
+       </article>
+    </section>
+  </body>
+</html>

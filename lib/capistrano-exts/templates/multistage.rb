@@ -89,6 +89,18 @@ set :rvm_ruby_string, "1.9.3"
 #############
 
 #############
+# Maintenance
+#
+
+# Set the maintenance path (where can capistrano find the maintenance page ?)
+# There's already a page by default.
+# set :maintenance_path, -> { File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'maintenance')) }
+
+#
+#
+#############
+
+#############
 # Mysql
 #
 

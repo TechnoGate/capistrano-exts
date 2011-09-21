@@ -21,38 +21,37 @@ server {
   index <%= @indexes.join(' ') %>;
 <% end %>
 
-  # This allows people to use images and css in their maintenance.html file
-  if ($request_filename ~* \.(css|jpg|gif|png)$) {
+  # Enable recursive error pages to catch 405 in a 503 error.
+  recursive_error_pages on;
+
+  # This allows people to use stylesheet, javascript and images in their
+  # maintenance html file
+  if ($request_filename ~* \.(css|js|jpg|gif|png)$) {
+    expires 30d;
     break;
   }
 
-  # Rewrite all the requests to the maintenance.html page if it exists.
-  if (-f $document_root/maintenance.html) {
-    return 503;
-  }
-  if (-f $document_root/system/maintenance.html) {
+  # If the maintenance page exists, throw a 503 error which we'd catch later.
+  if (-f $document_root/__system__/maintenance/index.html) {
     return 503;
   }
 
-  # with 503 error code
+  # Catch the 503 error and send it to the @503 location
   error_page 503 @503;
-  location @503 {
-    # /maintenance.html
-    if (-f $document_root/maintenance.html) {
-      rewrite ^(.*)$ /maintenance.html break;
-    }
 
-    # /system/maintenance.html
-    if (-f $document_root/system/maintenance.html) {
-      rewrite ^(.*)$ /system/maintenance.html break;
-    }
+  # The @503 location
+  location @503 {
+    # Nginx will refuse POST requests to a static file and will throw a 405 error
+    # So we need to catch that and display again our maintenance page
+    error_page 405 = /__system__/maintenance/index.html;
+
+    # Rewrite all the requests to the maintenance page if it exists.
+    rewrite ^(.*)$ /__system__/maintenance/index.html break;
   }
 
-<% if passenger? || reverse_proxy? %>
-  # Rails errors
+  # Error Pages
   error_page 404 /404.html;
   error_page 500 502 504 /500.html;
-<% end %>
 
 <% if passenger? %>
   passenger_enabled on;

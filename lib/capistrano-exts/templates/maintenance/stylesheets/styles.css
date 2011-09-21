@@ -1,0 +1,37 @@
+section {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 500px;
+  height: 300px;
+  margin-left: -260px;
+  margin-top: -150px;
+}
+
+article {
+  margin: 0;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-right: 1px solid #999;
+  border-bottom: 1px solid #999;
+  background-color: #fff;
+}
+
+article .inside {
+  text-align: center;
+  width: 200px;
+  margin: 0 auto;
+}
+
+article .inside .reason {
+  color: red;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+article .inside .duration {
+  color: #666;
+}
+
+body { background-color: #fff; }

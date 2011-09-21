@@ -33,14 +33,15 @@ Capistrano::Configuration.instance(:must_exist).load do
       backup_path = fetch :backup_path, "#{fetch :deploy_to}/backups"
 
       run <<-CMD
-        mkdir -p #{fetch :deploy_to} &&
-        mkdir -p #{backup_path} &&
-        mkdir -p #{fetch :shared_path}/items
+        #{try_sudo} mkdir -p #{fetch :deploy_to} &&
+        #{try_sudo} mkdir -p #{backup_path} &&
+        #{try_sudo} mkdir -p #{fetch :shared_path}/items &&
+        #{try_sudo} mkdir -p #{shared_path}/__system__
       CMD
 
       if exists? :logs_path
         run <<-CMD
-          mkdir -p #{fetch :logs_path}
+          #{try_sudo} mkdir -p #{fetch :logs_path}
         CMD
       end
     end
