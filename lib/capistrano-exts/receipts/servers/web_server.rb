@@ -16,17 +16,17 @@ Capistrano::Configuration.instance(:must_exist).load do
     namespace :server do
       namespace :web_server do
         desc "Prepare the web server"
-        task :setup, :roles => :web do
+        task :setup, :roles => :web, :except => { :no_release => true } do
           # Empty task, server preparation goes into callbacks
         end
 
         desc "Finished preparing the web server"
-        task :finish do
+        task :finish, :roles => :web, :except => { :no_release => true } do
           # Empty task, server preparation goes into callbacks
         end
 
         desc "[internal] Generate Web configuration"
-        task :generate_web_configuration do
+        task :generate_web_configuration, :roles => :web, :except => { :no_release => true } do
           if exists?(:web_server_app)
             web_server_app = fetch :web_server_app
 
@@ -42,7 +42,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         end
 
         desc "[internal] Generate authentification"
-        task :generate_authentification do
+        task :generate_authentification, :roles => :web, :except => { :no_release => true } do
           if exists?(:web_server_auth_credentials)
             web_server_auth_credentials = fetch :web_server_auth_credentials
             contents = Array.new
@@ -65,12 +65,12 @@ Capistrano::Configuration.instance(:must_exist).load do
         end
 
         desc "[internal] Generate Apache configuration"
-        task :generate_apache_configuration do
+        task :generate_apache_configuration, :roles => :web, :except => { :no_release => true } do
           # TODO: Write Apache config generator
         end
 
         desc "[internal] Write authentification file"
-        task :write_web_server_auth_file do
+        task :write_web_server_auth_file, :roles => :web, :except => { :no_release => true } do
           if exists?(:web_server_auth_file) and not remote_file_exists?(fetch :web_server_auth_file)
             web_server_auth_file = fetch :web_server_auth_file
             web_server_auth_file_contents = fetch :web_server_auth_file_contents
@@ -104,14 +104,14 @@ Capistrano::Configuration.instance(:must_exist).load do
         end
 
         desc "print authentification file"
-        task :print_http_auth do
+        task :print_http_auth, :roles => :web, :except => { :no_release => true } do
           read("#{fetch :deploy_to}/.http_basic_auth").split("\n").each do |m|
             logger.trace "username: #{m.split(':').first.chomp} password: #{m.split(':').last.chomp}"
           end
         end
 
         desc "[internal] Write web configuration file"
-        task :write_web_conf_file do
+        task :write_web_conf_file, :roles => :web, :except => { :no_release => true } do
           if exists?(:web_conf_file)
             web_conf_file = fetch :web_conf_file
             random_file = "/tmp/#{fetch :application}_#{Digest::SHA1.hexdigest web_conf_contents}"

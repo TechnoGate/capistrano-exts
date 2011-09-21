@@ -7,6 +7,13 @@ unless Capistrano::Configuration.respond_to?(:instance)
 end
 
 Capistrano::Configuration.instance(:must_exist).load do
+  # Taken from the capistrano code.
+  def _cset(name, *args, &block)
+    unless exists?(name)
+      set(name, *args, &block)
+    end
+  end
+
   # Taken from Stackoverflow
   # http://stackoverflow.com/questions/1661586/how-can-you-check-to-see-if-a-file-exists-on-the-remote-server-in-capistrano
   def remote_file_exists?(full_path)

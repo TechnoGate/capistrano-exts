@@ -28,7 +28,4 @@ Capistrano::Configuration.instance(:must_exist).load do
       'true' ==  capture("if #{god_binary} status; then echo 'true'; fi").strip
     end
   end
-
-  # Dependencies
-  after "deploy:folders", "god:setup"
 end

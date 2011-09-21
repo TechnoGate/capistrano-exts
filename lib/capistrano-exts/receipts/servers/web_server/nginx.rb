@@ -16,7 +16,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           _cset :nginx_init_path, "/etc/init.d/nginx"
 
           desc "[internal] Generate Nginx configuration"
-          task :generate_configuration do
+          task :generate_configuration, :roles => :web, :except => { :no_release => true } do
             web_server_mode = fetch :web_server_mode
             nginx = Capistrano::Extensions::Server::Nginx.new web_server_mode
 
@@ -43,33 +43,37 @@ Capistrano::Configuration.instance(:must_exist).load do
               nginx.php_fpm_port = fetch :php_fpm_port
             end
 
+            # Set the reverse proxy data
+            nginx.reverse_proxy_server_address = fetch(:reverse_proxy_server_address) if exists?(:reverse_proxy_server_address)
+            nginx.reverse_proxy_server_port = fetch(:reverse_proxy_server_port) if exists?(:reverse_proxy_server_port)
+
             set :web_conf, nginx
             set :web_conf_contents, nginx.render
           end
 
           desc "Start nginx web server"
-          task :start do
+          task :start, :roles => :web, :except => { :no_release => true } do
             run <<-CMD
               #{try_sudo} #{fetch :nginx_init_path} start
             CMD
           end
 
           desc "Stop nginx web server"
-          task :stop do
+          task :stop, :roles => :web, :except => { :no_release => true } do
             run <<-CMD
               #{try_sudo} #{fetch :nginx_init_path} stop
             CMD
           end
 
           desc "Restart nginx web server"
-          task :restart do
+          task :restart, :roles => :web, :except => { :no_release => true } do
             run <<-CMD
               #{try_sudo} #{fetch :nginx_init_path} restart
             CMD
           end
 
           desc "Resload nginx web server"
-          task :reload do
+          task :reload, :roles => :web, :except => { :no_release => true } do
             run <<-CMD
               #{try_sudo} #{fetch :nginx_init_path} reload
             CMD

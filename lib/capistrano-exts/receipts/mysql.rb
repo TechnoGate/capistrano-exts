@@ -314,7 +314,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
 
       desc "[internal] write database #{var.gsub(/_/, ' ')}"
-      task "write_#{var}" do
+      task "write_#{var}", :roles => :app, :except => { :no_release => true } do
         unless exists?("mysql_#{var}_file".to_sym) and remote_file_exists?(fetch "mysql_#{var}_file".to_sym)
           mysql_credentials_file = fetch "mysql_#{var}_file".to_sym
           credentials_formatted_content = credentials_formatted(fetch "mysql_#{var}".to_sym)
@@ -337,7 +337,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
 
       desc "Get Mysql #{var.gsub(/_/, ' ')}"
-      task "#{var}", :roles => :app, :except => { :no_release => true } do
+      task "#{var}", :roles => :db, :except => { :no_release => true } do
         unless exists?("mysql_#{var}".to_sym)
           # Fetch configs
           mysql_credentials_host_regex = fetch "mysql_#{var}_host_regex".to_sym
