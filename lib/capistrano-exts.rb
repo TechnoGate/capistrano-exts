@@ -8,6 +8,7 @@ $: << ROOT_PATH if File.directory?(ROOT_PATH) and not $:.include?(ROOT_PATH)
 require 'capistrano-exts/core_ext'
 
 # require Capistrano colors
+require 'capistrano_colors'
 require 'capistrano/logger'
 require 'capistrano_colors/logger'
 
