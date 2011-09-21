@@ -27,7 +27,6 @@ server {
   # This allows people to use stylesheet, javascript and images in their
   # maintenance html file
   if ($request_filename ~* \.(css|js|jpg|gif|png)$) {
-    expires 30d;
     break;
   }
 
