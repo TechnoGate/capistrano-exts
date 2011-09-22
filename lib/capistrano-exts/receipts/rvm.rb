@@ -50,13 +50,19 @@ Capistrano::Configuration.instance(:must_exist).load do
     task :install_shell_wrapper do
       if exists?(:enable_rvm) && fetch(:enable_rvm) == true
         shell_contents = <<-EOS
-  #!/bin/sh
-  if test -d "#{fetch :rvm_path}"
-  then
-    #{fetch :rvm_shell} "$@"
-  else
-    exec bash "$@"
-  fi
+#!/bin/sh
+
+if test -f /etc/profile
+then
+  . /etc/profile
+fi
+
+if test -d "#{fetch :rvm_path}"
+then
+  #{fetch :rvm_shell} "$@"
+else
+  exec bash "$@"
+fi
         EOS
 
         rvm_shell_wrapper_path = "/tmp/rvm_shell_wrapper.sh"
