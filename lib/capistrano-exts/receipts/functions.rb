@@ -145,4 +145,10 @@ password: #{credentials[:pass]}
       end
     end
   end
+
+  # Tries bundle exec
+  # TODO: Do some real work here
+  def try_bundle_exec
+    "bundle exec"
+  end
 end

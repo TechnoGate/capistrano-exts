@@ -10,17 +10,17 @@ Capistrano::Configuration.instance(:must_exist).load do
       logs_path = fetch(:logs_path)
       god_config = fetch(:god_config, "#{fetch :current_path}/config/god.rb")
       god_binary = fetch(:god_binary, 'god')
-      run "cd #{current_path} && #{god_binary} -c #{god_config} --log #{logs_path}/god.log --no-syslog --log-level warn"
+      run "cd #{current_path} && #{try_bundle_exec} #{god_binary} -c #{god_config} --log #{logs_path}/god.log --no-syslog --log-level warn"
     end
 
     desc "stop god, this shutdowns unicorn server"
     task :stop, :roles => :app, :except => {:no_release => true} do
-      run "cd #{current_path} && #{god_binary} terminate"
+      run "cd #{current_path} && #{try_bundle_exec} #{god_binary} terminate"
     end
 
     desc "restart god, this restarts the unicorn server"
     task :restart, :roles => :app, :except => {:no_release => true} do
-      run "cd #{current_path} && #{god_binary} restart"
+      run "cd #{current_path} && #{try_bundle_exec} #{god_binary} restart"
     end
 
     desc "check if god is already running"

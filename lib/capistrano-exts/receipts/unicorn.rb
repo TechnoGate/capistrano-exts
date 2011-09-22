@@ -20,22 +20,24 @@ Capistrano::Configuration.instance(:must_exist).load do
       unicorn_binary = fetch(:unicorn_binary, 'unicorn_rails')
       unicorn_config = fetch(:unicorn_config, "#{fetch :current_path}/config/unicorn.rb")
       rails_env = fetch(:rails_env, 'production')
-      run "cd #{fetch :current_path} && #{unicorn_binary} -c #{unicorn_config} -E #{rails_env} -D"
+      run "cd #{fetch :current_path} && #{try_bundle_exec} #{unicorn_binary} -c #{unicorn_config} -E #{rails_env} -D"
     end
 
     desc "stop unicorn"
     task :stop, :roles => :app, :except => {:no_release => true} do
-      unicorn_pid = fetch(:unicorn_pid, )
+      unicorn_pid = fetch(:unicorn_pid, "#{fetch :shared_path}/pids/unicorn.pid")
       run "#{try_sudo} kill `cat #{unicorn_pid}`"
     end
 
     desc "unicorn reload"
     task :reload, :roles => :app, :except => {:no_release => true} do
+      unicorn_pid = fetch(:unicorn_pid, "#{fetch :shared_path}/pids/unicorn.pid")
       run "#{try_sudo} kill -s USR2 `cat #{unicorn_pid}`"
     end
 
     desc "graceful stop unicorn"
     task :graceful_stop, :roles => :app, :except => {:no_release => true} do
+      unicorn_pid = fetch(:unicorn_pid, "#{fetch :shared_path}/pids/unicorn.pid")
       run "#{try_sudo} kill -s QUIT `cat #{unicorn_pid}`"
     end
 
