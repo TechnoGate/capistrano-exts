@@ -35,11 +35,11 @@ server {
     return 503;
   }
 
-  # Catch the 503 error and send it to the @503 location
-  error_page 503 @503;
+  # Catch the 503 error and send it to the @maintenance location
+  error_page 503 @maintenance;
 
-  # The @503 location
-  location @503 {
+  # The @maintenance location
+  location @maintenance {
     # Nginx will refuse POST requests to a static file and will throw a 405 error
     # So we need to catch that and display again our maintenance page
     error_page 405 = /__system__/maintenance/index.html;
