@@ -294,7 +294,7 @@ set :rvm_ruby_string, "1.9.2"
 
 # where's god config ?
 # Default: "#{fetch :current_path}/config/god.rb"
-# set :god_config, -> { "#{fetch :current_path}/config/unicorn.rb" }
+# set :god_config, -> { "#{fetch :current_path}/config/god.rb" }
 
 #
 #

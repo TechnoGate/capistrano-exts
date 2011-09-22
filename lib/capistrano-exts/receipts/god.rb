@@ -8,7 +8,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     desc "start god, this starts up unicorn server"
     task :start, :roles => :web, :except => {:no_release => true} do
       logs_path = fetch(:logs_path)
-      god_config = fetch(:god_config, "#{fetch :current_path}/config/unicorn.rb")
+      god_config = fetch(:god_config, "#{fetch :current_path}/config/god.rb")
       god_binary = fetch(:god_binary, 'god')
       run "cd #{current_path} && #{god_binary} -c #{god_config} --log #{logs_path}/god.log --no-syslog --log-level warn"
     end
