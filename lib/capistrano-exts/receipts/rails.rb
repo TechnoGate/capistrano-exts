@@ -44,7 +44,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   # Database.yml file
-  after "files:config_files", "rails:write_database_yml"
+  after "deploy:folders", "rails:write_database_yml"
   before "rails:write_database_yml", "mysql:credentials"
 
   # Restart the server

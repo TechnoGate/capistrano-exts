@@ -36,7 +36,9 @@ Capistrano::Configuration.instance(:must_exist).load do
         #{try_sudo} mkdir -p #{fetch :deploy_to} &&
         #{try_sudo} mkdir -p #{backup_path} &&
         #{try_sudo} mkdir -p #{fetch :shared_path}/items &&
-        #{try_sudo} mkdir -p #{shared_path}/__system__
+        #{try_sudo} mkdir -p #{fetch :shared_path}/__system__ &&
+        #{try_sudo} mkdir -p #{fetch :shared_path}/config &&
+        #{try_sudo} mkdir -p #{fetch :shared_path}/items
       CMD
 
       if exists? :logs_path
