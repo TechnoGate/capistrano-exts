@@ -1,3 +1,5 @@
+[![Click here to lend your support to: Capistrano Exts and make a donation at www.pledgie.com](http://www.pledgie.com/campaigns/16060.png?skin_name=chrome)](http://www.pledgie.com/campaigns/16060)
+
 # Capistrano Exts [![Build Status](http://travis-ci.org/TechnoGate/capistrano-exts.png)](http://travis-ci.org/TechnoGate/capistrano-exts)
 
 Capistrano exts is a set of helper tasks to help with the initial server
