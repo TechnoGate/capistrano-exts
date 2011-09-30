@@ -103,7 +103,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         put result, "#{fetch :shared_path}/__system__/maintenance/index.html", :mode => 0644
       end
 
-      if fetch(:web_server_app) == :apache
+      if !exists?(:web_server_app) || fetch(:web_server_app) == :apache
         warn <<-EOHTACCESS
 
           # Please add something like this to your site's htaccess to redirect users to the maintenance page.
