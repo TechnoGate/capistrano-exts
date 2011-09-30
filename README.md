@@ -1,4 +1,4 @@
-[![Click here to lend your support to: Capistrano Exts and make a donation at www.pledgie.com](http://www.pledgie.com/campaigns/16060.png?skin_name=chrome)](http://www.pledgie.com/campaigns/16060)
+<a href='http://www.pledgie.com/campaigns/16060'><img alt='Click here to lend your support to: formtastic and make a donation at www.pledgie.com !' src='http://pledgie.com/campaigns/16060.png?skin_name=chrome' border='0' /></a>
 
 # Capistrano Exts [![Build Status](http://travis-ci.org/TechnoGate/capistrano-exts.png)](http://travis-ci.org/TechnoGate/capistrano-exts)
 
