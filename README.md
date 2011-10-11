@@ -7,7 +7,7 @@ doing by hand far too often. It provides many helpful post-deployment tasks to
 help you import/export database and contents as well as sync one stage with
 another.
 
-<a href='http://www.pledgie.com/campaigns/16060'><img alt='Click here to lend your support to: formtastic and make a donation at www.pledgie.com !' src='http://pledgie.com/campaigns/16060.png?skin_name=chrome' border='0' /></a>
+[![Click here to lend your support to: Open Source Projects and make a donation at www.pledgie.com !](http://www.pledgie.com/campaigns/16123.png?skin_name=chrome)](http://www.pledgie.com/campaigns/16123)
 
 # Installation
 
