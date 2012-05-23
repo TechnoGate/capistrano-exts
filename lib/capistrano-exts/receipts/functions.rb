@@ -36,18 +36,31 @@ Capistrano::Configuration.instance(:must_exist).load do
   # @param [String] Absolute path to folder to which to link
   # @return [Array]
   def exhaustive_list_of_files_to_link(from, to)
-    files = []
+    script = <<-END
+exhaustive_list_of_files_to_link() {
+  files="";
 
-    capture("ls -A1 #{from}").split("\n").map{|f| "#{from}/#{f.strip}"}.each do |f|
-      file = "#{to}/#{File.basename f}"
-      if remote_file_exists?(file)
-        exhaustive_list_of_files_to_link(f, file).each { |f| files << f }
-      else
-        files << [f, file]
-      end
+  for f in `ls -A1 ${1}`; do
+    file="${2}/${f}";
+    f="${1}/${f}";
+    if [[ -e "${file}" ]]; then
+      files="${files} `exhaustive_list_of_files_to_link ${f} ${file}`";
+    else
+      files="${files} ${f}:${file}";
+    fi;
+  done;
+  echo "${files}";
+};
+    END
+
+    script << "exhaustive_list_of_files_to_link '#{from}' '#{to}';"
+
+    begin
+      files = capture(script).strip.split(' ')
+      files.map {|f| f.split(':')}
+    rescue Capistrano::CommandError
+      abort "Unable to get files list"
     end
-
-    files
   end
 
   def link_files(path, files = {})
