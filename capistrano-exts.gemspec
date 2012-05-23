@@ -26,19 +26,17 @@ EOD
   s.require_paths = ["lib"]
 
   # Run-time dependencies
-  s.add_dependency('capistrano')
-  s.add_dependency('capistrano_colors')
-  s.add_dependency('i18n')
-  s.add_dependency('activesupport', '~>3.2.3')
+  s.add_dependency 'capistrano'
+  s.add_dependency 'capistrano_colors'
+  s.add_dependency 'i18n'
+  s.add_dependency 'activesupport', '~>3.2.3'
 
   # Development dependencies
-  s.add_development_dependency('guard')
-  s.add_development_dependency('guard-bundler')
-  s.add_development_dependency('guard-rspec')
+  s.add_development_dependency 'guard'
+  s.add_development_dependency 'guard-bundler'
+  s.add_development_dependency 'guard-rspec'
 
   # Development / Test dependencies
-  s.add_development_dependency('rspec')
-  # s.add_development_dependency('mocha', '~>0.2.12')
-  # s.add_development_dependency('factory_girl', '~>2.0.5')
-  # s.add_development_dependency('faker19', '~>1.0.5')
+  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'rake'
 end
