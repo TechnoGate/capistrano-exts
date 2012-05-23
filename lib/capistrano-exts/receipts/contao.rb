@@ -17,8 +17,13 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   namespace :contao do
-    desc "[internal] Setup contao shared contents"
+    desc "[internal] Setup contao"
     task :setup, :roles => :app, :except => { :no_release => true } do
+      # Empty task, the rest should hook to it
+    end
+
+    desc "[internal] Setup contao shared contents"
+    task :setup_shared_folder, :roles => :app, :except => { :no_release => true } do
       shared_path = fetch :shared_path
       run <<-CMD
         #{try_sudo} mkdir -p #{shared_path}/logs &&
@@ -32,33 +37,26 @@ Capistrano::Configuration.instance(:must_exist).load do
       put deny_htaccess, "#{shared_path}/logs/.htaccess"
     end
 
+    desc "[internal] Link files from contao to inside public folder"
+    task :link_contao_files, :roles => :app, :except => { :no_release => true } do
+
+    end
+
     desc "[internal] Setup contao's localconfig"
     task :setup_localconfig, :roles => :app, :except => { :no_release => true } do
       localconfig_php_config_path = "#{fetch :shared_path}/config/public_system_config_localconfig.php"
-      unless remote_file_exists?(localconfig_php_config_path)
-        on_rollback { run "rm -f #{localconfig_php_config_path}" }
+      on_rollback { run "rm -f #{localconfig_php_config_path}" }
 
-        localconfig = File.read("public/system/config/localconfig.php.sample")
-        mysql_credentials = fetch :mysql_credentials
-        mysql_db_name = fetch :mysql_db_name
+      localconfig = File.read("config/examples/localconfig.php.erb")
+      mysql_credentials = fetch :mysql_credentials
 
-        # localconfig
-        if mysql_credentials.blank?
-          logger.info "WARNING: The mysql credential file can't be found, localconfig has just been copied from the sample file"
-        end
+      mysql_host = mysql_credentials[:host]
+      mysql_user = mysql_credentials[:user]
+      mysql_password = mysql_credentials[:pass]
+      mysql_database = fetch :mysql_db_name
+      contao_env = :production
 
-        # Add MySQL credentials
-        unless localconfig.blank? or mysql_credentials.blank?
-          localconfig.gsub!(/#DB_HOST#/, mysql_credentials[:host])
-          localconfig.gsub!(/#DB_USER#/, mysql_credentials[:user])
-          localconfig.gsub!(/#DB_PASS#/, mysql_credentials[:pass])
-          localconfig.gsub!(/#DB_NAME#/, mysql_db_name)
-        end
-
-        put localconfig, localconfig_php_config_path
-      else
-        logger.info "WARNING: The file '#{localconfig_php_config_path}' already exists, not overwriting."
-      end
+      put ERB.new(localconfig).result(binding), localconfig_php_config_path
     end
 
     desc "[internal] Fix contao's symlinks to the shared path"
@@ -80,6 +78,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   # Dependencies
   after "deploy:setup", "contao:setup"
+  after "contao:setup", "contao:setup_shared_folder"
+  after "contao:setup", "contao:link_contao_files"
   after "contao:setup", "contao:setup_localconfig"
   after "deploy:finalize_update", "contao:fix_links"
 
