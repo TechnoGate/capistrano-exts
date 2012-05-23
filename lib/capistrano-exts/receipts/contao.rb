@@ -37,11 +37,6 @@ Capistrano::Configuration.instance(:must_exist).load do
       put deny_htaccess, "#{shared_path}/logs/.htaccess"
     end
 
-    desc "[internal] Link files from contao to inside public folder"
-    task :link_contao_files, :roles => :app, :except => { :no_release => true } do
-
-    end
-
     desc "[internal] Setup contao's localconfig"
     task :setup_localconfig, :roles => :app, :except => { :no_release => true } do
       localconfig_php_config_path = "#{fetch :shared_path}/config/public_system_config_localconfig.php"
@@ -57,6 +52,18 @@ Capistrano::Configuration.instance(:must_exist).load do
       contao_env = :production
 
       put ERB.new(localconfig).result(binding), localconfig_php_config_path
+    end
+
+    desc "[internal] Link files from contao to inside public folder"
+    task :link_contao_files, :roles => :app, :except => { :no_release => true } do
+      files = exhaustive_list_of_files_to_link("#{fetch :latest_release}/contao", "#{fetch :latest_release}/public")
+      files.each do |list|
+        begin
+          run "#{try_sudo} ln -nsf #{list[0]} #{list[1]}"
+        rescue Capistrano::CommandError
+          abort "Unable to create a link for '#{list[0]}' at '#{list[1]}'"
+        end
+      end
     end
 
     desc "[internal] Fix contao's symlinks to the shared path"

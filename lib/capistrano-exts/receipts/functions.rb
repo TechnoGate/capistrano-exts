@@ -30,6 +30,26 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
   end
 
+  # Return an array of arrays of files to link
+  #
+  # @param [String] Absolute path to folder from which to link
+  # @param [String] Absolute path to folder to which to link
+  # @return [Array]
+  def exhaustive_list_of_files_to_link(from, to)
+    files = []
+
+    capture("ls -A1 #{from}").split("\n").map{|f| "#{from}/#{f.strip}"}.each do |f|
+      file = "#{to}/#{File.basename f}"
+      if remote_file_exists?(file)
+        exhaustive_list_of_files_to_link(f, file).each { |f| files << f }
+      else
+        files << [f, file]
+      end
+    end
+
+    files
+  end
+
   def link_files(path, files = {})
     files.each do |f|
       file_name = f.dup.gsub(/\//, '_')
