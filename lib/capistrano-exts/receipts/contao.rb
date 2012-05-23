@@ -79,9 +79,9 @@ Capistrano::Configuration.instance(:must_exist).load do
   # Dependencies
   after "deploy:setup", "contao:setup"
   after "contao:setup", "contao:setup_shared_folder"
-  after "contao:setup", "contao:link_contao_files"
   after "contao:setup", "contao:setup_localconfig"
-  after "deploy:finalize_update", "contao:fix_links"
+  after "deploy:finalize_update", "contao:link_contao_files"
+  after "contao:link_contao_files", "contao:fix_links"
 
   # Mysql Credentials
   before "contao:setup_localconfig", "mysql:credentials"
