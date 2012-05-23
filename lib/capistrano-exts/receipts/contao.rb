@@ -83,6 +83,21 @@ Capistrano::Configuration.instance(:must_exist).load do
         #{try_sudo} ln -nsf #{shared_path}/logs #{latest_release}/public/system/logs
       CMD
     end
+
+    desc "Upload contao assets"
+    task :upload_assets, :roles => :app, :except => { :no_release => true } do
+      upload("public/resources", "#{fetch :latest_release}/public/resources", :via => :scp, :recursive => true)
+    end
+
+    desc "[internal] Generate production assets"
+    task :generate_production_assets, :roles => :app, :except => { :no_release => true } do
+      run_locally "bundle exec rake CONTAO_ENV=production assets:precompile"
+    end
+
+    desc "[internal] Generate development assets"
+    task :generate_development_assets, :roles => :app, :except => { :no_release => true } do
+      run_locally "bundle exec rake assets:precompile"
+    end
   end
 
   # Dependencies
@@ -91,6 +106,11 @@ Capistrano::Configuration.instance(:must_exist).load do
   after "contao:setup", "contao:setup_localconfig"
   after "deploy:finalize_update", "contao:link_contao_files"
   after "contao:link_contao_files", "contao:fix_links"
+
+  # Assets
+  after "contao:link_contao_files", "contao:upload_assets"
+  before "contao:upload_assets", "contao:generate_production_assets"
+  after  "contao:upload_assets", "contao:generate_development_assets"
 
   # Mysql Credentials
   before "contao:setup_localconfig", "mysql:credentials"
