@@ -72,10 +72,16 @@ exhaustive_list_of_files_to_link() {
             #{try_sudo} cp -a #{latest_release}/#{f} #{path}/#{file_name}
           CMD
         rescue Capistrano::CommandError
-          run <<-CMD
-            #{try_sudo} touch #{path}/#{file_name}
-          CMD
-          logger.info "WARNING: You should edit '#{path}/#{file_name}' or re-create it as a folder if that's your intention."
+          if remote_file_exists?("#{latest_release}/#{f}.default")
+            run <<-CMD
+              #{try_sudo} cp #{latest_release}/#{f}.default #{path}/#{file_name}
+            CMD
+          else
+            run <<-CMD
+              #{try_sudo} touch #{path}/#{file_name}
+            CMD
+            logger.info "WARNING: You should edit '#{path}/#{file_name}' or re-create it as a folder if that's your intention."
+          end
         end
       end
 
